@@ -1,0 +1,167 @@
+/* 패턴 잇기 (옛 '다음에 올 모양') — 규칙을 찾아 빈칸에 올 모양 고르기 */
+"use strict";
+(function () {
+  const U = JN.util, h = U.h, rnd = U.rnd, pick = U.pick, shuffle = U.shuffle;
+  const K = Art.COLORS, INK = Art.INK;
+  const DATA = {
+    stages: [
+      { id: "ab", name: "두 가지 번갈아 (AB)", rule: "repeat", unit: "AB", shown: [5, 6], choices: 3, tip: "두 가지가 번갈아 나와요" },
+      { id: "aab", name: "같은 것 둘, 다른 것 하나 (AAB)", rule: "repeat", unit: "AAB", shown: [5, 7], choices: 3, tip: "같은 것 두 번, 다른 것 한 번이 되풀이돼요" },
+      { id: "abc", name: "세 가지 차례로 (ABC)", rule: "repeat", unit: "ABC", shown: [5, 7], choices: 4, tip: "세 가지가 차례로 되풀이돼요" },
+      { id: "abb", name: "하나, 같은 것 둘 (ABB)", rule: "repeat", unit: "ABB", shown: [5, 7], choices: 4, tip: "하나, 그다음 같은 것 두 번이 되풀이돼요" },
+      { id: "grow", name: "점점 커지기", rule: "grow", shown: [4, 4], choices: 4, tip: "하나씩 점점 커져요" },
+      { id: "count", name: "개수가 늘어나기 (1, 2, 3…)", rule: "count", shown: [3, 4], choices: 4, tip: "하나씩 개수가 늘어나요. 세어 볼까요?" },
+      { id: "rotate", name: "90°씩 돌기", rule: "rotate", shown: [4, 5], choices: 4, tip: "화살표가 시계 방향으로 한 번씩(90°) 돌아요" },
+      { id: "two", name: "색과 모양이 함께 바뀌기", rule: "two", shown: [5, 7], choices: 4, tip: "모양 따로, 색 따로 되풀이돼요. 하나씩 나눠서 살펴봐요" },
+    ],
+    palette: [K.leaf, K.sky, K.honey, K.apricot, K.lilac],
+    shapes: ["circle", "square", "triangle", "diamond", "star", "hexagon"],
+    sizes: [0.36, 0.48, 0.6, 0.72, 0.84, 0.96],
+    questionsPerGame: 8, passScore: 7, timing: { okMs: 1200, showAnswerMs: 2300 },
+  };
+  const between = (a, b) => a + rnd(b - a + 1);
+  function item(shape, color, extra) { return Object.assign({ shape, color, size: 0.8, count: 1, rot: 0 }, extra || {}); }
+  function sig(it) { return [it.shape, it.color, it.size, it.count, ((it.rot % 360) + 360) % 360].join("|"); }
+  const poly = (pts) => pts.map((p) => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
+  function shapeEl(shape, cx, cy, r, color, rot) {
+    const pen = JN.cssVar("--c-pencil", INK), sw = r > 20 ? 2.6 : 1.8;
+    const st = `fill="${color}"`;
+    /* 테두리 = 연필 선 (rough.js, seed 고정) */
+    const P = (pts) => { const q = pts.map(([x, y]) => [cx + x * r, cy + y * r]); const o = JN.rough.paths("polygon", [q], { stroke: pen, strokeWidth: sw, roughness: .9, seed: 4 });
+      return `<polygon points="${poly(q)}" ${st}/>` + (o || `<polygon points="${poly(q)}" fill="none" stroke="${pen}" stroke-width="${sw}" stroke-linejoin="round"/>`); };
+    const reg = (n, a0, k) => Array.from({ length: n }, (_, i) => { const a = (a0 + i * 360 / n) * Math.PI / 180; return [Math.cos(a) * k, Math.sin(a) * k]; });
+    let el;
+    switch (shape) {
+      case "circle": { const o = JN.rough.paths("circle", [cx, cy, r * 1.84], { stroke: pen, strokeWidth: sw, roughness: .9, seed: 4 });
+        el = `<circle cx="${cx}" cy="${cy}" r="${(r * 0.92).toFixed(1)}" ${st}/>` + (o || `<circle cx="${cx}" cy="${cy}" r="${(r * 0.92).toFixed(1)}" fill="none" stroke="${pen}" stroke-width="${sw}"/>`); break; }
+      case "square": el = P([[-0.8, -0.8], [0.8, -0.8], [0.8, 0.8], [-0.8, 0.8]]); break;
+      case "triangle": el = P([[0, -0.95], [0.95, 0.75], [-0.95, 0.75]]); break;
+      case "diamond": el = P([[0, -1], [0.8, 0], [0, 1], [-0.8, 0]]); break;
+      case "star": el = P(Array.from({ length: 10 }, (_, i) => { const a = (-90 + i * 36) * Math.PI / 180, k = i % 2 ? 0.45 : 1; return [Math.cos(a) * k, Math.sin(a) * k]; })); break;
+      case "hexagon": el = P(reg(6, 0, 0.92)); break;
+      default: el = P([[-0.85, -0.3], [0.15, -0.3], [0.15, -0.75], [0.95, 0], [0.15, 0.75], [0.15, 0.3], [-0.85, 0.3]]);   // 화살표
+    }
+    return rot ? `<g transform="rotate(${rot} ${cx} ${cy})">${el}</g>` : el;
+  }
+  const SPOTS = { 1: [[50, 50]], 2: [[30, 50], [70, 50]], 3: [[50, 28], [28, 70], [72, 70]], 4: [[30, 30], [70, 30], [30, 70], [70, 70]], 5: [[27, 27], [73, 27], [50, 50], [27, 73], [73, 73]], 6: [[30, 22], [70, 22], [30, 50], [70, 50], [30, 78], [70, 78]] };
+  function svg(it) {
+    let body = "";
+    if (it.count > 1) for (const [x, y] of SPOTS[it.count]) body += shapeEl(it.shape, x, y, 13, it.color, it.rot);
+    else body = shapeEl(it.shape, 50, 50, 46 * it.size, it.color, it.rot);
+    return `<svg viewBox="0 0 100 100" aria-hidden="true">${body}</svg>`;
+  }
+  function distinct(k) { const sh = shuffle(DATA.shapes.slice()), co = shuffle(DATA.palette.slice()); return Array.from({ length: k }, (_, i) => item(sh[i], co[i])); }
+  function fill(answer, pool, n) {
+    const seen = new Set([sig(answer)]), out = [answer];
+    for (const c of pool) { if (out.length >= n) break; if (!seen.has(sig(c))) { seen.add(sig(c)); out.push(c); } }
+    let g = 0;
+    while (out.length < n && g++ < 200) { const c = Object.assign({}, answer, { shape: pick(DATA.shapes), color: pick(DATA.palette) }); if (!seen.has(sig(c))) { seen.add(sig(c)); out.push(c); } }
+    return out;
+  }
+  function makeProblem(st) {
+    const L = between(st.shown[0], st.shown[1]);
+    let seq = [], answer, pool = [], unitLen = 0;
+    if (st.rule === "repeat") {
+      const letters = [...new Set(st.unit.split(""))], its = distinct(letters.length + 2), map = {};
+      letters.forEach((ch, i) => { map[ch] = its[i]; });
+      const unit = st.unit.split("").map((ch) => map[ch]); unitLen = unit.length;
+      for (let i = 0; i <= L; i++) seq.push(unit[i % unit.length]);
+      answer = seq.pop();
+      pool = shuffle(letters.map((ch) => map[ch])).concat(its.slice(letters.length));
+    } else if (st.rule === "grow") {
+      const s = pick(DATA.shapes), c = pick(DATA.palette), o = rnd(DATA.sizes.length - L);
+      for (let i = 0; i <= L; i++) seq.push(item(s, c, { size: DATA.sizes[o + i] }));
+      answer = seq.pop();
+      const other = pick(DATA.shapes.filter((x) => x !== s));
+      pool = shuffle([seq[L - 1], seq[L - 2], item(other, c, { size: answer.size }), ...(o + L + 1 < DATA.sizes.length ? [item(s, c, { size: DATA.sizes[o + L + 1] })] : [])]);
+    } else if (st.rule === "count") {
+      const s = pick(DATA.shapes), c = pick(DATA.palette);
+      for (let i = 1; i <= L + 1; i++) seq.push(item(s, c, { count: i }));
+      answer = seq.pop();
+      const other = pick(DATA.shapes.filter((x) => x !== s));
+      pool = shuffle([item(s, c, { count: L }), item(s, c, { count: L + 2 }), item(s, c, { count: L - 1 }), item(other, c, { count: L + 1 })]);
+    } else if (st.rule === "rotate") {
+      const c = pick(DATA.palette), r0 = rnd(4);
+      for (let i = 0; i <= L; i++) seq.push(item("arrow", c, { rot: ((r0 + i) % 4) * 90 }));
+      answer = seq.pop();
+      pool = shuffle([1, 2, 3].map((k) => item("arrow", c, { rot: (answer.rot + k * 90) % 360 })));
+    } else {
+      const [p1, p2] = Math.random() < 0.5 ? [2, 3] : [3, 2];
+      const shapes = shuffle(DATA.shapes.slice()).slice(0, p1), colors = shuffle(DATA.palette.slice()).slice(0, p2);
+      for (let i = 0; i <= L; i++) seq.push(item(shapes[i % p1], colors[i % p2]));
+      answer = seq.pop();
+      const os = shapes.filter((x) => x !== answer.shape), oc = colors.filter((x) => x !== answer.color);
+      pool = shuffle([item(answer.shape, pick(oc)), item(pick(os), answer.color), item(pick(os), pick(oc))]);
+    }
+    const choices = shuffle(fill(answer, pool, st.choices));
+    return { seq, answer, choices, answerIdx: choices.indexOf(answer), unitLen };
+  }
+
+  JN.registerGame({
+    id: "패턴", stages: DATA.stages,
+    hintHelp: { always: "규칙을 말로 알려 주고, 되풀이되는 묶음에 밑줄을 그어 줘요", button: "힌트 버튼을 누르면 규칙 안내와 밑줄이 보여요", none: "힌트 없이 규칙을 찾아요" },
+    parentNote: "한 판은 8문제예요. 7개 이상 맞히면 다음 판은 한 단계 위에서 해요",
+    chart: { key: "correct", label: "맞힌 개수 (8문제 중)", unit: "개" },
+    describe: (e) => (e.total || 8) + "문제 중 " + (e.correct || 0) + "개 · " + U.fmtTime(e.time),
+    intro: (st) => st.name,
+    mount(ctx) {
+      const st = ctx.stage, mode = ctx.settings.hintMode, board = ctx.board;
+      board.classList.add("pt-board");
+      const row = h("div", { class: "pt-row", "aria-label": "규칙이 있는 줄" }), tip = h("div", { class: "pt-tip" }), choices = h("div", { class: "pt-choices" });
+      board.append(row, tip, choices);
+      let prob = null, qNo = 0, correct = 0, mistakes = 0, hints = 0, busy = true, hinted = false;
+      const prog = h("span", { class: "qprog" }); ctx.status(prog);
+      function layout() {
+        if (!prob) return;
+        const W = board.clientWidth - 24, H = board.clientHeight - 24, n = prob.seq.length + 1;
+        const cell = Math.max(34, Math.min(96, Math.floor((W - 6 * (n - 1)) / n), Math.floor(H * 0.28)));
+        for (const c of row.children) c.style.width = c.style.height = cell + "px";
+        const m = prob.choices.length, cs = Math.max(64, Math.min(140, Math.floor((W - 12 * (m - 1)) / m), Math.floor(H * 0.42)));
+        for (const b of choices.children) b.style.width = b.style.height = cs + "px";
+      }
+      function showHint() { tip.textContent = "힌트: " + st.tip; if (prob.unitLen) [...row.children].slice(0, prob.unitLen).forEach((c) => c.classList.add("unit")); }
+      function next() {
+        if (!ctx.alive()) return;
+        if (qNo >= DATA.questionsPerGame) return end();
+        prob = makeProblem(st); busy = false; hinted = false;
+        prog.textContent = (qNo + 1) + " / " + DATA.questionsPerGame;
+        row.textContent = "";
+        for (const it of prob.seq) row.appendChild(h("div", { class: "cell", svg: svg(it) }));
+        row.appendChild(h("div", { class: "cell blank", id: "ptBlank", "aria-label": "빈칸", text: "?" }));
+        choices.textContent = "";
+        prob.choices.forEach((c, k) => {
+          const b = h("button", { type: "button", class: "choice", "data-k": String(k), "aria-label": "보기 " + (k + 1), svg: svg(c) });
+          b.addEventListener("click", () => choose(k));
+          choices.appendChild(b);
+        });
+        tip.textContent = "";
+        if (mode === "always") showHint();
+        layout();
+        ctx.say("빈칸에는 무엇이 올까요?");
+      }
+      function choose(k) {
+        if (busy) return;
+        busy = true; qNo++;
+        const btns = choices.children;
+        btns[prob.answerIdx].classList.add("right");
+        JN.markRight(btns[prob.answerIdx]);   // 정답 = 연필 동그라미
+        const blank = row.lastChild; blank.className = "cell filled"; blank.textContent = ""; blank.innerHTML = svg(prob.answer);
+        layout();
+        if (k === prob.answerIdx) { correct++; ctx.sound("ok"); ctx.say(pick(["규칙을 찾았어요!", "맞았어요!", "잘 이어 갔어요!"])); ctx.later(next, DATA.timing.okMs / JN.TIME_SCALE); }
+        else { mistakes++; btns[k].classList.add("dim"); ctx.say("빈칸에는 이게 와요. 다음 것도 해 봐요"); ctx.later(next, DATA.timing.showAnswerMs / JN.TIME_SCALE); }
+      }
+      function end() {
+        const time = ctx.timer.stop();
+        ctx.finish({ cleared: correct >= DATA.passScore, time, mistakes, hints, metrics: { correct, total: DATA.questionsPerGame },
+          title: correct + "개를 맞혔어요!", line: "규칙을 끝까지 찾아봤어요.", bestKey: st.id, bestValue: correct, higherBetter: true });
+      }
+      ctx.hint(mode === "button", () => { if (busy || hinted) return; hinted = true; hints++; showHint(); });
+      return {
+        start() { ctx.timer.start(); next(); },
+        resize: layout,
+        destroy() { busy = true; },
+        test: { state: () => ({ qNo, correct, answer: prob ? prob.answerIdx : -1, n: prob ? prob.choices.length : 0, busy }) },
+      };
+    },
+  });
+})();

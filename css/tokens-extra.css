@@ -1,0 +1,24 @@
+/* =========================================================
+   추가 토큰 v2 (통합 앱에서 더 필요한 값) — tokens.css 를 갈아 끼울 때 이 파일도 함께 맞춰요.
+   화면 코드(app.css, games.css, js)는 색을 직접 쓰지 않고 이 변수들과 tokens.css 변수만 써요.
+   ========================================================= */
+:root {
+  --c-honey-down: var(--c-mustard-deep);            /* 머스터드 단추 아래 */
+  --c-dash: #A8977F;                                /* 연필 점선 (빈칸·친구 추가) */
+  --c-gentle-strong: var(--c-terracotta);           /* 아이가 그은 선 (반쪽 그림) */
+  --c-kid-line-2: var(--c-dustyblue);               /* 아이가 그은 선 (선 긋기 미로) */
+  --c-veil: rgba(245, 237, 220, .78);               /* 놀이판 위 "준비~" 막 */
+  --c-dim: rgba(59, 50, 43, .38);                   /* 대화상자 뒤 어둡게 */
+  --c-ink-faint: rgba(74, 63, 55, .28);             /* 흐린 점·선 */
+  --c-ink-mid: rgba(74, 63, 55, .62);
+  --c-sky-ground: var(--c-dustyblue-tint);          /* 꽃밭 하늘 (meadow 그림이 없을 때) */
+  --c-earth: var(--area-body-tint);
+  --c-hill: var(--c-sage-tint);
+  --c-card-back: var(--area-memory);                /* 카드 뒷면 (cardBack 그림이 없을 때) */
+  --c-rest-sky: var(--c-dustyblue-tint);
+  --c-breath: rgba(246, 231, 190, .85);             /* 숨쉬기 원 */
+  --c-path: var(--c-surface);                       /* 미로·선 긋기 길 바탕 */
+  --bg-size: cover;                                 /* 배경 이미지 채우는 방식 */
+}
+/* 배경 이미지 자리 (assets.js 의 BACKGROUNDS 에 경로가 있을 때만) */
+.has-bg { background-size: var(--bg-size); background-position: center; background-repeat: no-repeat; }

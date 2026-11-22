@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F5EDDC">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="집중 놀이터">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="집에서 함께하는 놀이 13가지">
+<title>집중 놀이터</title>
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/tokens-extra.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/games.css">
+</head>
+<body class="jn-app">
+
+<!-- 1. 누가 놀까요? -->
+<section id="scr-who" class="screen who" aria-label="누가 놀까요">
+  <div class="bg" id="whoBg" aria-hidden="true"></div>
+  <button class="jn-iconbtn jn-iconbtn--parent lock" type="button" data-act="parent" aria-label="보호자 설정" data-icon="보호자"></button>
+  <div class="who__head"><div class="bomi-say"><div class="m jn-float" data-owl="웃음,인사"></div><div class="jn-bubble jn-bubble--left" id="whoBubble">안녕! 오늘은 누가 놀러 왔어?</div></div></div>
+  <h1 class="ttl" id="whoTitle">누가 놀까요?</h1>
+  <div class="kids" id="kids"></div>
+  <p class="note">실명 대신 별명을 써 주세요. 기록은 이 기기 안에만 저장돼요.</p>
+</section>
+
+<!-- 2. 영역 방 7개 -->
+<section id="scr-home" class="screen rooms" aria-label="놀이터">
+  <div class="jn-topbar page-inner">
+    <button class="me" type="button" data-act="who" aria-label="놀 사람 바꾸기"><i id="homeAv"></i><span id="homeTitle">놀이터</span></button>
+    <button class="jn-iconbtn jn-iconbtn--parent" type="button" data-act="parent" aria-label="보호자 설정" data-icon="보호자"></button>
+  </div>
+  <div class="rooms__hello page-inner"><span class="m" data-owl="기본,가리키기"></span><h1 class="ttl">어느 방에 가 볼까?</h1></div>
+  <div class="roomgrid page-inner" id="rooms"></div>
+</section>
+
+<!-- 2-1. 방 안 -->
+<section id="scr-room" class="screen room" aria-label="방 안">
+  <div class="jn-topbar page-inner">
+    <button class="jn-iconbtn" type="button" data-act="home" aria-label="방 목록으로" data-icon="뒤로"></button>
+    <span class="jn-topbar__title"></span>
+    <button class="jn-iconbtn jn-iconbtn--parent" type="button" data-act="parent" aria-label="보호자 설정" data-icon="보호자"></button>
+  </div>
+  <div class="room-body page-inner">
+    <div class="band" id="roomBand"></div>
+    <div class="room-main">
+      <div class="room-intro"><h1 class="ttl"><i id="roomIcon"></i><span id="roomName"></span></h1><p class="sub" id="roomPower"></p></div>
+      <div class="games" id="gameCards"></div>
+      <div class="guide"><div class="jn-bubble" id="roomTip">어떤 놀이부터 해 볼까?</div><span class="m" data-owl="웃음,기본"></span></div>
+      <p class="note">아이마다 속도가 달라요. 단계는 언제든 바꿀 수 있어요.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3. 놀이 공통 틀 -->
+<section id="scr-play" class="screen play" aria-label="놀이">
+  <div class="frame-top">
+    <button class="jn-iconbtn" type="button" data-act="room" aria-label="방으로 돌아가기" data-icon="홈"></button>
+    <div class="t"><b id="playTitle"></b><span class="jn-stage" id="stageChip"></span></div>
+    <button class="jn-iconbtn" type="button" id="soundBtn" aria-label="소리" aria-pressed="false"></button>
+    <button class="jn-iconbtn jn-iconbtn--parent" type="button" data-act="parent-game" aria-label="보호자 설정" data-icon="보호자"></button>
+  </div>
+  <div class="play-wrap">
+    <div class="board-wrap">
+      <div class="board" id="board"></div>
+      <div class="intro" id="intro" hidden>
+        <div class="intro-in"><div class="m" data-owl="웃음,가리키기"></div><div class="jn-bubble jn-bubble--left" id="introText"></div></div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="mission jn-paper"><i id="missionIcon"></i><span id="msgLine" role="status" aria-live="polite"></span></div>
+      <div class="frame-bottom">
+        <div class="track"><span id="playStatus" class="play-status"></span><span class="timer jn-num" id="timerBox"><i data-icon="시계"></i><span id="timerText">0.0</span></span></div>
+        <div class="bottom-left" id="bottomLeft"></div>
+        <span class="m side-owl" id="sideOwl" aria-hidden="true"></span>
+        <button class="hintbtn" type="button" id="hintBtn" aria-label="힌트" data-icon="힌트" hidden></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. 칭찬 -->
+<div id="praise" class="overlay full scene-scr" hidden>
+  <div class="bg" aria-hidden="true"><span class="tall" id="praiseBgTall"></span><span class="wide" id="praiseBgWide"></span></div>
+  <div class="center praise" role="status" aria-live="polite">
+    <div class="big-stars" id="praiseStars"></div>
+    <div class="hero jn-pop" id="praiseOwl"></div>
+    <div class="card jn-card">
+      <h1 id="praiseTitle">다 찾았어요!</h1>
+      <p class="praise-line" id="praiseLine"></p>
+      <div class="chips"><span class="chip jn-num" id="praiseTime"><i data-icon="시계"></i><span></span></span><span class="chip best" id="praiseBest">최고 기록!</span></div>
+      <div class="autonext" id="autoNext"><span id="autoNextText">곧 다음 단계로 가요</span><i><b id="autoNextBar"></b></i></div>
+      <div class="suggest" id="suggest" hidden>
+        <p id="suggestText"></p>
+        <button class="jn-btn jn-btn--primary" type="button" id="suggestYes"></button>
+        <button class="jn-btn jn-btn--quiet" type="button" id="suggestNo">이대로 할래요</button>
+      </div>
+      <div class="again" id="againBox" hidden>
+        <p>한 번 더 할까요?</p>
+        <button class="jn-btn jn-btn--primary" type="button" id="againYes">한 번 더 해요</button>
+        <button class="jn-btn jn-btn--quiet" type="button" id="againNo">그만할래요</button>
+      </div>
+      <div class="alldone" id="allDone" hidden>
+        <button class="jn-btn jn-btn--primary" type="button" id="allAgain">1단계부터 다시</button>
+        <button class="jn-btn" type="button" id="allSame">이 단계 한 번 더</button>
+        <button class="jn-btn jn-btn--quiet" type="button" id="allRoom">방으로 돌아가기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. 잠깐 쉬어요 -->
+<div id="rest" class="overlay full scene-scr rest-scr" hidden>
+  <div class="bg" aria-hidden="true"><span class="tall" id="restBgTall"></span><span class="wide" id="restBgWide"></span></div>
+  <div class="center rest">
+    <div class="card jn-card"><h1 id="restTitle">잠깐 쉬어요</h1><p>동그라미가 커지면 들이쉬고, 작아지면 후— 내쉬어요.</p></div>
+    <div class="breath"><span class="fill"></span><span class="ring" id="breathRing"></span><b id="breathText">들이쉬고…</b></div>
+    <div class="dal" data-snail="쉬어요,기지개"></div>
+    <div class="rest-btns">
+      <button class="jn-btn jn-btn--primary rest-go" type="button" id="restGo" hidden>다 쉬었어요</button>
+      <button class="jn-btn jn-btn--quiet" type="button" id="restRoom">방으로 돌아가기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 곧 열려요 (달팽이) -->
+<div id="soon" class="overlay dim" hidden>
+  <div class="dialog jn-card" role="dialog" aria-labelledby="soonTitle">
+    <div class="mas" data-snail="웃음,인사"></div>
+    <h2 id="soonTitle">곧 열려요</h2>
+    <p id="soonText"></p>
+    <button class="jn-btn jn-btn--primary" type="button" data-act="close-soon">알겠어요</button>
+  </div>
+</div>
+
+<!-- 6. 보호자 잠금 -->
+<section id="scr-lock" class="screen lock-scr" aria-label="보호자 잠금">
+  <button class="jn-iconbtn close" type="button" id="lockBack" aria-label="닫기" data-icon="닫기"></button>
+  <div class="lockcard jn-card">
+    <div class="ic" data-icon="보호자"></div>
+    <h1>어른 확인</h1>
+    <p>보호자 설정은 어른만 열 수 있어요</p>
+    <div class="q jn-num"><span id="lockQ"></span><span class="ans" id="lockAns"><span class="box" id="lockBox"></span><span class="val" id="lockVal"></span></span></div>
+    <div class="pad" id="keypad"></div>
+  </div>
+</section>
+
+<!-- 아이 추가·고치기 -->
+<section id="scr-profile" class="screen settings" aria-label="아이 정보">
+  <div class="jn-topbar page-inner"><button class="jn-iconbtn" type="button" id="profBack" aria-label="닫기" data-icon="닫기"></button><h2 class="jn-topbar__title" id="profTitle">친구 추가</h2><span class="spacer"></span></div>
+  <div class="page form">
+    <section class="setcard jn-card">
+      <label class="field-label" for="profNick">별명</label>
+      <input id="profNick" class="text-in" type="text" maxlength="8" autocomplete="off" placeholder="예: 하늘" aria-describedby="profNote">
+      <p class="care" id="profNote">실명 대신 별명을 써 주세요. 생년월일·사진·학교는 받지 않아요.</p>
+      <div class="field-label">동물</div>
+      <div class="pick-grid" id="profAnimals" role="group" aria-label="동물 고르기"></div>
+      <div class="field-label">색</div>
+      <div class="pick-colors" id="profColors" role="group" aria-label="색 고르기"></div>
+      <div class="jn-row"><span class="lbl"><b>만 나이</b></span><span class="stepper"><button type="button" id="ageMinus" aria-label="나이 빼기">−</button><b id="ageVal" class="jn-num">5</b><button type="button" id="agePlus" aria-label="나이 더하기">+</button></span></div>
+      <p class="care">나이에 맞춰 놀이마다 시작 단계를 추천해요. 아이마다 속도가 달라요. 언제든 바꿀 수 있어요.</p>
+    </section>
+    <button class="jn-btn jn-btn--primary jn-btn--block" type="button" id="profSave">저장하기</button>
+    <button class="jn-btn jn-btn--quiet jn-btn--block" type="button" id="profDelete" hidden>이 아이와 기록 지우기</button>
+  </div>
+</section>
+
+<!-- 6-1. 보호자 설정 -->
+<section id="scr-parent" class="screen settings" aria-label="보호자 설정">
+  <div class="jn-topbar page-inner">
+    <button class="jn-iconbtn" type="button" id="parentClose" aria-label="닫기" data-icon="닫기"></button>
+    <h2 class="jn-topbar__title">보호자 설정</h2>
+    <button class="jn-iconbtn" type="button" id="toRecords" aria-label="기록 보기" data-icon="기록"></button>
+  </div>
+  <div class="kidtabs page-inner" id="parentTabs"></div>
+  <div class="page" id="parentBody"></div>
+</section>
+
+<!-- 기록 보기 -->
+<section id="scr-records" class="screen settings" aria-label="기록 보기">
+  <div class="jn-topbar page-inner">
+    <button class="jn-iconbtn" type="button" id="recBack" aria-label="보호자 설정으로" data-icon="뒤로"></button>
+    <h2 class="jn-topbar__title">놀이 기록</h2><span class="spacer"></span>
+  </div>
+  <div class="kidtabs page-inner" id="recTabs"></div>
+  <div class="page" id="recBody"></div>
+</section>
+
+<!-- 사진 단계(다른 그림 찾기 7~8단계)용 목록. 사진을 넣는 방법은 photos/사진목록.js 안에 적혀 있어요. -->
+<script src="photos/사진목록.js"></script>
+<!-- perfect-freehand 는 art.js 보다 먼저 (붓선) -->
+<script src="vendor/perfect-freehand.js"></script>
+<script src="vendor/rough.js"></script>
+<script src="js/art.js"></script>
+<script src="js/config.js"></script>
+<script src="js/assets.js"></script>
+<script src="js/store.js"></script>
+<script src="js/core.js"></script>
+<script src="js/games/number.js"></script>
+<script src="js/games/bee.js"></script>
+<script src="js/games/memory.js"></script>
+<script src="js/games/light.js"></script>
+<script src="js/games/spot.js"></script>
+<script src="js/games/shape.js"></script>
+<script src="js/games/pattern.js"></script>
+<script src="js/games/half.js"></script>
+<script src="js/games/maze.js"></script>
+<!-- 말·언어 · 몸·감각 (bodytogether.js 는 bodymove.js 의 몸놀이 카드 틀을 같이 써요 → 순서 지키기) -->
+<script src="js/games/word.js"></script>
+<script src="js/games/bodymove.js"></script>
+<script src="js/games/bodytogether.js"></script>
+<script src="js/games/sentence.js"></script>
+<script src="js/app.js"></script>
+<script src="js/records.js"></script>
+</body>
+</html>
