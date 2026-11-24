@@ -27,6 +27,7 @@
   function show(id) {
     for (const s of SCREENS) $(s).classList.toggle("on", s === id);
     A.screen = id;
+    if (id !== "scr-play") JN.bgm.stop();
     window.scrollTo(0, 0);
   }
   A.show = show;
@@ -242,6 +243,7 @@
     $("introText").textContent = "준비~" + (text ? " " + text : "");
     /* 말로 안내: 글을 아직 못 읽는 아이를 위해 할 일을 소리로 읽어 줘요 (보호자 설정에서 끌 수 있어요) */
     if (text && settings.voice !== false) JN.speak(String(text).replace(/ · /g, ", "));
+    if (settings.bgm !== false) JN.bgm.start(); else JN.bgm.stop();
     intro.hidden = false;
     const go = () => { if (!ctx._alive || intro.hidden) return; intro.hidden = true; if (inst.start) inst.start(); };
     intro.onpointerdown = (e) => { e.preventDefault(); go(); };
@@ -578,7 +580,8 @@
       h("div", { class: "jn-row" }, h("span", { class: "lbl" }, h("b", { text: kid.nick }), h("small", { text: "만 " + kid.age + "세 · " + kid.animal })),
         h("button", { class: "jn-btn", type: "button", id: "editKid", onclick: () => openProfile(kid.id, "parent") }, h("i", { svg: Art.icon("고치기") }), "고치기")),
       toggleRow("1단계부터 시작", "켜면 나이와 상관없이 모든 놀이가 1단계부터", s.from1, (v) => { s.from1 = v; resetStages(kid, data); save(); renderParent(); }, "set-from1"),
-      toggleRow("소리", "짧고 부드러운 소리", s.sound, (v) => { s.sound = v; save(); }, "set-sound"),
+      toggleRow("효과음", "맞히거나 틀릴 때 나는 짧은 소리", s.sound, (v) => { s.sound = v; save(); }, "set-sound"),
+      toggleRow("배경음", "놀이하는 동안 작게 흐르는 잔잔한 음악", s.bgm !== false, (v) => { s.bgm = v; save(); }, "set-bgm"),
       toggleRow("말로 안내", "놀이를 시작할 때 할 일을 소리로 읽어 줘요 (글을 아직 못 읽는 아이용)", s.voice !== false, (v) => { s.voice = v; save(); }, "set-voice"),
       toggleRow("시간 보여 주기", null, s.showTimer, (v) => { s.showTimer = v; save(); }, "set-timer"),
       toggleRow("단계를 깨면 다음 단계로", null, s.autoNext, (v) => { s.autoNext = v; save(); }, "set-autonext"),
@@ -694,7 +697,11 @@
   document.addEventListener("contextmenu", (e) => { if (!e.target.closest("input,textarea")) e.preventDefault(); });
   let rz = 0;
   window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (A.inst && A.inst.resize) A.inst.resize(); }, 120); });
-  document.addEventListener("visibilitychange", () => { if (A.inst && A.inst.visibility) A.inst.visibility(document.hidden); });
+  document.addEventListener("visibilitychange", () => {
+    if (A.inst && A.inst.visibility) A.inst.visibility(document.hidden);
+    if (document.hidden) { JN.bgm.stop(); JN.speakStop(); }
+    else if (A.screen === "scr-play" && A.data && A.data.settings.bgm !== false) JN.bgm.start();
+  });
 
   A.renderWho = renderWho; A.renderParent = renderParent; A.renderHome = renderHome; A.openRoom = openRoom; A.startGame = startGame;
   A.pickKid = pickKid; A.stopRound = stopRound; A.mountRound = mountRound; A.gameState = gameState; A.gameSettings = gameSettings;
