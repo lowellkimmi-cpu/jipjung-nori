@@ -188,6 +188,7 @@
   function stopRound() {
     A.timers.forEach(clearTimeout); A.timers = [];
     if (A.ctx) A.ctx._alive = false;
+    JN.speakStop();
     if (A.inst && A.inst.destroy) { try { A.inst.destroy(); } catch (e) { console.warn(e); } }
     A.inst = null; A.ctx = null;
     timer.reset();
@@ -239,6 +240,8 @@
     const intro = $("intro");
     const text = def.intro ? def.intro(ctx.stage, settings, ctx) : "";
     $("introText").textContent = "준비~" + (text ? " " + text : "");
+    /* 말로 안내: 글을 아직 못 읽는 아이를 위해 할 일을 소리로 읽어 줘요 (보호자 설정에서 끌 수 있어요) */
+    if (text && settings.voice !== false) JN.speak(String(text).replace(/ · /g, ", "));
     intro.hidden = false;
     const go = () => { if (!ctx._alive || intro.hidden) return; intro.hidden = true; if (inst.start) inst.start(); };
     intro.onpointerdown = (e) => { e.preventDefault(); go(); };
@@ -576,6 +579,7 @@
         h("button", { class: "jn-btn", type: "button", id: "editKid", onclick: () => openProfile(kid.id, "parent") }, h("i", { svg: Art.icon("고치기") }), "고치기")),
       toggleRow("1단계부터 시작", "켜면 나이와 상관없이 모든 놀이가 1단계부터", s.from1, (v) => { s.from1 = v; resetStages(kid, data); save(); renderParent(); }, "set-from1"),
       toggleRow("소리", "짧고 부드러운 소리", s.sound, (v) => { s.sound = v; save(); }, "set-sound"),
+      toggleRow("말로 안내", "놀이를 시작할 때 할 일을 소리로 읽어 줘요 (글을 아직 못 읽는 아이용)", s.voice !== false, (v) => { s.voice = v; save(); }, "set-voice"),
       toggleRow("시간 보여 주기", null, s.showTimer, (v) => { s.showTimer = v; save(); }, "set-timer"),
       toggleRow("단계를 깨면 다음 단계로", null, s.autoNext, (v) => { s.autoNext = v; save(); }, "set-autonext"),
       toggleRow("쉬운 단계 제안", "힌트를 " + CFG.HINT_STREAK_SUGGEST + "판 이어서 쓰면 한 단계 쉬운 판을 부드럽게 물어봐요", s.suggestEasier, (v) => { s.suggestEasier = v; save(); }, "set-suggest"),
