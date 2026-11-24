@@ -164,6 +164,7 @@
     } catch (e) { ac = null; }
   }
   ["pointerdown", "touchend", "keydown"].forEach((t) => window.addEventListener(t, unlock, { capture: true, passive: true }));
+  const TONE_BOOST = 5;   // 예전 값이 폰에서 거의 안 들려서 5배로
   JN.tone = function (on, freq, dur, vol, delay) {
     if (!on || !ac || ac.state !== "running") return;
     try {
@@ -171,14 +172,14 @@
       const o = ac.createOscillator(), g = ac.createGain();
       o.type = "sine"; o.frequency.value = freq;
       g.gain.setValueAtTime(0.0001, t0);
-      g.gain.exponentialRampToValueAtTime(vol || 0.05, t0 + 0.03);
+      g.gain.exponentialRampToValueAtTime(Math.min(0.4, (vol || 0.05) * TONE_BOOST), t0 + 0.03);   // 폰 스피커에서 들리게 키움
       g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
       o.connect(g); g.connect(ac.destination); o.start(t0); o.stop(t0 + d + 0.05);
     } catch (e) { /* 소리가 안 나도 놀이는 계속 */ }
   };
   /* ---------- 낱말 들려주기 (기기 안에 들어 있는 한국어 음성만) ----------
-     speechSynthesis 의 음성 중 lang 이 ko 로 시작하고 localService === true 인 것만 써요.
-     인터넷으로 읽어 주는 음성(localService false)은 바깥 요청이 생기므로 쓰지 않아요.
+     speechSynthesis 의 한국어 음성 중 기기 안 음성(localService)을 먼저 쓰고, 없으면 브라우저 한국어 음성을 써요.
+     (읽는 글은 놀이 안내·낱말 같은 정해진 문장뿐이고, 아이 정보는 읽지 않아요)
      쓸 음성이 없으면 JN.speakAvailable() 이 false → 놀이는 소리 단추를 숨기고 그림+글자로만 놀아요.
      아이가 단추를 눌렀을 때만 불러요(자동으로 읽지 않음). */
   let koVoice = null;
@@ -187,7 +188,8 @@
     try {
       const ss = window.speechSynthesis;
       if (!ss || typeof ss.getVoices !== "function" || typeof window.SpeechSynthesisUtterance !== "function") { koVoice = null; return null; }
-      const list = ss.getVoices().filter((v) => /^ko/i.test(v.lang || "") && v.localService === true);
+      const all = ss.getVoices().filter((v) => /^ko/i.test(v.lang || "")), local = all.filter((v) => v.localService === true);
+      const list = local.length ? local : all;   // 기기 안 음성이 먼저, 없으면 브라우저가 주는 한국어 음성
       koVoice = list.find((v) => /^ko[-_]KR/i.test(v.lang)) || list[0] || null;
     } catch (e) { koVoice = null; }
     return koVoice;
@@ -200,16 +202,20 @@
       else window.speechSynthesis.onvoiceschanged = onv;
     }
   } catch (e) { koVoice = null; }
-  JN.speakAvailable = () => !!(koVoice || pickVoice());
+  const hasSynth = () => { try { return !!window.speechSynthesis && typeof window.SpeechSynthesisUtterance === "function"; } catch (e) { return false; } };
+  /* 음성 목록을 아직 못 받았어도(삼성 인터넷·안드로이드 크롬) lang 만 ko-KR 로 주면 기기 기본 한국어 음성으로 읽어요 */
+  JN.speakAvailable = () => !!(koVoice || pickVoice() || hasSynth());
   /* 음성 목록이 늦게 오는 기기(크롬)를 위해: 바뀌면 fn 을 불러 줘요. 돌려받은 함수를 부르면 그만 들어요 */
   JN.onVoices = (fn) => { voiceFns.push(fn); return () => { const i = voiceFns.indexOf(fn); if (i >= 0) voiceFns.splice(i, 1); }; };
   JN.speak = function (text) {
     if (!JN.speakAvailable()) return false;
     try {
-      const u = new SpeechSynthesisUtterance(String(text));
-      u.voice = koVoice; u.lang = koVoice.lang || "ko-KR"; u.rate = 0.85;
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(u);
+      const ss = window.speechSynthesis, u = new SpeechSynthesisUtterance(String(text));
+      if (koVoice) u.voice = koVoice;
+      u.lang = (koVoice && koVoice.lang) || "ko-KR"; u.rate = 0.9; u.volume = 1;
+      if (ss.speaking || ss.pending) { ss.cancel(); setTimeout(() => { try { ss.speak(u); } catch (e) { /* 무시 */ } }, 60); }
+      else ss.speak(u);
+      if (ss.paused) ss.resume();
       return true;
     } catch (e) { return false; }
   };
