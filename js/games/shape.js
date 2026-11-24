@@ -102,8 +102,11 @@
         target.style.width = target.style.height = tSize + "px";
         const cw = side ? W - tSize - 32 : W, ch = side ? H : H - tSize - 56;
         let best = { cols: 1, s: 0 };
-        for (let cols = 1; cols <= n; cols++) { const rows = Math.ceil(n / cols); const s = Math.min((cw - 10 * (cols - 1)) / cols, (ch - 10 * (rows - 1)) / rows, 180); if (s > best.s) best = { cols, s }; }
-        const s = Math.max(64, Math.floor(best.s));
+        /* 후보가 4개 이하면 늘 한 줄 (두 줄로 나뉘면 어린아이가 아랫줄을 못 봐요).
+           더 많을 때도 마지막 줄이 비지 않게, 칸이 딱 나눠떨어지는 배치만 써요 (6개 = 3×2, 9개 = 3×3) */
+        const colsList = n <= 4 ? [n] : [...Array(n).keys()].map((i) => i + 1).filter((c) => n % c === 0 && c > 1 && c < n);
+        for (const cols of colsList) { const rows = Math.ceil(n / cols); const s = Math.min((cw - 12 * (cols - 1)) / cols, (ch - 12 * (rows - 1)) / rows, 180); if (s > best.s) best = { cols, s }; }
+        const s = Math.max(60, Math.floor(best.s));
         cands.style.gridTemplateColumns = "repeat(" + best.cols + ", " + s + "px)";
         for (const b of cands.children) b.style.width = b.style.height = s + "px";
       }
