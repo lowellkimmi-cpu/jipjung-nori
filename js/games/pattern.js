@@ -116,7 +116,15 @@
         const W = board.clientWidth - 24, H = board.clientHeight - 24, n = prob.seq.length + 1;
         const cell = Math.max(34, Math.min(96, Math.floor((W - 6 * (n - 1)) / n), Math.floor(H * 0.28)));
         for (const c of row.children) c.style.width = c.style.height = cell + "px";
-        const m = prob.choices.length, cs = Math.max(64, Math.min(140, Math.floor((W - 12 * (m - 1)) / m), Math.floor(H * 0.42)));
+        const m = prob.choices.length;
+        if (st.rule === "grow") {
+          /* 점점 커지기: 크기를 눈으로 비교해야 하니 줄 칸과 보기 칸을 똑같은 크기·여백으로 맞춰요 */
+          const s = Math.max(56, Math.min(110, Math.floor((W - 6 * (n - 1)) / n), Math.floor((W - 14 * (m - 1)) / m), Math.floor(H * 0.3)));
+          for (const c of row.children) c.style.width = c.style.height = s + "px";
+          for (const b of choices.children) { b.style.width = b.style.height = s + "px"; b.style.padding = "6%"; }
+          return;
+        }
+        const cs = Math.max(64, Math.min(140, Math.floor((W - 12 * (m - 1)) / m), Math.floor(H * 0.42)));
         for (const b of choices.children) b.style.width = b.style.height = cs + "px";
       }
       function showHint() { tip.textContent = "힌트: " + st.tip; if (prob.unitLen) [...row.children].slice(0, prob.unitLen).forEach((c) => c.classList.add("unit")); }
