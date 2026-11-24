@@ -446,3 +446,74 @@
   .sn-fun { font-size: 15px; }
   .sn-area.done .jn-btn--big { min-height: 56px; font-size: 22px; }
 }
+
+/* ---------- 감정 표정 고르기 (감정표정) — 카드·말풍선은 누가 뭐 해요?(sn-*) 모양을 그대로 써요 ---------- */
+.em-top { flex: none; display: flex; justify-content: center; align-items: center; gap: 12px; min-height: 0; }
+.em-top.pic { height: clamp(110px, 26vh, 200px); }
+.em-top.story { flex-wrap: wrap; }
+.em-big { height: 100%; aspect-ratio: 1; display: block; }
+.em-big svg { width: 100%; height: 100%; display: block; }
+.em-big.small { width: clamp(64px, 12vh, 96px); height: auto; flex: none; }
+.em-q b { font-size: 34px; }
+.em-story b { font-size: 22px; font-weight: var(--fw-bold); text-align: left; }
+.em-reread { flex: none; }
+.em-area { align-content: center; }
+.em-grid { display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 12px; width: 100%; }
+.em-card { flex: 0 0 auto; width: min(calc((100% - 24px) / 3), 170px); aspect-ratio: 1; padding: 8px; }
+.em-card i { height: 100%; }
+.em-grid.n2 .em-card { width: min(calc((100% - 12px) / 2), 190px); }
+.em-grid.words .em-card { aspect-ratio: auto; min-height: 72px; height: auto; padding: 10px 6px; }
+.em-grid.words .em-card b { font-size: 26px; }
+.em-grid.words.n2 .em-card, .em-grid.words.n3 .em-card { width: min(calc((100% - 24px) / 3), 190px); }
+.em-grid.words.n2 .em-card { width: min(calc((100% - 12px) / 2), 220px); }
+.em-grid.words.n5 .em-card { width: min(calc((100% - 24px) / 3), 150px); }
+@media (min-width: 700px) {
+  .em-grid.n5 .em-card { width: min(calc((100% - 48px) / 5), 170px); }
+  .em-grid.words.n5 .em-card { width: min(calc((100% - 48px) / 5), 160px); }
+}
+@media (orientation: landscape) and (max-height: 560px) {
+  .em-top.pic { height: clamp(80px, 34vh, 140px); }
+  .em-story b { font-size: 17px; }
+  .em-q b { font-size: 26px; }
+  .em-card { width: min(calc((100% - 24px) / 3), 36vh); }
+  .em-grid.n5 .em-card { width: min(calc((100% - 48px) / 5), 34vh); }
+  .em-grid.words .em-card { min-height: 56px; }
+}
+
+/* 달라진 그림 찾기: 그림 한 장 + 10초 막대. 그림이 바뀔 때는 천천히 스르르 (깜빡임 없음) */
+.cg-col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.cg-bar { height: 36px; display: flex; align-items: center; gap: 10px; box-sizing: border-box; }
+.cg-bar.off { visibility: hidden; }
+.cg-track { flex: 1; height: 14px; border-radius: 8px; background: var(--c-mustard-tint); border: 2px solid var(--c-pencil); overflow: hidden; box-sizing: border-box; }
+.cg-track i { display: block; height: 100%; background: var(--c-mustard); transition: width .1s linear; }
+.cg-count { min-width: 40px; text-align: right; font-weight: var(--fw-bold); font-size: 18px; font-variant-numeric: tabular-nums; color: var(--c-ink); }
+.cg-pic { display: grid; }
+.cg-pic .cg-svg { grid-area: 1 / 1; opacity: 0; pointer-events: none; transition: opacity .4s ease; }
+.cg-pic .cg-svg.on { opacity: 1; pointer-events: auto; z-index: 1; }
+.cg-pic .hintglow { pointer-events: none; }
+
+/* 퍼즐 맞추기: 왼쪽 위 = 원래 그림 + 조각들, 그 옆(좁은 화면은 아래) = 맞추는 판 */
+.pz-board { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 10px; padding: 8px; --board-bg: var(--c-surface-2); }
+.pz-board.wide { flex-direction: row; align-items: flex-start; justify-content: center; gap: 12px; }
+.pz-top { display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; align-items: flex-start; flex: none; box-sizing: border-box; }
+.pz-ref { flex: none; box-sizing: border-box; padding: 4px; background: var(--c-surface); border-radius: 8px; filter: var(--sh-paper-down); }
+.pz-ref svg { width: 100%; display: block; aspect-ratio: 4 / 3; }
+.pz-ref-label { display: block; font-size: 13px; font-weight: var(--fw-bold); color: var(--c-ink-soft); text-align: left; padding: 0 2px 2px; }
+.pz-piece { flex: none; box-sizing: border-box; padding: 0; border: 2px solid var(--c-pencil); border-radius: 8px; background: var(--c-surface); overflow: hidden; cursor: pointer; filter: var(--sh-paper-down); }
+.pz-piece svg { width: 100%; height: 100%; display: block; pointer-events: none; }
+.pz-piece.sel { outline: 4px solid var(--c-mustard-deep); outline-offset: 2px; transform: translateY(-3px); }
+.pz-piece.hint { outline: 4px dashed var(--c-mustard-deep); outline-offset: 2px; }
+.pz-piece.lifting { opacity: .4; }
+.pz-piece.placed { visibility: hidden; pointer-events: none; }
+.pz-grid { display: grid; gap: 3px; flex: none; padding: 4px; box-sizing: border-box; background: var(--c-surface); border-radius: 8px; filter: var(--sh-paper-down); }
+.pz-cell { position: relative; box-sizing: border-box; border: 2px dashed var(--c-dash); border-radius: 6px; background: var(--c-surface-2); overflow: hidden; min-width: 0; min-height: 0; }
+.pz-cell svg { width: 100%; height: 100%; display: block; opacity: 0; transition: opacity .3s ease; pointer-events: none; }
+.pz-board.always .pz-cell svg { opacity: .18; }
+.pz-cell.done { border: 1px solid var(--c-pencil); }
+.pz-board .pz-cell.done svg { opacity: 1; }
+.pz-cell.hint { border: 4px solid var(--c-mustard-deep); }
+.pz-cell.nope { border-color: var(--c-gentle-strong); }
+.pz-count { font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
+.pz-drag { position: fixed; z-index: 60; pointer-events: none; box-sizing: border-box; border: 2px solid var(--c-pencil); border-radius: 8px; overflow: hidden; opacity: .92; background: var(--c-surface); }
+.pz-drag svg { width: 100%; height: 100%; display: block; }
+@media (prefers-reduced-motion: reduce) { .cg-pic .cg-svg, .pz-cell svg, .cg-track i { transition: none; } }

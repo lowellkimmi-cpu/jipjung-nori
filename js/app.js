@@ -125,7 +125,8 @@
     const box = $("rooms"); box.textContent = "";
     for (const a of Art.AREAS) {
       const games = a.games.filter((g) => JN.GAMES[g]);
-      const soon = !games.length;
+      /* 닫아 둔 방(JN.CONFIG.CLOSED_AREAS)은 놀이가 있어도 카드를 누르면 "곧 열려요"만 보여요. 놀이 코드는 그대로 둬요 */
+      const soon = !games.length || (JN.CONFIG.CLOSED_AREAS || []).includes(a.id);
       const tag = soon ? h("span", { class: "tag soon", text: "곧 열려요" })
         : h("span", { class: "tag" }, "놀이 " + games.length + " ", h("span", { class: "leaves", "aria-hidden": "true" }, games.map(() => h("i"))));
       const art = h("span", { class: "jn-room__art", svg: JN.Assets.roomArt(a.id) }); art.appendChild(tag);
@@ -669,7 +670,21 @@
   /* 이 기기 설정: 그림 질감 줄이기 (느린 기기용, 아이 모두 공통) */
   function deviceCard() {
     return h("section", { class: "setcard jn-card" }, h("h2", null, h("i", { svg: Art.icon("설정") }), "이 기기"),
-      toggleRow("그림 질감 줄이기", "느린 기기에서 켜면 물감 번짐·종이결을 줄여 더 가볍게 그려요", isLite(), (v) => { setLite(v); renderParent(); }, "set-lite"));
+      toggleRow("그림 질감 줄이기", "느린 기기에서 켜면 물감 번짐·종이결을 줄여 더 가볍게 그려요", isLite(), (v) => { setLite(v); renderParent(); }, "set-lite"),
+      installRow());
+  }
+  /* 앱으로 설치: 브라우저가 설치할 수 있다고 알려 줄 때만 단추가 나와요. 설치 방법 안내 페이지 링크는 늘 있어요. */
+  function installRow() {
+    const I = JN.Install;
+    const sub = h("small", { id: "installSub" });
+    const btn = h("button", { class: "jn-btn jn-btn--primary", type: "button", id: "installBtn", hidden: true, onclick: () => I.prompt().then(sync) }, "앱으로 설치");
+    const help = h("a", { class: "jn-btn", id: "installHelp", href: "install.html" }, "설치 방법 보기");
+    function sync() {
+      btn.hidden = !(I && I.canPrompt() && !I.isStandalone());
+      sub.textContent = !I ? "" : I.isStandalone() ? "이미 앱으로 열려 있어요" : "홈 화면(바탕화면)에 두면 앱처럼 열려요. 아이폰은 설치 방법 안내를 봐 주세요";
+    }
+    if (I) { I.onChange(sync); sync(); }
+    return h("div", { class: "jn-row col", id: "installRow" }, h("span", { class: "lbl" }, h("b", { text: "앱으로 설치" }), sub), btn, help);
   }
   function isLite() { return !!S.getApp().lite; }
   function setLite(v) { const a = S.getApp(); a.lite = !!v; S.setApp(a); applyLite(); }

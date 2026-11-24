@@ -91,7 +91,7 @@
     hintHelp: { always: "지금 채울 칸에 해당하는 그림에 연한 테두리가 늘 보여요",
       button: "누르면 지금 칸에 해당하는 그림에 테두리가 생기고 맞는 카드가 살짝 커져요 (칸 수만큼)", none: "도움 없이 만들어요" },
     extraSettings: [{ key: "wordSound", type: "select", label: "낱말 소리", sub: "이게 뭐야?와 같은 값이에요. 버튼 누를 때만 기기 안 음성으로 읽어요",
-      def: "tap", options: [["tap", "버튼 누를 때만"], ["off", "끔"]], shareWith: ["낱말그림"] }],
+      def: "tap", options: [["tap", "버튼 누를 때만"], ["off", "끔"]], shareWith: ["낱말그림", "감정표정"] }],
     parentNote: "그림 위주라 글자를 못 읽어도 할 수 있어요. 3~5세는 어른이 곁에서 카드 글자를 같이 읽어 주세요. '말했어요'는 아이나 어른이 눌러요(말소리를 듣거나 가리지 않아요)",
     chart: { key: "time", label: "걸린 시간", unit: "초" },
     describe: (e) => (e.sentences || PER_GAME) + "문장 · " + U.fmtTime(e.time) + (e.stageNo === 8 ? " · 마음대로 만들기" : " · 다시 고른 " + (e.mistakes || 0) + "번") + (e.hints ? " · 힌트 " + e.hints + "번" : ""),
@@ -237,7 +237,8 @@
         const n = grid.children.length, gap = 10, Wd = area.clientWidth - 4, Hd = area.clientHeight - 4;
         if (Wd < 40 || Hd < 40) return;
         let best = { cols: 1, w: 0, hh: 0, score: 0 };
-        for (let cols = 1; cols <= n; cols++) {
+        /* 카드가 3장 이하(3세 단계 s1·s2 등)면 늘 한 줄 — 두 줄로 나뉘면 어린아이가 아랫줄을 못 봐요 */
+        for (let cols = (n <= 3 ? n : 1); cols <= n; cols++) {
           const rows = Math.ceil(n / cols);
           const w = Math.min((Wd - gap * (cols - 1)) / cols, 190), hh = Math.min((Hd - gap * (rows - 1)) / rows, w * 0.95, 170);
           const score = Math.min(w, hh * 1.25);

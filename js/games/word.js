@@ -67,7 +67,7 @@
       none: "도움 없이 그림만 봐요",
     },
     extraSettings: [{ key: "wordSound", type: "select", label: "낱말 소리", sub: "버튼 누를 때만 기기 안 음성으로 읽어요. '소리'가 켜져 있고 기기에 한국어 음성이 있을 때만 단추가 보여요",
-      def: "tap", options: [["tap", "버튼 누를 때만"], ["off", "끔"]], shareWith: ["문장만들기"] }],
+      def: "tap", options: [["tap", "버튼 누를 때만"], ["off", "끔"]], shareWith: ["문장만들기", "감정표정"] }],
     parentNote: "말하기 단계는 아이나 어른이 '말했어요'를 눌러요. 말소리를 듣거나 맞고 틀림을 가리지 않아요. 3~5세는 그림 위주로, 글자는 어른이 읽어 줘도 돼요",
     chart: { key: "time", label: "걸린 시간", unit: "초" },
     describe: (e) => e.said != null && e.stageNo <= 2

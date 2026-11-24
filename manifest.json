@@ -3,6 +3,7 @@
   "short_name": "집중 놀이터",
   "description": "집에서 함께하는 놀이 13가지",
   "lang": "ko",
+  "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

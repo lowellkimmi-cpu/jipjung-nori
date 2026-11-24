@@ -274,12 +274,12 @@
      2. 영역 7개 · 놀이 13개 · UI 아이콘
      ========================================================= */
   const AREAS = [
-    { id: 'attention', name: '주의집중', power: '끝까지 찾기 · 기다렸다 누르기', color: '#DCA43C', tint: '#F6E6BF', deep: '#74540F', games: ['숫자찾기', '벌찾기'] },
+    { id: 'attention', name: '주의집중', power: '끝까지 찾기 · 기다렸다 누르기', color: '#DCA43C', tint: '#F6E6BF', deep: '#74540F', games: ['숫자찾기', '벌찾기', '달라진그림'] },
     { id: 'memory', name: '기억력', power: '보고 기억하기 · 순서 기억', color: '#B08EA8', tint: '#EEE0EA', deep: '#654662', games: ['짝꿍카드', '불빛순서'] },
     { id: 'seeing', name: '보는 힘', power: '꼼꼼히 비교 · 모양 구별', color: '#8AA6BD', tint: '#E0E9EF', deep: '#3C5D76', games: ['다른그림', '같은모양'] },
-    { id: 'thinking', name: '생각·추리', power: '규칙 찾기 · 순서 · 분류', color: '#93AE87', tint: '#E2EBDB', deep: '#466140', games: ['패턴'] },
+    { id: 'thinking', name: '생각·추리', power: '규칙 찾기 · 순서 · 분류', color: '#93AE87', tint: '#E2EBDB', deep: '#466140', games: ['패턴', '퍼즐'] },
     { id: 'hands', name: '손·미술', power: '손 조절 · 공간 · 표현', color: '#CC7754', tint: '#F5DFD1', deep: '#8A4127', games: ['반쪽그림', '선긋기미로'] },
-    { id: 'words', name: '말·언어', power: '낱말 · 듣고 이해하기', color: '#D9A08F', tint: '#F6E3DC', deep: '#874A41', games: ['낱말그림', '문장만들기'] },
+    { id: 'words', name: '말·언어', power: '낱말 · 듣고 이해하기', color: '#D9A08F', tint: '#F6E3DC', deep: '#874A41', games: ['낱말그림', '문장만들기', '감정표정'] },
     { id: 'body', name: '몸·감각', power: '몸 움직이기 · 균형 · 숨 고르기', color: '#A2AD58', tint: '#ECEDD0', deep: '#555D20', games: ['몸따라해요', '같이몸놀이'] },
   ];
   const CREAM_W = '#FCF4E2';
@@ -324,12 +324,20 @@
       `<path d="M30 50 C40 64 58 64 66 56" ${PEN(2.6, .8, C.oliveDeep)} stroke-dasharray="4 5"/>`,
     패턴: () => P(circ(14, 50, 10), C.sage, { s: 1.4 }) + P(rr(29, 40, 21, 21, 5), C.mustard, { s: 1.6 }) + P(circ(66, 50, 10), C.sage, { s: 1.4 }) +
       `<rect x="80" y="38" width="18" height="24" rx="5" fill="${SH ? 'none' : '#FFF9EE'}" ${PEN(2.2, .85)} stroke-dasharray="4 4"/>` + T(89, 56, 15, '?'),
+    // (2026-11-24 새로) 달라진 그림 찾기 · 퍼즐 맞추기
+    달라진그림: () => P(rr(12, 20, 76, 60, 8), CREAM_W, { s: 2 }) + P(circ(34, 42, 10), C.mustard, { s: 1.2, lw: 1.8 }) + P(rr(48, 56, 28, 14, 4), C.olive, { s: 1, lw: 1.8 }) +
+      brush([[60, 28], [74, 24], [86, 34], [84, 48], [70, 52], [58, 42], [60, 30]], 4, SH ? SHADOW : C.terracotta, .9),
+    퍼즐: () => P(rr(9, 9, 39, 39, 8), C.sage, { s: 2 }) + P(rr(52, 9, 39, 39, 8), CREAM_W, { s: 2 }) + P(rr(9, 52, 39, 39, 8), CREAM_W, { s: 2 }) + P(rr(52, 52, 39, 39, 8), C.mustard, { s: 2.4 }) +
+      P(circ(50, 29, 6), C.sage, { s: .6, lw: 1.4 }) + P(circ(71, 50, 6), CREAM_W, { s: .6, lw: 1.4 }),
     // (2026-11-22 새로) 말·언어 · 몸·감각 놀이
     낱말그림: () => P('M16 21 h68 a9 9 0 0 1 9 9 v33 a9 9 0 0 1 -9 9 h-38 l-17 14 v-14 h-13 a9 9 0 0 1 -9 -9 v-33 a9 9 0 0 1 9 -9Z', '#F7E7E1', { s: 2.6 }) + `<g transform="translate(29 18) scale(.42)">${FRUIT_PARTS.사과(FRUIT_COLOR.사과)}</g>` + face(50, 46, .5, '웃음', { gap: 9 }),
     문장만들기: () => P('M16 21 h68 a9 9 0 0 1 9 9 v33 a9 9 0 0 1 -9 9 h-38 l-17 14 v-14 h-13 a9 9 0 0 1 -9 -9 v-33 a9 9 0 0 1 9 -9Z', '#F7E7E1', { s: 2.6 }) +
       P(rr(14, 30, 22, 28, 4), CREAM_W, { tr: 'rotate(-6 25 44)', s: 1.2, lw: 1.8 }) + P(rr(39, 29, 22, 28, 4), CREAM_W, { s: 1.2, lw: 1.8 }) + P(rr(64, 30, 22, 28, 4), CREAM_W, { tr: 'rotate(6 75 44)', s: 1.2, lw: 1.8 }) +
       P(circ(25, 42, 6.5), C.honey, { lw: 1.4, s: .8 }) + P('M50 52 C44 48 41 44 42 40 C43 36 48 36 50 40 C52 36 57 36 58 40 C59 44 56 48 50 52Z', C.rose, { lw: 1.4, s: .6 }) + `<g transform="translate(64 31) scale(.22)">${FRUIT_PARTS.딸기(FRUIT_COLOR.딸기)}</g>` +
       `<path d="M36 44 h3 M61 44 h3" ${PEN(2, .6)}/>`,
+    // (2026-11-24 새로) 감정 표정 고르기: 웃는 얼굴 + 작은 시무룩한 얼굴
+    감정표정: () => P(circ(40, 44, 31), C.honey, { s: 2.6, hi: [30, 32, 8, 5] }) + face(40, 41, 1.7, '웃음', { gap: 11 }) +
+      P(circ(72, 72, 19), '#B9CCDA', { s: 2, lw: 2.2 }) + face(72, 70, .95, '시무룩', { gap: 8, noCheeks: true }),
     몸따라해요: () => `<g transform="translate(6 2) scale(.98)">${POSE.나무(false)}</g>` + wind(-4, 52, .7) + wind(-2, 64, .6) + wind(0, 76, .5),
     같이몸놀이: () => `<g transform="translate(-6 -6) scale(.84)">${PROP.풍선()}</g>` + `<g transform="translate(40 36) scale(.62)">${PROP.공()}</g>`,
   };
@@ -338,8 +346,9 @@
     { id: '짝꿍카드', name: '짝꿍 카드', area: 'memory' }, { id: '불빛순서', name: '불빛 순서', area: 'memory' },
     { id: '다른그림', name: '다른 그림 찾기', area: 'seeing' }, { id: '같은모양', name: '같은 모양', area: 'seeing' },
     { id: '패턴', name: '패턴 잇기', area: 'thinking' },
+    { id: '달라진그림', name: '달라진 그림 찾기', area: 'attention' }, { id: '퍼즐', name: '퍼즐 맞추기', area: 'thinking' },
     { id: '반쪽그림', name: '반쪽 그림', area: 'hands' }, { id: '선긋기미로', name: '선 긋기 미로', area: 'hands' },
-    { id: '낱말그림', name: '이게 뭐야?', area: 'words' }, { id: '문장만들기', name: '누가 뭐 해요?', area: 'words' },
+    { id: '낱말그림', name: '이게 뭐야?', area: 'words' }, { id: '문장만들기', name: '누가 뭐 해요?', area: 'words' }, { id: '감정표정', name: '감정 표정 고르기', area: 'words' },
     { id: '몸따라해요', name: '몸으로 따라 해요!', area: 'body' }, { id: '같이몸놀이', name: '같이 놀아요!', area: 'body' },
   ];
   /** 놀이 메뉴 아이콘. id: 숫자찾기|벌찾기|반쪽그림|다른그림|짝꿍카드|선긋기미로|불빛순서|같은모양|패턴|낱말그림|문장만들기|몸따라해요|같이몸놀이 */

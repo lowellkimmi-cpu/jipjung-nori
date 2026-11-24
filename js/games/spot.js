@@ -114,6 +114,8 @@
     } catch (e) { PHOTOS = []; }
   })();
   const isPhoto = (i) => CONF.levels[i].style === "photo";
+  /* 달라진 그림 찾기(js/games/changed.js)가 같은 장면 그림을 다시 쓰려고 꺼내 두는 것 (읽기만 해요) */
+  JN.spotArt = { SCENES, ASYM, renderScene, applyKind, okKind, hitR, COLORS: { yellow: Y, white: W } };
 
   function hitR(it) { return Math.max(22 * it.s, 18) + 12; }
   /* 그림체 원칙:
