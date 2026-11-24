@@ -177,6 +177,57 @@
       o.connect(g); g.connect(ac.destination); o.start(t0); o.stop(t0 + d + 0.05);
     } catch (e) { /* 소리가 안 나도 놀이는 계속 */ }
   };
+  /* ---------- 배경음 (Web Audio 로 직접 만든 잔잔한 오르골 소리 — 파일·바깥 요청 없음) ----------
+     놀이 화면에서만 작게 흘러요. 보호자 설정의 '배경음'으로 끌 수 있어요. */
+  JN.bgm = (function () {
+    const BPM = 76, BEAT = 60 / BPM;
+    /* 도레미솔라(5음)만 써서 어떤 음이 겹쳐도 부드럽게. [음 높이(Hz), 박자] */
+    const C4 = 261.63, D4 = 293.66, E4 = 329.63, G4 = 392.0, A4 = 440.0, C5 = 523.25, D5 = 587.33, E5 = 659.25;
+    const MEL = [[E4, 1], [G4, 1], [A4, 1], [G4, 1], [E4, 1], [D4, 1], [C4, 2],
+                 [D4, 1], [E4, 1], [G4, 1], [E4, 1], [D4, 2], [0, 2],
+                 [E4, 1], [G4, 1], [C5, 1], [A4, 1], [G4, 1], [E4, 1], [D4, 2],
+                 [E4, 1], [D4, 1], [C4, 2], [0, 4]];
+    const BASS = [C4 / 2, A4 / 4, D4 / 2, G4 / 4];   // 한 마디(4박)마다 낮은 음 하나
+    let master = null, timer = null, next = 0, step = 0, beatPos = 0, on = false;
+    function note(freq, t, len, vol, type) {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = type; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+      o.connect(g); g.connect(master); o.start(t); o.stop(t + len + 0.05);
+    }
+    function tick() {
+      if (!on || !ac) return;
+      while (next < ac.currentTime + 0.6) {
+        const [f, b] = MEL[step % MEL.length];
+        if (f) { note(f, next, b * BEAT * 1.6, 0.5, "triangle"); note(f * 2, next, b * BEAT, 0.08, "sine"); }
+        if (beatPos % 4 === 0) note(BASS[(beatPos / 4) % BASS.length], next, BEAT * 3.5, 0.35, "sine");
+        next += b * BEAT; beatPos += b; step++;
+      }
+    }
+    return {
+      start() {
+        if (on) return;
+        try {
+          unlock();
+          if (!ac) return;
+          if (!master) { master = ac.createGain(); master.connect(ac.destination); }
+          master.gain.cancelScheduledValues(ac.currentTime);
+          master.gain.setValueAtTime(0.0001, ac.currentTime);
+          master.gain.exponentialRampToValueAtTime(0.07, ac.currentTime + 1.5);   // 작게, 천천히 커지게
+          on = true; step = 0; beatPos = 0; next = ac.currentTime + 0.15;
+          tick(); timer = setInterval(tick, 200);
+        } catch (e) { on = false; }
+      },
+      stop() {
+        if (!on) return;
+        on = false; clearInterval(timer); timer = null;
+        try { master.gain.cancelScheduledValues(ac.currentTime); master.gain.setValueAtTime(master.gain.value, ac.currentTime); master.gain.linearRampToValueAtTime(0, ac.currentTime + 0.3); } catch (e) { /* 무시 */ }
+      },
+      get playing() { return on; },
+    };
+  })();
   /* ---------- 낱말 들려주기 (기기 안에 들어 있는 한국어 음성만) ----------
      speechSynthesis 의 한국어 음성 중 기기 안 음성(localService)을 먼저 쓰고, 없으면 브라우저 한국어 음성을 써요.
      (읽는 글은 놀이 안내·낱말 같은 정해진 문장뿐이고, 아이 정보는 읽지 않아요)
