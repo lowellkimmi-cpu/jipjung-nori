@@ -707,3 +707,84 @@
 .mb-done .jn-btn--big { min-height: 56px; min-width: 120px; }
 @media (prefers-reduced-motion: reduce) { .mb-parcel, .mb-box, .mb-stamp, .mb-book .bk-i { transition: none; } .mb-card.turn { animation: none; }
   .mb-scene[data-phase="wind"] .mb-wind { animation: none; opacity: .9; left: 30%; } }
+
+/* 달롱 집 심부름: 위에 보미 말풍선, 가운데 집 장면, 아래 물건 줄. 색은 변수만, 움직임은 천천히(깜빡임 없음) */
+.er-board { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; gap: 6px; padding: 8px; --board-bg: var(--c-surface-2); --tr: clamp(56px, 13vw, 84px); }
+.er-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.er-owl { flex: none; width: 48px; height: 48px; }
+.er-owl svg, .er-snail svg, .er-bg svg, .er-put svg, .er-itemart svg, .er-eari svg { display: block; width: 100%; height: 100%; }
+.er-bubble { flex: 1; min-width: 0; min-height: 48px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 6px 12px; border: 2.5px solid var(--c-pencil); border-radius: var(--r-m); background: var(--c-surface); }
+.er-eari { flex: none; display: block; width: 30px; height: 30px; }
+.er-ear { fill: none; stroke: var(--c-pencil); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+.er-bubtxt { font-weight: var(--fw-bold); font-size: var(--fs-body); line-height: 1.35; overflow-wrap: anywhere; }
+.er-bubble[data-show="ear"] .er-bubtxt { display: none; }
+.er-bubble[data-show="ear"] { flex: none; min-width: 48px; justify-content: center; }
+.er-wrap { min-height: 0; min-width: 0; display: grid; place-items: center; }
+.er-scene { position: relative; overflow: hidden; border: 2px solid var(--c-pencil); border-radius: var(--r-m); box-sizing: border-box; background: var(--c-surface); max-width: 100%; max-height: 100%; z-index: 1; }
+.er-bg { position: absolute; inset: 0; pointer-events: none; }
+.er-snail { position: absolute; left: 80%; top: 4%; width: 14%; aspect-ratio: 1; pointer-events: none; z-index: 1; }
+.er-put { position: absolute; width: 12%; height: 16%; pointer-events: none; }
+.er-put[data-size="small"] svg { transform: scale(.62); transform-origin: 50% 88%; }
+.er-put.pop { animation: er-pop .35s ease-out 1; }
+@keyframes er-pop { 0% { transform: scale(.7); } 100% { transform: scale(1); } }
+.er-zone { position: absolute; z-index: 8; padding: 0; border: 2.5px dashed transparent; border-radius: var(--r-m); background: none; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+.er-scene[data-drag="1"] .er-zone { border-color: var(--c-dash); }
+.er-zone.want { border-color: var(--c-dash); background: var(--c-primary-tint); opacity: .8; }
+.er-zone:focus-visible { outline: 4px solid var(--c-focus); outline-offset: 2px; }
+.er-tray { position: relative; z-index: 6; display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: center; gap: 8px; min-width: 0; }
+.er-item { flex: none; width: var(--tr); height: var(--tr); box-sizing: border-box; padding: 4px; border: 2.5px solid var(--c-pencil); border-radius: var(--r-m); background: var(--c-surface); font: inherit; cursor: grab; -webkit-tap-highlight-color: transparent;
+  transition: transform .45s ease-out; touch-action: none; -webkit-user-select: none; user-select: none; }
+.er-item.drag { transition: none; z-index: 9; cursor: grabbing; }
+.er-item.sel { outline: 3px dashed var(--c-pencil); outline-offset: 3px; background: var(--c-primary-tint); }
+.er-item:focus-visible { outline: 4px solid var(--c-focus); outline-offset: 3px; }
+.er-itemart { display: block; width: 100%; height: 100%; }
+.er-item[data-size="small"] .er-itemart svg { transform: scale(.62); transform-origin: 50% 88%; }
+.er-house { display: inline-flex; align-items: center; gap: 6px; font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
+/* 집 장면 그림 */
+.sc-wall0 { fill: var(--c-mustard-tint); } .sc-floor0 { fill: var(--c-surface-2); }
+.sc-wall1 { fill: var(--c-dustyblue-tint); } .sc-floor1 { fill: var(--c-sage-tint); }
+.sc-sky { fill: var(--c-dustyblue-tint); } .sc-hill { fill: var(--c-sage-tint); stroke: var(--c-pencil); stroke-width: .5; } .sc-grass { fill: var(--c-sage); opacity: .55; }
+.sc-sun { fill: var(--c-mustard); stroke: var(--c-pencil); stroke-width: .6; } .sc-bloom { fill: var(--c-terracotta-tint); stroke: var(--c-pencil); stroke-width: .5; }
+.sc-fence { fill: var(--c-kraft); stroke: var(--c-pencil); stroke-width: .6; }
+.sc-edge { fill: none; stroke: var(--c-pencil); stroke-width: .6; stroke-linecap: round; stroke-linejoin: round; }
+.sc-tile { fill: none; stroke: var(--c-ink-faint); stroke-width: .35; }
+.sc-frame { fill: var(--c-surface); stroke: var(--c-pencil); stroke-width: .7; }
+.sc-glass { fill: var(--c-dustyblue-tint); stroke: var(--c-pencil); stroke-width: .5; }
+.sc-cup { fill: var(--c-terracotta-tint); stroke: var(--c-pencil); stroke-width: .7; }
+.sc-knob { fill: var(--c-pencil); }
+.sc-rug { fill: var(--c-terracotta-tint); stroke: var(--c-pencil); stroke-width: .4; }
+.sc-wood { fill: var(--c-kraft); stroke: var(--c-pencil); stroke-width: .6; stroke-linejoin: round; }
+.sc-box { fill: var(--c-mustard-tint); stroke: var(--c-pencil); stroke-width: .7; stroke-linejoin: round; }
+.sc-boxin { fill: var(--c-kraft); stroke: var(--c-pencil); stroke-width: .5; }
+/* 물건 그림 (컵·책·꽃병·색깔 공) */
+.ei-shadow { fill: var(--c-ink-faint); }
+.ei-ball, .ei-cup, .ei-book, .ei-vase, .ei-label, .ei-spine, .ei-bloom { stroke: var(--c-pencil); stroke-width: 3; stroke-linejoin: round; }
+.ei-ball[data-c="red"] { fill: var(--c-terracotta); } .ei-ball[data-c="blue"] { fill: var(--c-dustyblue); }
+.ei-shine { fill: none; stroke: var(--c-surface); stroke-width: 4; stroke-linecap: round; opacity: .8; }
+.ei-dot { fill: var(--c-surface); stroke: var(--c-pencil); stroke-width: 1.8; }
+.ei-cup { fill: var(--c-dustyblue-tint); } .ei-handle { fill: none; stroke: var(--c-pencil); stroke-width: 5; stroke-linecap: round; }
+.ei-band { fill: none; stroke: var(--c-pencil); stroke-width: 2.6; stroke-linecap: round; }
+.ei-book { fill: var(--c-sage); } .ei-spine { fill: var(--c-sage-deep); } .ei-label { fill: var(--c-surface); stroke-width: 2.2; }
+.ei-vase { fill: var(--c-terracotta-tint); } .ei-stem { fill: none; stroke: var(--c-sage-deep); stroke-width: 4; stroke-linecap: round; }
+.ei-bloom { fill: var(--c-mustard); stroke-width: 2.6; } .ei-core { fill: var(--c-terracotta); }
+/* 완성 카드 */
+.er-done { position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; padding: 10px; box-sizing: border-box; background: var(--c-surface-2); overflow: auto; }
+.er-donecard { display: grid; gap: 8px; justify-items: center; text-align: center; max-width: 560px; width: 100%; padding: 12px; box-sizing: border-box; border: 2px solid var(--c-pencil); border-radius: var(--r-m); background: var(--c-surface); }
+.er-donecard h2 { margin: 0; font-size: var(--fs-title); }
+.er-donecard p { margin: 0; }
+.er-donescenes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100%; max-width: 480px; }
+.er-donescenes span { display: block; aspect-ratio: 4 / 3; border: 2px solid var(--c-pencil); border-radius: var(--r-s, 8px); overflow: hidden; }
+.er-donescenes svg { width: 100%; height: 100%; display: block; }
+.er-done .jn-btn--big { min-height: 56px; min-width: 120px; }
+/* 폰 가로: 장면은 왼쪽, 보미 말풍선과 물건 줄은 오른쪽 */
+@media (orientation: landscape) and (max-height: 560px) {
+  .er-board { grid-template-columns: minmax(0, 1fr) calc(var(--tr) * 3 + 16px); grid-template-rows: auto minmax(0, 1fr); --tr: 56px; }
+  .er-top { grid-column: 2; grid-row: 1; align-items: flex-start; }
+  .er-owl { display: none; }
+  .er-bubble { flex: 1 1 100%; padding: 4px 8px; }
+  .er-bubble[data-show="ear"] { flex: none; }
+  .er-tray { gap: 8px; }
+  .er-wrap { grid-column: 1; grid-row: 1 / span 2; }
+  .er-tray { grid-column: 2; grid-row: 2; align-content: start; overflow: visible; }
+}
+@media (prefers-reduced-motion: reduce) { .er-item { transition: none; } .er-put.pop { animation: none; } }
