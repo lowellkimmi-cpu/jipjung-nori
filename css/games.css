@@ -517,3 +517,54 @@
 .pz-drag { position: fixed; z-index: 60; pointer-events: none; box-sizing: border-box; border: 2px solid var(--c-pencil); border-radius: 8px; overflow: hidden; opacity: .92; background: var(--c-surface); }
 .pz-drag svg { width: 100%; height: 100%; display: block; }
 @media (prefers-reduced-motion: reduce) { .cg-pic .cg-svg, .pz-cell svg, .cg-track i { transition: none; } }
+
+/* 달롱 건너기: 위쪽 건너편 길(토끼 + 깃발) · 시냇물 · 징검돌 · 달롱, 아래 큰 둥근 '톡' 단추. 색은 변수만, 움직임은 천천히 한 번씩(깜빡임 없음) */
+.dg-board { display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 8px; padding: 8px; --board-bg: var(--c-surface-2); }
+.dg-scene { position: relative; min-height: 0; overflow: hidden; border: 2px solid var(--c-pencil); border-radius: var(--r-m); box-sizing: border-box;
+  background: linear-gradient(to bottom, var(--c-sage-tint) 0 42%, var(--c-pencil) 42% calc(42% + 2px), var(--c-dustyblue-tint) calc(42% + 2px) 100%); --st: 40px; --sn: 64px; --rb: 80px; }
+.dg-bank { position: absolute; top: 56%; bottom: 0; width: 9%; background: var(--c-sage-tint); border: 2px solid var(--c-pencil); box-sizing: border-box; }
+.dg-bank.l { left: 0; border-left: 0; border-radius: 0 var(--r-m) var(--r-m) 0; }
+.dg-bank.r { right: 0; border-right: 0; border-radius: var(--r-m) 0 0 var(--r-m); }
+.dg-stone { position: absolute; width: var(--st); height: calc(var(--st) * .62); top: calc(74% - var(--st) * .31); transform: translateX(-50%); box-sizing: border-box;
+  background: var(--c-surface); border: 2.5px solid var(--c-pencil); border-radius: 55% 45% 50% 50% / 60% 55% 45% 40%; }
+.dg-stone.check { outline: 3px dotted var(--c-olive-deep); outline-offset: 3px; }
+.dg-snail, .dg-owl { position: absolute; width: var(--sn); height: var(--sn); top: calc(74% - var(--st) * .31 - var(--sn) * .9); transform: translateX(-50%); pointer-events: none; }
+.dg-snail { transition: left .55s ease-in-out; z-index: 2; }
+.dg-snail.slip { transition: left 1s ease-out; }
+.dg-snail svg, .dg-owl svg, .dg-rabbit svg, .dg-sign svg, .dg-bloom svg, .dg-bfly svg { width: 100%; height: 100%; display: block; }
+.dg-owl { z-index: 1; }
+.dg-bloom { position: absolute; left: 93%; top: calc(74% - var(--sn) * 1.5); width: calc(var(--sn) * .6); height: calc(var(--sn) * .6); transform: translateX(-50%) scale(.2); opacity: 0; pointer-events: none; z-index: 3; }
+.dg-bloom.on { opacity: 1; transform: translateX(-50%) scale(1); transition: transform .8s ease-out, opacity .8s ease-out; }
+.dg-flagger { position: absolute; left: 50%; top: 3%; height: var(--rb); transform: translateX(-50%); display: flex; align-items: flex-end; pointer-events: none; }
+.dg-rabbit { width: var(--rb); height: var(--rb); display: block; }
+.dg-flag { width: calc(var(--rb) * .78); height: var(--rb); display: block; margin-right: calc(var(--rb) * -.18); transform-origin: 20% 100%; transition: transform .3s ease-out; }
+.dg-flag.big { transform: scale(1.35); }
+.dg-flag svg { width: 100%; height: 100%; display: block; overflow: hidden; }
+.dg-flag .pole { stroke: var(--c-pencil); stroke-width: 3.2; stroke-linecap: round; fill: none; }
+.dg-flag .cloth-g { transition: transform .4s ease-out; }
+.dg-flag[data-s="down"] .cloth-g { transform: translateY(84px); }
+.dg-flag[data-s="half"] .cloth-g { transform: translateY(26px); }
+.dg-flag[data-s="up"] .cloth-g { transform: translateY(0); }
+.dg-flag .cloth { stroke: var(--c-pencil); stroke-width: 2.6; stroke-linejoin: round; }
+.dg-flag[data-k="foot"] .cloth { fill: var(--c-sage); }
+.dg-flag[data-k="palm"] .cloth { fill: var(--c-terracotta-tint); }
+.dg-flag .mark { fill: var(--c-pencil); stroke: none; }
+.dg-flag[data-k="foot"] .k-palm, .dg-flag[data-k="palm"] .k-foot { display: none; }
+.dg-sign { position: absolute; left: 3%; top: 4%; width: calc(var(--rb) * .6); height: calc(var(--rb) * .6); pointer-events: none; }
+.dg-sign[hidden] { display: none; }
+.dg-sign .sun { fill: var(--c-mustard); stroke: var(--c-pencil); stroke-width: 2.4; }
+.dg-sign .ray { fill: none; stroke: var(--c-mustard-deep); stroke-width: 3; stroke-linecap: round; }
+.dg-sign .moon { fill: var(--c-dustyblue); stroke: var(--c-pencil); stroke-width: 2.4; stroke-linejoin: round; }
+.dg-sign .star { fill: var(--c-mustard); stroke: var(--c-pencil); stroke-width: 1.2; }
+.dg-tapbox { position: relative; display: grid; place-items: center; padding: 2px 0; }
+.dg-tap { width: 124px; height: 124px; border-radius: 50%; border: 3px solid var(--c-pencil); background: var(--c-honey); color: var(--c-ink); cursor: pointer; font: inherit; font-size: var(--fs-title); font-weight: var(--fw-bold);
+  box-shadow: var(--sh-press); display: grid; place-items: center; padding: 0; }
+.dg-tap:active { transform: translateY(2px); box-shadow: var(--sh-pressed); }
+.dg-tap:focus-visible { outline: 4px solid var(--c-focus); outline-offset: 3px; }
+@keyframes dg-fly { 0% { transform: translate(0, 0); } 25% { transform: translate(34px, -14px); } 50% { transform: translate(12px, 12px); } 75% { transform: translate(-34px, -8px); } 100% { transform: translate(0, 0); } }
+.dg-bfly { position: absolute; left: calc(50% + 66px); top: 4px; width: 46px; height: 46px; pointer-events: none; animation: dg-fly 9s ease-in-out infinite; }
+.dg-flowers { display: inline-flex; align-items: center; gap: 6px; font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
+.dg-flowers .fl { width: 28px; height: 28px; display: inline-block; }
+.dg-flowers .fl svg { width: 100%; height: 100%; display: block; }
+@media (max-height: 520px) and (orientation: landscape) { .dg-board { grid-template-rows: minmax(0, 1fr); grid-template-columns: minmax(0, 1fr) auto; } }
+@media (prefers-reduced-motion: reduce) { .dg-snail, .dg-snail.slip, .dg-flag, .dg-flag .cloth-g, .dg-bloom.on { transition: none; } .dg-bfly { animation: none; } }
