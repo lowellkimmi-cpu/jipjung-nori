@@ -657,6 +657,13 @@
 .mb-parcel { position: absolute; left: 50%; top: calc(var(--cd) + 20px); width: var(--pc); height: var(--pc); margin-left: calc(var(--pc) * -.5); z-index: 4; pointer-events: none;
   transition: transform var(--tm) ease-in-out, opacity .3s ease-out; }
 .mb-parcel.fresh { transition: none; }
+.mb-scene[data-phase="pick"] .mb-parcel { pointer-events: auto; touch-action: none; cursor: grab; -webkit-user-select: none; user-select: none; }
+.mb-parcel.drag { transition: none; z-index: 6; cursor: grabbing; }
+.mb-parcel[data-z="0"] svg { transform: scale(.62); transform-origin: 50% 70%; }
+.mb-scene[data-multi="2"] .mb-parcel[data-slot="0"] { left: 33%; }
+.mb-scene[data-multi="2"] .mb-parcel[data-slot="1"] { left: 67%; }
+.mb-scene[data-multi="2"] .mb-parcel[data-now="1"] { outline: 3px dashed var(--c-pencil); outline-offset: 4px; border-radius: 14px; }
+.bx-size { fill: none; stroke: var(--c-pencil); stroke-width: 5; stroke-linecap: round; }
 .pc-body { stroke: var(--c-pencil); stroke-width: 3; stroke-linejoin: round; }
 .mb-parcel[data-c="0"] .pc-body { fill: var(--c-terracotta); }
 .mb-parcel[data-c="1"] .pc-body { fill: var(--c-dustyblue); }
