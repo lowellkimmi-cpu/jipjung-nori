@@ -712,7 +712,7 @@
     if (def.memReset) {   // 예: 달롱 건너기 '새 꽃길 시작' — 확인 한 번 뒤 이 아이의 꽃 수만 0 으로 (놀이 기록은 그대로)
       const m = def.memReset, gst = gameState(data, gid);
       const nowN = Math.min(m.max, (gst.mem && gst.mem[m.key]) | 0);
-      const msg = h("small", { id: "memreset-msg-" + gid, text: JN.t("g.dalrong.reset.now", { n: nowN, max: m.max }) });
+      const msg = h("small", { id: "memreset-msg-" + gid, text: JN.t(m.nowKey || "g.dalrong.reset.now", { n: nowN, max: m.max }) });
       inner.appendChild(h("div", { class: "jn-row" }, h("span", { class: "lbl" }, h("b", { text: m.label }), h("small", { text: m.sub }), h("br"), msg),
         h("button", { class: "jn-btn", type: "button", id: "memreset-" + gid, onclick: () => {
           if (!window.confirm(m.confirm)) return;

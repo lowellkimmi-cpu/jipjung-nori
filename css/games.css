@@ -576,3 +576,57 @@
 .dg-done .jn-btn--big { min-height: 56px; min-width: 120px; }
 @media (max-height: 520px) and (orientation: landscape) { .dg-board { grid-template-rows: minmax(0, 1fr); grid-template-columns: minmax(0, 1fr) auto; } }
 @media (prefers-reduced-motion: reduce) { .dg-snail, .dg-snail.slip, .dg-flag, .dg-flag .cloth-g, .dg-bloom.on { transition: none; } .dg-bfly { animation: none; } }
+
+/* 잎 아래 어디?: 큰 잎 여러 장이 땅 위에 한 줄로 서 있고, 열매는 잎 아래에 숨어요. 색은 변수만, 움직임은 천천히(깜빡임 없음) */
+.ly-board { display: grid; grid-template-rows: minmax(0, 1fr); padding: 8px; --board-bg: var(--c-surface-2); }
+.ly-scene { position: relative; min-height: 0; overflow: hidden; border: 2px solid var(--c-pencil); border-radius: var(--r-m); box-sizing: border-box;
+  background: var(--c-dustyblue-tint); --ls: 90px; --sn: 56px; --gy: 66; --sw: 1000ms; }
+.ly-ground { position: absolute; left: 0; right: 0; top: calc(var(--gy) * 1%); bottom: 0; background: var(--c-honey-tint); border-top: 2.5px solid var(--c-pencil); }
+.ly-snail { position: absolute; left: 3%; top: 4%; width: var(--sn); height: var(--sn); pointer-events: none; }
+.ly-snail svg, .ly-lid svg, .ly-fruit svg, .ly-bfly svg, .ly-ask svg, .ly-bag .bg svg { width: 100%; height: 100%; display: block; }
+.ly-leaf { position: absolute; width: var(--ls); height: calc(var(--ls) * .9); left: calc(var(--x, 50) * 1%); top: calc(var(--gy) * 1% - var(--ls) * .9); transform: translateX(-50%);
+  transition: left var(--sw) ease-in-out; padding: 0; border: 0; background: none; font: inherit; cursor: default; z-index: 2; -webkit-tap-highlight-color: transparent; }
+.ly-scene.nomove .ly-leaf, .ly-scene.nomove .ly-lid, .ly-scene.nomove .ly-fruit { transition: none; }
+.ly-scene[data-phase="pick"] .ly-leaf { cursor: pointer; }
+.ly-leaf:focus-visible { outline: 4px solid var(--c-focus); outline-offset: 3px; border-radius: var(--r-m); }
+.ly-arc { position: absolute; inset: 0; display: block; }
+.ly-leaf.up .ly-arc { animation: ly-up var(--sw) ease-in-out 1; }
+.ly-leaf.down .ly-arc { animation: ly-down var(--sw) ease-in-out 1; }
+@keyframes ly-up { 0% { transform: translateY(0); } 50% { transform: translateY(calc(var(--ls) * -.34)); } 100% { transform: translateY(0); } }
+@keyframes ly-down { 0% { transform: translateY(0); } 50% { transform: translateY(calc(var(--ls) * .1)); } 100% { transform: translateY(0); } }
+.ly-fruit { position: absolute; left: 24%; bottom: 8%; width: 52%; height: 52%; z-index: 1; transition: transform .5s ease-out; }
+.ly-leaf.found .ly-fruit { transform: translateY(-14%) scale(1.15); }
+.ly-lid { position: absolute; inset: 0; z-index: 2; transform-origin: 10% 90%; transition: transform .45s ease-out; }
+.ly-leaf.open .ly-lid { transform: translateY(-62%) rotate(-22deg); }
+.ly-lid .lf { stroke: var(--c-pencil); stroke-width: 2.6; stroke-linejoin: round; fill: var(--c-sage); }
+.ly-lid .vein { fill: none; stroke: var(--c-pencil); stroke-width: 2; stroke-linecap: round; opacity: .55; }
+.ly-lid .dot { fill: var(--c-pencil); stroke: none; }
+.ly-leaf[data-c="0"] .lf { fill: var(--c-sage); }
+.ly-leaf[data-c="1"] .lf { fill: var(--c-olive); }
+.ly-leaf[data-c="2"] .lf { fill: var(--c-mustard-tint); }
+.ly-leaf[data-c="3"] .lf { fill: var(--c-dustyblue); }
+.ly-leaf[data-c="4"] .lf { fill: var(--c-terracotta-tint); }
+.ly-mound { position: absolute; top: calc(var(--gy) * 1% + 5px); width: calc(var(--ls) * .7); height: calc(var(--ls) * .26); transform: translateX(-50%); box-sizing: border-box; opacity: 0; pointer-events: none; z-index: 1;
+  background: var(--c-mustard-tint); border: 2.5px solid var(--c-pencil); border-bottom: 0; border-radius: 50% 50% 0 0 / 100% 100% 0 0; }
+.ly-dew { position: absolute; top: calc(var(--gy) * 1% + var(--ls) * .34); height: 0; border-top: 4px dotted var(--c-dustyblue-deep); opacity: .55; pointer-events: none; z-index: 1; }
+.ly-ask { position: absolute; left: 50%; top: 4%; transform: translateX(-50%); width: calc(var(--sn) * 1.05); height: calc(var(--sn) * 1.05); padding: 4px; box-sizing: border-box; pointer-events: none;
+  background: var(--c-surface); border: 2.5px solid var(--c-pencil); border-radius: 50%; z-index: 3; }
+.ly-ask[hidden] { display: none; }
+.ly-ask i { display: block; width: 100%; height: 100%; }
+@keyframes ly-fly { 0% { transform: translate(0, 0); opacity: 0; } 15% { opacity: 1; } 50% { transform: translate(calc(var(--bx, 300) * -.5px), 16px); opacity: 1; } 85% { opacity: 1; } 100% { transform: translate(calc(var(--bx, 300) * -1px), -6px); opacity: 0; } }
+.ly-bfly { position: absolute; right: 2%; top: 6%; width: 46px; height: 46px; pointer-events: none; opacity: 0; --bx: 260; z-index: 3; }
+.ly-scene[data-phase="shuffle"] .ly-bfly { animation: ly-fly 4s ease-in-out 1; }
+.ly-bag { display: inline-flex; align-items: center; gap: 6px; font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
+.ly-bag .bg { width: 30px; height: 30px; display: inline-block; transition: transform .5s ease-out; }
+.ly-bag .bg.pop { transform: scale(1.18); }
+.ly-bag .bag { fill: var(--c-mustard-tint); stroke: var(--c-pencil); stroke-width: 2.4; stroke-linejoin: round; }
+.ly-bag .bagline { fill: none; stroke: var(--c-pencil); stroke-width: 2.2; stroke-linecap: round; }
+.ly-done { position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; padding: 10px; box-sizing: border-box; background: var(--c-surface-2); overflow: auto; }
+.ly-donecard { display: grid; gap: 8px; justify-items: center; text-align: center; max-width: 560px; width: 100%; padding: 12px; box-sizing: border-box; border: 2px solid var(--c-pencil); border-radius: var(--r-m); background: var(--c-surface); }
+.ly-donecard h2 { margin: 0; font-size: var(--fs-title); }
+.ly-donecard p { margin: 0; }
+.ly-donefruits { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; width: 100%; max-width: 420px; }
+.ly-donefruits span { display: block; aspect-ratio: 1; }
+.ly-donefruits svg { width: 100%; height: 100%; display: block; }
+.ly-done .jn-btn--big { min-height: 56px; min-width: 120px; }
+@media (prefers-reduced-motion: reduce) { .ly-leaf, .ly-lid, .ly-fruit, .ly-bag .bg { transition: none; } .ly-leaf.up .ly-arc, .ly-leaf.down .ly-arc { animation: none; } .ly-scene[data-phase="shuffle"] .ly-bfly { animation: none; opacity: 0; } }
