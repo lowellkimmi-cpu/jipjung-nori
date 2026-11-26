@@ -277,7 +277,7 @@
     { id: 'attention', name: '주의집중', power: '끝까지 찾기 · 기다렸다 톡 누르기 놀이', color: '#DCA43C', tint: '#F6E6BF', deep: '#74540F', games: ['숫자찾기', '벌찾기', '달라진그림', '달롱건너기'] },
     { id: 'memory', name: '기억력', power: '보고 기억하기 · 순서 기억', color: '#B08EA8', tint: '#EEE0EA', deep: '#654662', games: ['짝꿍카드', '불빛순서', '잎아래'] },
     { id: 'seeing', name: '보는 힘', power: '꼼꼼히 비교 · 모양 구별', color: '#8AA6BD', tint: '#E0E9EF', deep: '#3C5D76', games: ['다른그림', '같은모양'] },
-    { id: 'thinking', name: '생각·추리', power: '규칙 찾기 · 순서 · 분류', color: '#93AE87', tint: '#E2EBDB', deep: '#466140', games: ['패턴', '퍼즐'] },
+    { id: 'thinking', name: '생각·추리', power: '규칙 찾기 · 순서 · 분류', color: '#93AE87', tint: '#E2EBDB', deep: '#466140', games: ['패턴', '퍼즐', '우체통'] },
     { id: 'hands', name: '손·미술', power: '손 조절 · 공간 · 표현', color: '#CC7754', tint: '#F5DFD1', deep: '#8A4127', games: ['반쪽그림', '선긋기미로'] },
     { id: 'words', name: '말·언어', power: '낱말 · 듣고 이해하기', color: '#D9A08F', tint: '#F6E3DC', deep: '#874A41', games: ['낱말그림', '문장만들기', '감정표정'] },
     { id: 'body', name: '몸·감각', power: '몸 움직이기 · 균형 · 숨 고르기', color: '#A2AD58', tint: '#ECEDD0', deep: '#555D20', games: ['몸따라해요', '같이몸놀이'] },
@@ -335,6 +335,10 @@
     // (2026-11-26 새로) 잎 아래 어디?: 큰 잎 + 잎 아래로 보이는 열매
     잎아래: () => P(rr(6, 74, 88, 18, 8), '#F6E6BF', { s: 1.4 }) + `<g transform="translate(40 34) scale(.44)">${FRUIT_PARTS.딸기(FRUIT_COLOR.딸기)}</g>` +
       P('M8 70 C2 36 26 8 50 6 C74 10 98 36 92 70 C70 80 30 80 8 70Z', C.sage, { s: 2.6, hi: [30, 30, 8, 5] }) + `<path d="M50 14 V64 M50 34 L32 22 M50 48 L30 38 M50 34 L68 22 M50 48 L70 38" ${PEN(2.2, .7)}/>`,
+    // (2026-11-27 새로) 보미 우체통: 우체통 + 소포 + 우표
+    우체통: () => P(rr(44, 66, 12, 28, 3), '#F6E6BF', { s: 1.2, lw: 2 }) + P('M14 70 V44 C14 22 32 12 50 12 C68 12 86 22 86 44 V70 Z', C.terracotta, { s: 2.4, hi: [30, 28, 7, 5] }) +
+      `<path d="M30 56 H70" ${PEN(3.4, .9)}/>` + P(circ(50, 36, 9), CREAM_W, { s: 1, lw: 2 }) + P('M86 48 V26 H97 V38 H92 V48Z', C.mustard, { s: .8, lw: 1.8 }) +
+      P(rr(60, 70, 26, 22, 5), '#E0E9EF', { s: 1.6 }) + `<path d="M73 70 V92 M60 81 H86" ${PEN(2.2, .8)}/>`,
     // (2026-11-22 새로) 말·언어 · 몸·감각 놀이
     낱말그림: () => P('M16 21 h68 a9 9 0 0 1 9 9 v33 a9 9 0 0 1 -9 9 h-38 l-17 14 v-14 h-13 a9 9 0 0 1 -9 -9 v-33 a9 9 0 0 1 9 -9Z', '#F7E7E1', { s: 2.6 }) + `<g transform="translate(29 18) scale(.42)">${FRUIT_PARTS.사과(FRUIT_COLOR.사과)}</g>` + face(50, 46, .5, '웃음', { gap: 9 }),
     문장만들기: () => P('M16 21 h68 a9 9 0 0 1 9 9 v33 a9 9 0 0 1 -9 9 h-38 l-17 14 v-14 h-13 a9 9 0 0 1 -9 -9 v-33 a9 9 0 0 1 9 -9Z', '#F7E7E1', { s: 2.6 }) +
@@ -355,6 +359,7 @@
     { id: '달라진그림', name: '달라진 그림 찾기', area: 'attention' }, { id: '퍼즐', name: '퍼즐 맞추기', area: 'thinking' },
     { id: '달롱건너기', name: '달롱 건너기', area: 'attention' },
     { id: '잎아래', name: '잎 아래 어디?', area: 'memory' },
+    { id: '우체통', name: '보미 우체통', area: 'thinking' },
     { id: '반쪽그림', name: '반쪽 그림', area: 'hands' }, { id: '선긋기미로', name: '선 긋기 미로', area: 'hands' },
     { id: '낱말그림', name: '이게 뭐야?', area: 'words' }, { id: '문장만들기', name: '누가 뭐 해요?', area: 'words' }, { id: '감정표정', name: '감정 표정 고르기', area: 'words' },
     { id: '몸따라해요', name: '몸으로 따라 해요!', area: 'body' }, { id: '같이몸놀이', name: '같이 놀아요!', area: 'body' },
