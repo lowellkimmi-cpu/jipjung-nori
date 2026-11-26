@@ -5,8 +5,8 @@
 window.JN = window.JN || {};
 
 JN.CONFIG = {
-  /* 마스코트 이름 (부엉이 = 안내·칭찬·힌트, 달팽이 = 쉬는 시간·곧 열려요) */
-  MASCOT_NAMES: { owl: "보미", snail: "달롱" },
+  /* 마스코트 이름 (부엉이 = 안내·칭찬·힌트, 달팽이 = 쉬는 시간·곧 열려요) — 글자는 lang/ko.js 의 mascot.owl · mascot.snail */
+  MASCOT_NAMES: { owl: JN.t("mascot.owl"), snail: JN.t("mascot.snail") },
 
   /* 운영자 연락처 (정해지면 적어요. 비어 있으면 화면에 나오지 않아요) */
   CONTACT: "",
@@ -37,6 +37,7 @@ JN.CONFIG = {
 
   /* 같은 놀이에서 힌트를 쓴 판이 몇 판 이어지면 쉬운 단계를 제안할지 */
   HINT_STREAK_SUGGEST: 3,
+  ROUNDS_PER_STAGE: 3,   // 한 단계에서 몇 판을 깨야 다음 단계로 가는지
 
   /* 아이마다 처음 설정 (보호자 설정에서 아이별로 바꿀 수 있어요) */
   DEFAULT_SETTINGS: {
@@ -47,13 +48,29 @@ JN.CONFIG = {
     autoNext: true,        // 단계를 깨면 다음 단계로
     suggestEasier: true,   // 힌트를 자주 쓰면 쉬운 단계 제안
     from1: false,          // 1단계부터 시작 (켜면 나이 추천을 쓰지 않음)
+    eyeRest: true,         // 놀이 몇 판마다 부엉이 '눈 쉬기' 20초 (보호자 설정에서 끌 수 있음)
+    dailyLimit: 0,         // 하루 사용 시간 제한(분). 0 = 끄기
   },
 
-  HINT_MODES: { always: "늘 보기", button: "힌트 버튼", none: "없이" },
+  /* 눈 쉬기: 놀이 EYE_REST_ROUNDS 판마다(또는 EYE_REST_MINUTES 분 놀면) 부엉이가 EYE_REST_SECONDS 초 쉬게 해요 */
+  EYE_REST_ROUNDS: 4,
+  EYE_REST_MINUTES: 10,
+  EYE_REST_SECONDS: 20,
+  /* 하루 사용 시간 제한 선택지(분). 0 = 끄기 */
+  DAILY_LIMITS: [0, 20, 30, 60],
+
+  HINT_MODES: { always: JN.t("hintmode.always"), button: JN.t("hintmode.button"), none: JN.t("hintmode.none") },
   PROFILE_COLORS: ["#DCA43C", "#8AA6BD", "#D98B65", "#B08EA8", "#A2AD58", "#86AE9F", "#D9A08F", "#D6B88E"],   // tokens.css v2 의 --p-* 와 같은 값
   PROFILE_COLORS_V1: ["#F2C14E", "#7FB7D9", "#F29E7E", "#B8A1D9", "#93C47D", "#6FBFAE", "#EFA6B8", "#D9B98C"],  // 예전 저장값 → 같은 자리 v2 색으로 바꿔 읽어요
-  PROFILE_COLOR_NAMES: ["꿀", "하늘", "살구", "라일락", "새싹", "청록", "꽃분홍", "모래"],
+  PROFILE_COLOR_NAMES: JN.t("profile.colors"),   // 색 이름 8개 (lang/ko.js)
 };
+
+/* 방 이름·방이 키우는 힘·놀이 이름은 그림 모음(art.js)에 한국어로 들어 있어서, 언어 파일 글자로 덮어써요 */
+(function () {
+  if (!window.Art) return;
+  Art.AREAS.forEach((a) => { a.name = JN.t("area." + a.id + ".name"); a.power = JN.t("area." + a.id + ".power"); });
+  Art.GAMES.forEach((g) => { g.name = JN.t("game." + g.id + ".name"); });
+})();
 
 /* 나이별 추천 시작 단계 (1부터 세는 단계 번호). 표에 없는 나이는 가장 가까운 나이를 따라가요.
    "출발점"일 뿐이에요. 보호자 설정에서 놀이마다 직접 고를 수 있어요. */
@@ -81,6 +98,7 @@ JN.AGE_START = {
   let p;
   try { p = new URLSearchParams(location.search); } catch (e) { p = new URLSearchParams(""); }
   JN.TEST = p.get("test") === "1";
+  JN.TEST_EYE = p.get("eye") === "1";   // 시험 중에도 '눈 쉬기'를 보고 싶을 때 (?test=1&eye=1). 기본 시험에서는 놀이 흐름을 끊지 않게 꺼 둠
   JN.TIME_SCALE = JN.TEST ? Math.max(1, parseFloat(p.get("speed")) || 5) : 1;
   JN.ms = (ms) => ms / JN.TIME_SCALE;
 })();

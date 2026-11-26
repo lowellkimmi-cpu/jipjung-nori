@@ -1,14 +1,14 @@
 /* 같은 모양 (옛 '똑같은 모양 찾기') — 보기와 똑같은 모양 찾기. 오답은 보기와 딱 한 가지만 달라요 */
 "use strict";
 (function () {
-  const U = JN.util, h = U.h, rnd = U.rnd, pick = U.pick, shuffle = U.shuffle;
+  const U = JN.util, h = U.h, rnd = U.rnd, pick = U.pick, shuffle = U.shuffle, T = JN.t;   // T: 화면 글자는 lang/ko.js 에서
   const K = Art.COLORS, INK = Art.INK;
   const DATA = {
     stages: [
-      { id: "c3", name: "후보 3개 · 색과 모양이 달라요", choices: 3, diffs: ["color", "body"], tip: "색과 모양을 살펴봐요" },
-      { id: "c4", name: "후보 4개 · 색·모양·점이 달라요", choices: 4, diffs: ["color", "body", "dot"], tip: "색, 모양, 작은 점을 살펴봐요" },
-      { id: "c6", name: "후보 6개 · 점·줄·방향이 달라요", choices: 6, diffs: ["dot", "lines", "mirror", "rotate"], tip: "작은 점 자리, 줄 개수, 뾰족한 귀의 방향을 살펴봐요" },
-      { id: "c9", name: "후보 9개 · 점·줄·뒤집힘·회전", choices: 9, diffs: ["dot", "lines", "mirror", "rotate"], tip: "작은 점 자리, 줄 개수, 뾰족한 귀의 방향을 살펴봐요" },
+      { id: "c3", name: T("g.shape.c3"), choices: 3, diffs: ["color", "body"], tip: T("g.shape.c3.tip") },
+      { id: "c4", name: T("g.shape.c4"), choices: 4, diffs: ["color", "body", "dot"], tip: T("g.shape.c4.tip") },
+      { id: "c6", name: T("g.shape.c6"), choices: 6, diffs: ["dot", "lines", "mirror", "rotate"], tip: T("g.shape.c6.tip") },
+      { id: "c9", name: T("g.shape.c9"), choices: 9, diffs: ["dot", "lines", "mirror", "rotate"], tip: T("g.shape.c6.tip") },
     ],
     palette: [K.leaf, K.sky, K.honey, K.apricot, K.lilac],
     bodies: ["circle", "square", "triangle", "diamond", "pentagon", "hexagon"],
@@ -79,18 +79,18 @@
 
   JN.registerGame({
     id: "같은모양", stages: DATA.stages,
-    hintHelp: { always: "어디를 살펴볼지 글로 늘 알려 줘요", button: "힌트 버튼을 누르면 다른 후보 몇 개가 흐려져요", none: "힌트 없이 찾아요" },
-    parentNote: "한 판은 10문제예요. 8개 이상 찾으면 다음 판은 한 단계 위에서 해요",
-    chart: { key: "correct", label: "찾은 개수 (10문제 중)", unit: "개" },
-    describe: (e) => (e.total || 10) + "문제 중 " + (e.correct || 0) + "개 · " + U.fmtTime(e.time),
-    intro: () => "보기와 똑같은 모양을 찾아요",
+    hintHelp: { always: T("g.shape.hh.always"), button: T("g.shape.hh.button"), none: T("g.shape.hh.none") },
+    parentNote: T("g.shape.parentNote"),
+    chart: { key: "correct", label: T("g.shape.chart"), unit: T("g.light.unit") },
+    describe: (e) => T("g.shape.describe", { total: e.total || 10, n: e.correct || 0, time: U.fmtTime(e.time) }),
+    intro: () => T("g.shape.intro"),
     mount(ctx) {
       const st = ctx.stage, mode = ctx.settings.hintMode, board = ctx.board;
       board.classList.add("ss-board");
-      const target = h("div", { class: "ss-card ss-target", "aria-label": "보기 모양" });
+      const target = h("div", { class: "ss-card ss-target", "aria-label": T("g.shape.target.aria") });
       const tip = h("div", { class: "ss-tip" });
       const cands = h("div", { class: "ss-cands" });
-      board.append(h("div", { class: "ss-left" }, h("span", { class: "ss-tag", text: "보기" }), target, tip), cands);
+      board.append(h("div", { class: "ss-left" }, h("span", { class: "ss-tag", text: T("g.shape.tag") }), target, tip), cands);
       let prob = null, qNo = 0, correct = 0, mistakes = 0, hints = 0, busy = true, hinted = false;
       const prog = h("span", { class: "qprog" }); ctx.status(prog);
 
@@ -118,13 +118,13 @@
         target.innerHTML = svg(prob.target);
         cands.textContent = "";
         prob.cands.forEach((c, k) => {
-          const b = h("button", { type: "button", class: "ss-card", "data-k": String(k), "aria-label": "후보 " + (k + 1), svg: svg(c) });
+          const b = h("button", { type: "button", class: "ss-card", "data-k": String(k), "aria-label": T("g.shape.cand.aria", { n: k + 1 }), svg: svg(c) });
           b.addEventListener("click", () => choose(k));
           cands.appendChild(b);
         });
-        tip.textContent = mode === "always" ? "살펴볼 곳: " + st.tip : "";
+        tip.textContent = mode === "always" ? T("g.shape.tip", { tip: st.tip }) : "";
         layout();
-        ctx.say("보기와 똑같은 모양을 찾아요");
+        ctx.say(T("g.shape.intro"));
       }
       function choose(k) {
         if (busy) return;
@@ -132,20 +132,20 @@
         const btns = cands.children;
         btns[prob.answer].classList.add("right");
         JN.markRight(btns[prob.answer]);   // 정답 = 연필 동그라미
-        if (k === prob.answer) { correct++; ctx.sound("ok"); ctx.say(pick(["잘 찾았어요!", "똑같은 걸 찾았어요!", "꼼꼼하게 봤어요!"])); ctx.later(next, DATA.timing.okMs / JN.TIME_SCALE); }
-        else { mistakes++; btns[k].classList.add("dim"); ctx.say("똑같은 건 이거예요. 다음 것도 찾아봐요"); ctx.later(next, DATA.timing.showAnswerMs / JN.TIME_SCALE); }
+        if (k === prob.answer) { correct++; ctx.sound("ok"); ctx.say(pick(T("g.shape.say.ok"))); ctx.later(next, DATA.timing.okMs / JN.TIME_SCALE); }
+        else { mistakes++; btns[k].classList.add("dim"); ctx.say(T("g.shape.say.miss")); ctx.later(next, DATA.timing.showAnswerMs / JN.TIME_SCALE); }
       }
       function end() {
         const time = ctx.timer.stop();
         ctx.finish({ cleared: correct >= DATA.passScore, time, mistakes, hints, metrics: { correct, total: DATA.questionsPerGame },
-          title: correct + "개를 찾았어요!", line: "끝까지 꼼꼼히 봤어요.", bestKey: st.id, bestValue: correct, higherBetter: true });
+          title: T("g.shape.title", { n: correct }), line: T("g.shape.line"), bestKey: st.id, bestValue: correct, higherBetter: true });
       }
       ctx.hint(mode === "button", () => {
         if (busy || hinted) return;
         hinted = true; hints++;
         const w = shuffle([...cands.children].filter((b) => +b.dataset.k !== prob.answer));
         w.slice(0, Math.max(1, Math.floor(w.length / 2))).forEach((b) => b.classList.add("faded"));
-        tip.textContent = "살펴볼 곳: " + st.tip;
+        tip.textContent = T("g.shape.tip", { tip: st.tip });
       });
       return {
         start() { ctx.timer.start(); next(); },

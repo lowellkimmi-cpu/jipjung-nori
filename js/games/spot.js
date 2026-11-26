@@ -3,7 +3,7 @@
    장면 그림은 원래 놀이의 데이터를 그대로 옮겼고, 1~2단계 '굵은 선'은 먹색 테두리를 더했어요. */
 "use strict";
 (function () {
-  const U = JN.util, h = U.h, rnd = U.rnd, shuffle = U.shuffle;
+  const U = JN.util, h = U.h, rnd = U.rnd, shuffle = U.shuffle, T = JN.t;   // T: 화면 글자는 lang/ko.js 에서
   const CONF = {
     levels: [
       { style: "line", items: [3, 5], props: 0, diffs: 3, kinds: ["remove", "color"] },
@@ -15,10 +15,10 @@
       { style: "photo", diffs: 5, kinds: ["color", "erase", "flip", "scale"] },
       { style: "photo", diffs: 7, kinds: ["color", "erase", "flip", "scale"] },
     ],
-    styleNames: { line: "굵은 선", flat: "색면", flat2: "색면+그림자", water: "수채화", sketch: "연필 스케치", photo: "사진" },
+    styleNames: { line: T("g.spot.style.line"), flat: T("g.spot.style.flat"), flat2: T("g.spot.style.flat2"), water: T("g.spot.style.water"), sketch: T("g.spot.style.sketch"), photo: T("g.spot.style.photo") },
     photoFolder: "photos/", photoAnswerFile: "photos/정답.json",
   };
-  const STAGES = CONF.levels.map((l, i) => Object.assign({ id: "s" + (i + 1), name: CONF.styleNames[l.style] + " · 다른 곳 " + l.diffs + "개" }, l));
+  const STAGES = CONF.levels.map((l, i) => Object.assign({ id: "s" + (i + 1), name: T("g.spot.stage", { style: CONF.styleNames[l.style], n: l.diffs }) }, l));
   // 그림 색 (art.js 색 이름에서 가져와요)
   const K = Art.COLORS;
   const G = K.moss, S = K.night, Y = K.mustard, A = K.terracotta, P = K.lilac, I = Art.INK, W = K.white;
@@ -201,23 +201,23 @@
     id: "다른그림", stages: STAGES,
     isStageOpen: (i) => !isPhoto(i) || PHOTOS.length > 0,
     stageLabel: (st) => st.name,
-    hintHelp: { always: "한동안 못 찾으면 다른 곳 근처를 은은하게 비춰요", button: "힌트 버튼을 누르면 근처를 비춰요", none: "힌트 없이 찾아요" },
-    extraSettings: [{ key: "hintAfterSec", type: "select", label: "'늘 보기'에서 저절로 비추기까지", def: 30, options: [[15, "15초"], [30, "30초"], [45, "45초"], [60, "60초"]] }],
-    parentNote: "7~8단계는 사진 단계예요. photos 폴더에 사진을 넣고 사진목록.js 에 적으면 열려요",
-    chart: { key: "time", label: "걸린 시간", unit: "초" },
-    describe: (e) => U.fmtTime(e.time) + " · 다른 곳 아닌 데 누름 " + (e.mistakes || 0) + "번" + (e.hints ? " · 힌트 " + e.hints + "번" : ""),
-    intro: (st) => "두 그림에서 다른 곳 " + st.diffs + "개를 찾아요",
+    hintHelp: { always: T("g.spot.hh.always"), button: T("g.spot.hh.button"), none: T("g.spot.hh.none") },
+    extraSettings: [{ key: "hintAfterSec", type: "select", label: T("g.spot.x.after"), def: 30, options: [15, 30, 45, 60].map((n) => [n, T("common.sec", { n })]) }],
+    parentNote: T("g.spot.parentNote"),
+    chart: { key: "time", label: T("common.time"), unit: T("common.unit.sec") },
+    describe: (e) => U.fmtTime(e.time) + T("g.spot.describe", { m: e.mistakes || 0 }) + (e.hints ? T("g.number.describe.hint", { n: e.hints }) : ""),
+    intro: (st) => T("g.spot.intro", { n: st.diffs }),
     mount(ctx) {
       const lv = ctx.stage, set = ctx.settings, mode = set.hintMode, board = ctx.board, mem = ctx.mem;
       board.classList.add("sd-board");
       const NS = "http://www.w3.org/2000/svg";
-      const mk = (id, tag) => { const svg = document.createElementNS(NS, "svg"); svg.setAttribute("viewBox", "0 0 400 300"); svg.id = id; svg.setAttribute("aria-label", tag + " 그림"); return svg; };
-      const left = mk("sdL", "가"), right = mk("sdR", "나");
-      const wrapL = h("div", { class: "sd-pic" }, h("span", { class: "tag", text: "가" })), wrapR = h("div", { class: "sd-pic" }, h("span", { class: "tag", text: "나" }));
+      const mk = (id, tag) => { const svg = document.createElementNS(NS, "svg"); svg.setAttribute("viewBox", "0 0 400 300"); svg.id = id; svg.setAttribute("aria-label", T("g.spot.pic", { tag })); return svg; };
+      const left = mk("sdL", T("g.spot.tag.a")), right = mk("sdR", T("g.spot.tag.b"));
+      const wrapL = h("div", { class: "sd-pic" }, h("span", { class: "tag", text: T("g.spot.tag.a") })), wrapR = h("div", { class: "sd-pic" }, h("span", { class: "tag", text: T("g.spot.tag.b") }));
       wrapL.appendChild(left); wrapR.appendChild(right);
       const pics = h("div", { class: "sd-pics" }, wrapL, wrapR); board.appendChild(pics);
       let diffs = [], found = 0, done = true, hintShown = false, hints = 0, autoHints = 0, wrong = 0, lastFind = 0, iv = 0;
-      const dotsBox = h("span", { class: "sd-dots", "aria-label": "찾은 개수" });
+      const dotsBox = h("span", { class: "sd-dots", "aria-label": T("g.spot.count.aria") });
       ctx.status(dotsBox);
 
       function makeDrawing() {
@@ -313,7 +313,7 @@
           best.found = true; found++; lastFind = Date.now(); clearHint();
           circle(left, "mark", best.left.x, best.left.y, hitR(best.left) - 4); circle(right, "mark", best.right.x, best.right.y, hitR(best.right) - 4);
           ctx.sound("ok"); paintDots();
-          if (found === diffs.length) finish(); else ctx.say(found === 1 ? "찾았어요!" : "좋아요, 또 찾았어요!");
+          if (found === diffs.length) finish(); else ctx.say(found === 1 ? T("g.spot.say.first") : T("g.spot.say.more"));
         } else {
           wrong++;
           const r = circle(svg, "ripple", p[0], p[1], 22); setTimeout(() => r.remove(), 800);
@@ -335,7 +335,7 @@
       function finish() {
         done = true; clearHint(); clearInterval(iv);
         const time = ctx.timer.stop();
-        ctx.finish({ cleared: true, time, mistakes: wrong, hints, metrics: { autoHints }, title: "다 찾았어요!", line: "다른 곳 " + diffs.length + "개를 모두 찾았어요.",
+        ctx.finish({ cleared: true, time, mistakes: wrong, hints, metrics: { autoHints }, title: T("g.spot.title"), line: T("g.spot.line", { n: diffs.length }),
           bestKey: lv.id, bestValue: U.r1(time) });
       }
       ctx.hint(mode === "button", () => { if (!done && !hintShown) { hints++; showHint(); } });
@@ -343,7 +343,7 @@
       paintDots(); layout();
       return {
         start() {
-          done = false; lastFind = Date.now(); ctx.timer.start(); ctx.say("두 그림에서 다른 곳을 찾아 눌러 보세요");
+          done = false; lastFind = Date.now(); ctx.timer.start(); ctx.say(T("g.spot.say.begin"));
           iv = setInterval(() => {
             if (!done && mode === "always" && !hintShown && Date.now() - lastFind >= (Number(set.hintAfterSec) || 30) * 1000 / JN.TIME_SCALE) { autoHints++; showHint(); }
           }, 500);

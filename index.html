@@ -7,11 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="집중 놀이터">
+<meta name="apple-mobile-web-app-title" content="" data-t-content="meta.title">
 <meta name="format-detection" content="telephone=no">
 <meta name="robots" content="noindex, nofollow">
-<meta name="description" content="집에서 함께하는 놀이 13가지">
-<title>집중 놀이터</title>
+<meta name="description" content="" data-t-content="meta.desc">
+<title data-t="meta.title"></title>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <link rel="stylesheet" href="css/tokens.css">
@@ -21,51 +21,53 @@
 </head>
 <body class="jn-app">
 
+<!-- 화면에 보이는 글자는 lang/ko.js 에 있어요. data-t="키" 는 그 문구로, data-t-aria 는 aria-label 로 채워져요 (js/i18n.js) -->
+
 <!-- 1. 누가 놀까요? -->
-<section id="scr-who" class="screen who" aria-label="누가 놀까요">
+<section id="scr-who" class="screen who" aria-label="" data-t-aria="who.aria">
   <div class="bg" id="whoBg" aria-hidden="true"></div>
-  <button class="jn-iconbtn jn-iconbtn--parent lock" type="button" data-act="parent" aria-label="보호자 설정" data-icon="보호자"></button>
-  <div class="who__head"><div class="bomi-say"><div class="m jn-float" data-owl="웃음,인사"></div><div class="jn-bubble jn-bubble--left" id="whoBubble">안녕! 오늘은 누가 놀러 왔어?</div></div></div>
-  <h1 class="ttl" id="whoTitle">누가 놀까요?</h1>
+  <button class="jn-iconbtn jn-iconbtn--parent lock" type="button" data-act="parent" aria-label="" data-t-aria="parent.title" data-icon="보호자"></button>
+  <div class="who__head"><div class="bomi-say"><div class="m jn-float" data-owl="웃음,인사"></div><div class="jn-bubble jn-bubble--left" id="whoBubble" data-t="who.bubble.hello"></div></div></div>
+  <h1 class="ttl" id="whoTitle" data-t="who.title"></h1>
   <div class="kids" id="kids"></div>
-  <p class="note">실명 대신 별명을 써 주세요. 기록은 이 기기 안에만 저장돼요.</p>
+  <p class="note" data-t="who.note"></p>
 </section>
 
 <!-- 2. 영역 방 7개 -->
-<section id="scr-home" class="screen rooms" aria-label="놀이터">
+<section id="scr-home" class="screen rooms" aria-label="" data-t-aria="home.aria">
   <div class="jn-topbar page-inner">
-    <button class="me" type="button" data-act="who" aria-label="놀 사람 바꾸기"><i id="homeAv"></i><span id="homeTitle">놀이터</span></button>
-    <button class="jn-iconbtn jn-iconbtn--parent" type="button" data-act="parent" aria-label="보호자 설정" data-icon="보호자"></button>
+    <button class="me" type="button" data-act="who" aria-label="" data-t-aria="home.switch.aria"><i id="homeAv"></i><span id="homeTitle" data-t="home.title.default"></span></button>
+    <button class="jn-iconbtn jn-iconbtn--parent" type="button" data-act="parent" aria-label="" data-t-aria="parent.title" data-icon="보호자"></button>
   </div>
-  <div class="rooms__hello page-inner"><span class="m" data-owl="기본,가리키기"></span><h1 class="ttl">어느 방에 가 볼까?</h1></div>
+  <div class="rooms__hello page-inner"><span class="m" data-owl="기본,가리키기"></span><h1 class="ttl" data-t="home.hello"></h1></div>
   <div class="roomgrid page-inner" id="rooms"></div>
 </section>
 
 <!-- 2-1. 방 안 -->
-<section id="scr-room" class="screen room" aria-label="방 안">
+<section id="scr-room" class="screen room" aria-label="" data-t-aria="room.aria">
   <div class="jn-topbar page-inner">
-    <button class="jn-iconbtn" type="button" data-act="home" aria-label="방 목록으로" data-icon="뒤로"></button>
+    <button class="jn-iconbtn" type="button" data-act="home" aria-label="" data-t-aria="room.back.aria" data-icon="뒤로"></button>
     <span class="jn-topbar__title"></span>
-    <button class="jn-iconbtn jn-iconbtn--parent" type="button" data-act="parent" aria-label="보호자 설정" data-icon="보호자"></button>
+    <button class="jn-iconbtn jn-iconbtn--parent" type="button" data-act="parent" aria-label="" data-t-aria="parent.title" data-icon="보호자"></button>
   </div>
   <div class="room-body page-inner">
     <div class="band" id="roomBand"></div>
     <div class="room-main">
       <div class="room-intro"><h1 class="ttl"><i id="roomIcon"></i><span id="roomName"></span></h1><p class="sub" id="roomPower"></p></div>
       <div class="games" id="gameCards"></div>
-      <div class="guide"><div class="jn-bubble" id="roomTip">어떤 놀이부터 해 볼까?</div><span class="m" data-owl="웃음,기본"></span></div>
-      <p class="note">아이마다 속도가 달라요. 단계는 언제든 바꿀 수 있어요.</p>
+      <div class="guide"><div class="jn-bubble" id="roomTip" data-t="room.tip"></div><span class="m" data-owl="웃음,기본"></span></div>
+      <p class="note" data-t="room.note"></p>
     </div>
   </div>
 </section>
 
 <!-- 3. 놀이 공통 틀 -->
-<section id="scr-play" class="screen play" aria-label="놀이">
+<section id="scr-play" class="screen play" aria-label="" data-t-aria="play.aria">
   <div class="frame-top">
-    <button class="jn-iconbtn" type="button" data-act="room" aria-label="방으로 돌아가기" data-icon="홈"></button>
+    <button class="jn-iconbtn" type="button" data-act="room" aria-label="" data-t-aria="play.back.aria" data-icon="홈"></button>
     <div class="t"><b id="playTitle"></b><span class="jn-stage" id="stageChip"></span></div>
-    <button class="jn-iconbtn" type="button" id="soundBtn" aria-label="소리" aria-pressed="false"></button>
-    <button class="jn-iconbtn jn-iconbtn--parent" type="button" data-act="parent-game" aria-label="보호자 설정" data-icon="보호자"></button>
+    <button class="jn-iconbtn" type="button" id="soundBtn" aria-label="" data-t-aria="play.sound" aria-pressed="false"></button>
+    <button class="jn-iconbtn jn-iconbtn--parent" type="button" data-act="parent-game" aria-label="" data-t-aria="parent.title" data-icon="보호자"></button>
   </div>
   <div class="play-wrap">
     <div class="board-wrap">
@@ -80,7 +82,7 @@
         <div class="track"><span id="playStatus" class="play-status"></span><span class="timer jn-num" id="timerBox"><i data-icon="시계"></i><span id="timerText">0.0</span></span></div>
         <div class="bottom-left" id="bottomLeft"></div>
         <span class="m side-owl" id="sideOwl" aria-hidden="true"></span>
-        <button class="hintbtn" type="button" id="hintBtn" aria-label="힌트" data-icon="힌트" hidden></button>
+        <button class="hintbtn" type="button" id="hintBtn" aria-label="" data-t-aria="play.hint" data-icon="힌트" hidden></button>
       </div>
     </div>
   </div>
@@ -93,24 +95,24 @@
     <div class="big-stars" id="praiseStars"></div>
     <div class="hero jn-pop" id="praiseOwl"></div>
     <div class="card jn-card">
-      <h1 id="praiseTitle">다 찾았어요!</h1>
+      <h1 id="praiseTitle" data-t="praise.title.default"></h1>
       <p class="praise-line" id="praiseLine"></p>
-      <div class="chips"><span class="chip jn-num" id="praiseTime"><i data-icon="시계"></i><span></span></span><span class="chip best" id="praiseBest">최고 기록!</span></div>
-      <div class="autonext" id="autoNext"><span id="autoNextText">곧 다음 단계로 가요</span><i><b id="autoNextBar"></b></i></div>
+      <div class="chips"><span class="chip jn-num" id="praiseTime"><i data-icon="시계"></i><span></span></span><span class="chip best" id="praiseBest" data-t="praise.best"></span></div>
+      <div class="autonext" id="autoNext"><span id="autoNextText" data-t="praise.autonext.next"></span><i><b id="autoNextBar"></b></i></div>
       <div class="suggest" id="suggest" hidden>
         <p id="suggestText"></p>
         <button class="jn-btn jn-btn--primary" type="button" id="suggestYes"></button>
-        <button class="jn-btn jn-btn--quiet" type="button" id="suggestNo">이대로 할래요</button>
+        <button class="jn-btn jn-btn--quiet" type="button" id="suggestNo" data-t="praise.suggest.no"></button>
       </div>
       <div class="again" id="againBox" hidden>
-        <p>한 번 더 할까요?</p>
-        <button class="jn-btn jn-btn--primary" type="button" id="againYes">한 번 더 해요</button>
-        <button class="jn-btn jn-btn--quiet" type="button" id="againNo">그만할래요</button>
+        <p data-t="praise.again.ask"></p>
+        <button class="jn-btn jn-btn--primary" type="button" id="againYes" data-t="praise.again.yes"></button>
+        <button class="jn-btn jn-btn--quiet" type="button" id="againNo" data-t="praise.again.no"></button>
       </div>
       <div class="alldone" id="allDone" hidden>
-        <button class="jn-btn jn-btn--primary" type="button" id="allAgain">1단계부터 다시</button>
-        <button class="jn-btn" type="button" id="allSame">이 단계 한 번 더</button>
-        <button class="jn-btn jn-btn--quiet" type="button" id="allRoom">방으로 돌아가기</button>
+        <button class="jn-btn jn-btn--primary" type="button" id="allAgain" data-t="praise.all.again"></button>
+        <button class="jn-btn" type="button" id="allSame" data-t="praise.all.same"></button>
+        <button class="jn-btn jn-btn--quiet" type="button" id="allRoom" data-t="praise.all.room"></button>
       </div>
     </div>
   </div>
@@ -120,79 +122,108 @@
 <div id="rest" class="overlay full scene-scr rest-scr" hidden>
   <div class="bg" aria-hidden="true"><span class="tall" id="restBgTall"></span><span class="wide" id="restBgWide"></span></div>
   <div class="center rest">
-    <div class="card jn-card"><h1 id="restTitle">잠깐 쉬어요</h1><p>동그라미가 커지면 들이쉬고, 작아지면 후— 내쉬어요.</p></div>
-    <div class="breath"><span class="fill"></span><span class="ring" id="breathRing"></span><b id="breathText">들이쉬고…</b></div>
+    <div class="card jn-card"><h1 id="restTitle" data-t="rest.title.default"></h1><p data-t="rest.text"></p></div>
+    <div class="breath"><span class="fill"></span><span class="ring" id="breathRing"></span><b id="breathText" data-t="rest.in"></b></div>
     <div class="dal" data-snail="쉬어요,기지개"></div>
     <div class="rest-btns">
-      <button class="jn-btn jn-btn--primary rest-go" type="button" id="restGo" hidden>다 쉬었어요</button>
-      <button class="jn-btn jn-btn--quiet" type="button" id="restRoom">방으로 돌아가기</button>
+      <button class="jn-btn jn-btn--primary rest-go" type="button" id="restGo" data-t="rest.go" hidden></button>
+      <button class="jn-btn jn-btn--quiet" type="button" id="restRoom" data-t="rest.room"></button>
     </div>
   </div>
 </div>
+
+<!-- 5-1. 눈 쉬기 (부엉이, 20초). 깜빡임 없는 차분한 화면 -->
+<div id="eyeRest" class="overlay full eye-scr" hidden>
+  <div class="eye-in" role="status" aria-live="polite">
+    <div class="eye-owl" id="eyeOwl" aria-hidden="true"></div>
+    <h1 id="eyeTitle" data-t="eye.title.default"></h1>
+    <p id="eyeText" data-t="eye.text"></p>
+    <p class="eye-count"><b class="jn-num" id="eyeCount">20</b><span data-t="eye.unit"></span></p>
+    <button class="jn-btn jn-btn--primary" type="button" id="eyeGo" data-t="eye.go" hidden></button>
+    <button class="jn-btn jn-btn--quiet" type="button" id="eyeRoom" data-t="eye.room"></button>
+  </div>
+</div>
+
+<!-- 5-2. 오늘 놀이 시간이 다 됐어요 (보호자가 정한 하루 시간) -->
+<div id="timeUp" class="overlay full eye-scr" hidden>
+  <div class="eye-in" role="status" aria-live="polite">
+    <div class="eye-owl" id="timeUpOwl" aria-hidden="true"></div>
+    <h1 data-t="timeup.title"></h1>
+    <p data-t="timeup.text"></p>
+    <button class="jn-btn jn-btn--primary" type="button" id="timeUpBye" data-t="timeup.bye"></button>
+  </div>
+</div>
+
+<!-- 새 버전 알림: 새 파일이 준비됐을 때만 보여요 (놀이 중에는 숨김) -->
+<button class="jn-btn jn-btn--primary update-btn" type="button" id="updateBtn" data-t="update.btn" hidden></button>
 
 <!-- 곧 열려요 (달팽이) -->
 <div id="soon" class="overlay dim" hidden>
   <div class="dialog jn-card" role="dialog" aria-labelledby="soonTitle">
     <div class="mas" data-snail="웃음,인사"></div>
-    <h2 id="soonTitle">곧 열려요</h2>
+    <h2 id="soonTitle" data-t="soon.title"></h2>
     <p id="soonText"></p>
-    <button class="jn-btn jn-btn--primary" type="button" data-act="close-soon">알겠어요</button>
+    <button class="jn-btn jn-btn--primary" type="button" data-act="close-soon" data-t="soon.ok"></button>
   </div>
 </div>
 
 <!-- 6. 보호자 잠금 -->
-<section id="scr-lock" class="screen lock-scr" aria-label="보호자 잠금">
-  <button class="jn-iconbtn close" type="button" id="lockBack" aria-label="닫기" data-icon="닫기"></button>
+<section id="scr-lock" class="screen lock-scr" aria-label="" data-t-aria="lock.aria">
+  <button class="jn-iconbtn close" type="button" id="lockBack" aria-label="" data-t-aria="common.close" data-icon="닫기"></button>
   <div class="lockcard jn-card">
     <div class="ic" data-icon="보호자"></div>
-    <h1>어른 확인</h1>
-    <p>보호자 설정은 어른만 열 수 있어요</p>
+    <h1 data-t="lock.title"></h1>
+    <p data-t="lock.text"></p>
     <div class="q jn-num"><span id="lockQ"></span><span class="ans" id="lockAns"><span class="box" id="lockBox"></span><span class="val" id="lockVal"></span></span></div>
     <div class="pad" id="keypad"></div>
   </div>
 </section>
 
 <!-- 아이 추가·고치기 -->
-<section id="scr-profile" class="screen settings" aria-label="아이 정보">
-  <div class="jn-topbar page-inner"><button class="jn-iconbtn" type="button" id="profBack" aria-label="닫기" data-icon="닫기"></button><h2 class="jn-topbar__title" id="profTitle">친구 추가</h2><span class="spacer"></span></div>
+<section id="scr-profile" class="screen settings" aria-label="" data-t-aria="prof.aria">
+  <div class="jn-topbar page-inner"><button class="jn-iconbtn" type="button" id="profBack" aria-label="" data-t-aria="common.close" data-icon="닫기"></button><h2 class="jn-topbar__title" id="profTitle" data-t="prof.title.add"></h2><span class="spacer"></span></div>
   <div class="page form">
     <section class="setcard jn-card">
-      <label class="field-label" for="profNick">별명</label>
-      <input id="profNick" class="text-in" type="text" maxlength="8" autocomplete="off" placeholder="예: 하늘" aria-describedby="profNote">
-      <p class="care" id="profNote">실명 대신 별명을 써 주세요. 생년월일·사진·학교는 받지 않아요.</p>
-      <div class="field-label">동물</div>
-      <div class="pick-grid" id="profAnimals" role="group" aria-label="동물 고르기"></div>
-      <div class="field-label">색</div>
-      <div class="pick-colors" id="profColors" role="group" aria-label="색 고르기"></div>
-      <div class="jn-row"><span class="lbl"><b>만 나이</b></span><span class="stepper"><button type="button" id="ageMinus" aria-label="나이 빼기">−</button><b id="ageVal" class="jn-num">5</b><button type="button" id="agePlus" aria-label="나이 더하기">+</button></span></div>
-      <p class="care">나이에 맞춰 놀이마다 시작 단계를 추천해요. 아이마다 속도가 달라요. 언제든 바꿀 수 있어요.</p>
+      <label class="field-label" for="profNick" data-t="prof.nick"></label>
+      <input id="profNick" class="text-in" type="text" maxlength="8" autocomplete="off" placeholder="" data-t-ph="prof.nick.ph" aria-describedby="profNote">
+      <p class="care" id="profNote" data-t="prof.note"></p>
+      <div class="field-label" data-t="prof.animal"></div>
+      <div class="pick-grid" id="profAnimals" role="group" aria-label="" data-t-aria="prof.animal.aria"></div>
+      <div class="field-label" data-t="prof.color"></div>
+      <div class="pick-colors" id="profColors" role="group" aria-label="" data-t-aria="prof.color.aria"></div>
+      <div class="jn-row"><span class="lbl"><b data-t="prof.age"></b></span><span class="stepper"><button type="button" id="ageMinus" aria-label="" data-t-aria="prof.age.minus">−</button><b id="ageVal" class="jn-num">5</b><button type="button" id="agePlus" aria-label="" data-t-aria="prof.age.plus">+</button></span></div>
+      <p class="care" data-t="prof.age.note"></p>
     </section>
-    <button class="jn-btn jn-btn--primary jn-btn--block" type="button" id="profSave">저장하기</button>
-    <button class="jn-btn jn-btn--quiet jn-btn--block" type="button" id="profDelete" hidden>이 아이와 기록 지우기</button>
+    <button class="jn-btn jn-btn--primary jn-btn--block" type="button" id="profSave" data-t="prof.save"></button>
+    <button class="jn-btn jn-btn--quiet jn-btn--block" type="button" id="profDelete" data-t="prof.delete" hidden></button>
   </div>
 </section>
 
 <!-- 6-1. 보호자 설정 -->
-<section id="scr-parent" class="screen settings" aria-label="보호자 설정">
+<section id="scr-parent" class="screen settings" aria-label="" data-t-aria="parent.title">
   <div class="jn-topbar page-inner">
-    <button class="jn-iconbtn" type="button" id="parentClose" aria-label="닫기" data-icon="닫기"></button>
-    <h2 class="jn-topbar__title">보호자 설정</h2>
-    <button class="jn-iconbtn" type="button" id="toRecords" aria-label="기록 보기" data-icon="기록"></button>
+    <button class="jn-iconbtn" type="button" id="parentClose" aria-label="" data-t-aria="common.close" data-icon="닫기"></button>
+    <h2 class="jn-topbar__title" data-t="parent.title"></h2>
+    <button class="jn-iconbtn" type="button" id="toRecords" aria-label="" data-t-aria="parent.records.aria" data-icon="기록"></button>
   </div>
   <div class="kidtabs page-inner" id="parentTabs"></div>
   <div class="page" id="parentBody"></div>
 </section>
 
 <!-- 기록 보기 -->
-<section id="scr-records" class="screen settings" aria-label="기록 보기">
+<section id="scr-records" class="screen settings" aria-label="" data-t-aria="rec.aria">
   <div class="jn-topbar page-inner">
-    <button class="jn-iconbtn" type="button" id="recBack" aria-label="보호자 설정으로" data-icon="뒤로"></button>
-    <h2 class="jn-topbar__title">놀이 기록</h2><span class="spacer"></span>
+    <button class="jn-iconbtn" type="button" id="recBack" aria-label="" data-t-aria="rec.back.aria" data-icon="뒤로"></button>
+    <h2 class="jn-topbar__title" data-t="rec.title"></h2><span class="spacer"></span>
   </div>
   <div class="kidtabs page-inner" id="recTabs"></div>
   <div class="page" id="recBody"></div>
 </section>
 
+<!-- 언어 파일: 화면 글자는 모두 여기 있어요. 다른 언어를 쓰려면 lang/en.js 같은 파일을 하나 더 불러오고 아래 JN_LANG 의 "ko" 를 "en" 으로 바꿔요 (README "다른 언어 추가") -->
+<script src="lang/ko.js"></script>
+<script>window.JN_LANG = "ko";</script>
+<script src="js/i18n.js"></script>
 <!-- 사진 단계(다른 그림 찾기 7~8단계)용 목록. 사진을 넣는 방법은 photos/사진목록.js 안에 적혀 있어요. -->
 <script src="photos/사진목록.js"></script>
 <!-- perfect-freehand 는 art.js 보다 먼저 (붓선) -->

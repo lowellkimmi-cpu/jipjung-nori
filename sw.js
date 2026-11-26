@@ -2,10 +2,12 @@
    - 모든 경로는 상대 경로라서 https://아이디.github.io/집중놀이터/ 같은 하위 경로에서도 동작해요.
    - 앱 파일을 고치면 VERSION 숫자를 올려 주세요. 그래야 폰에 새 파일이 들어가요.
    - 외부 주소는 캐시하지도 요청하지도 않아요. */
-const VERSION = "jn-v14";
+const VERSION = "jn-v20";
 const ASSETS = [
   "./",
   "index.html",
+  "lang/ko.js",
+  "js/i18n.js",
   "manifest.json",
   "css/tokens.css",
   "css/tokens-extra.css",
@@ -49,7 +51,12 @@ const ASSETS = [
   "icons/apple-touch-icon.png",
 ];
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(VERSION).then((c) => c.addAll(ASSETS.map((a) => new Request(a, { cache: "reload" })))).then(() => self.skipWaiting()));
+  /* 일부러 skipWaiting() 을 바로 부르지 않아요. 이미 앱을 쓰고 있으면 새 버전은 '기다리는 중'이 되고,
+     앱 화면의 '새 놀이가 왔어요' 단추를 누르면 아래 message 로 그때 바뀌어요 (놀이 도중에 갑자기 바뀌지 않게). 처음 설치는 바로 켜져요. */
+  e.waitUntil(caches.open(VERSION).then((c) => c.addAll(ASSETS.map((a) => new Request(a, { cache: "reload" })))));
+});
+self.addEventListener("message", (e) => {
+  if (e.data && e.data.type === "SKIP_WAITING") self.skipWaiting();
 });
 self.addEventListener("activate", (e) => {
   e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== VERSION).map((k) => caches.delete(k)))).then(() => self.clients.claim()));

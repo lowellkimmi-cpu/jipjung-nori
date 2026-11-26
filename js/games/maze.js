@@ -1,18 +1,18 @@
 /* 선 긋기 미로 (옛 '길 따라 선 긋기 · 미로') — 넓은 길 따라 선 긋기 → 미로 */
 "use strict";
 (function () {
-  const U = JN.util, h = U.h;
+  const U = JN.util, h = U.h, T = JN.t;   // T: 화면 글자는 lang/ko.js 에서
   const DATA = {
     stages: [
-      { id: "line1", name: "선 긋기 · 곧은 길, 지그재그 길", kind: "line", courses: ["straight", "zigzag"], width: 124 },
-      { id: "line2", name: "선 긋기 · 지그재그 길, 물결 길", kind: "line", courses: ["zigzag", "wave"], width: 100 },
-      { id: "line3", name: "선 긋기 · 물결 길, 달팽이 길", kind: "line", courses: ["wave", "spiral"], width: 80 },
-      { id: "maze5", name: "미로 5×5", kind: "maze", size: 5, count: 2 },
-      { id: "maze7", name: "미로 7×7", kind: "maze", size: 7, count: 2 },
-      { id: "maze9", name: "미로 9×9", kind: "maze", size: 9, count: 2 },
-      { id: "maze11", name: "미로 11×11", kind: "maze", size: 11, count: 2 },
+      { id: "line1", name: T("g.maze.line1"), kind: "line", courses: ["straight", "zigzag"], width: 124 },
+      { id: "line2", name: T("g.maze.line2"), kind: "line", courses: ["zigzag", "wave"], width: 100 },
+      { id: "line3", name: T("g.maze.line3"), kind: "line", courses: ["wave", "spiral"], width: 80 },
+      { id: "maze5", name: T("g.maze.maze", { n: 5 }), kind: "maze", size: 5, count: 2 },
+      { id: "maze7", name: T("g.maze.maze", { n: 7 }), kind: "maze", size: 7, count: 2 },
+      { id: "maze9", name: T("g.maze.maze", { n: 9 }), kind: "maze", size: 9, count: 2 },
+      { id: "maze11", name: T("g.maze.maze", { n: 11 }), kind: "maze", size: 11, count: 2 },
     ],
-    courseNames: { straight: "곧은 길", zigzag: "지그재그 길", wave: "물결 길", spiral: "달팽이 길" },
+    courseNames: { straight: T("g.maze.course.straight"), zigzag: T("g.maze.course.zigzag"), wave: T("g.maze.course.wave"), spiral: T("g.maze.course.spiral") },
     hintButtonMs: 3000, mazeHintCells: 3,
   };
   const STEP = 5, M = 24;
@@ -58,11 +58,11 @@
 
   JN.registerGame({
     id: "선긋기미로", stages: DATA.stages,
-    hintHelp: { always: "가야 할 길에 점선 안내가 늘 보여요", button: "힌트 버튼을 누르면 점선 안내가 잠깐 보여요", none: "안내 없이 스스로 찾아가요" },
-    parentNote: "한 단계에 길(미로) 2개가 있어요. 둘 다 끝내면 다음 단계로 가요",
-    chart: { key: "time", label: "걸린 시간", unit: "초" },
-    describe: (e) => U.fmtTime(e.time) + (e.kind === "maze" ? " · 벽에 막힘 " : " · 길 밖으로 ") + (e.mistakes || 0) + "번" + (e.course ? " · " + DATA.courseNames[e.course] : ""),
-    intro: (st) => st.kind === "line" ? "초록 동그라미에서 별까지 그어요" : "강아지를 집까지 데려다줘요",
+    hintHelp: { always: T("g.maze.hh.always"), button: T("g.maze.hh.button"), none: T("g.maze.hh.none") },
+    parentNote: T("g.maze.parentNote"),
+    chart: { key: "time", label: T("common.time"), unit: T("common.unit.sec") },
+    describe: (e) => U.fmtTime(e.time) + T(e.kind === "maze" ? "g.maze.describe.maze" : "g.maze.describe.line", { n: e.mistakes || 0 }) + (e.course ? " · " + DATA.courseNames[e.course] : ""),
+    intro: (st) => st.kind === "line" ? T("g.maze.intro.line") : T("g.maze.intro.maze"),
     mount(ctx) {
       const st = ctx.stage, mode = ctx.settings.hintMode, board = ctx.board, mem = ctx.mem, kind = st.kind;
       board.classList.add("mz-board");
@@ -72,7 +72,7 @@
       const COL = { ink: JN.cssVar("--c-ink", "#2F3E46"), green: JN.cssVar("--c-primary-soft", "#6BAA75"), sky: JN.cssVar("--area-seeing", "#7FB7D9"), honey: JN.cssVar("--c-honey", "#F2C14E"),
         apricot: JN.cssVar("--c-gentle", "#F29E7E"), cream: JN.cssVar("--c-path", "#FCF7EC"), kid: JN.cssVar("--c-kid-line-2", "#8AA6BD") };
       let wallCache = null;   // 미로 벽(연필 선)은 한 번만 그려 두고 다시 써요
-      const cv = h("canvas", { class: "mz-canvas", "aria-label": "선 긋기 놀이판" }), c2 = cv.getContext("2d");
+      const cv = h("canvas", { class: "mz-canvas", "aria-label": T("g.maze.canvas.aria") }), c2 = cv.getContext("2d");
       board.appendChild(cv);
       const dogImg = U.svgImg(Art.profile("강아지", { color: Art.COLORS.apricot }));
       dogImg.onload = () => draw();
@@ -184,12 +184,12 @@
         const p = toLogical(e);
         if (kind === "line") {
           const [lo, hi] = lineWindow(), [, d] = nearest(p[0], p[1], lo, hi);
-          if (d > pw / 2 + 14) { ctx.say(prog === 0 ? "초록 동그라미에서 시작해요" : "꿀색 동그라미에서 이어 그려요"); draw(); return; }
+          if (d > pw / 2 + 14) { ctx.say(prog === 0 ? T("g.maze.say.start") : T("g.maze.say.continue")); draw(); return; }
           runs.push({ ok: true, pts: [p] }); off = false;
         } else {
           const c = cellAt(p[0], p[1]); let idx = -1;
           if (c) for (let i = route.length - 1; i >= 0; i--) if (same(route[i], c)) { idx = i; break; }
-          if (idx < 0) { ctx.say(route.length > 1 ? "초록 선 끝(강아지)에서 이어 그려요" : "강아지를 눌러서 시작해요"); return; }
+          if (idx < 0) { ctx.say(route.length > 1 ? T("g.maze.say.fromdog") : T("g.maze.say.tapdog")); return; }
           route.length = idx + 1; finger = p;
         }
         try { cv.setPointerCapture(e.pointerId); } catch (err) { /* 무시 */ }
@@ -204,13 +204,13 @@
         for (let k = 1; k <= n && !done; k++) { const q = [last[0] + (p[0] - last[0]) * k / n, last[1] + (p[1] - last[1]) * k / n]; if (kind === "line") lineStep(q); else mazeStep(q); }
         last = p; draw();
       });
-      const endStroke = () => { if (!drawing) return; drawing = false; if (!done && kind === "line" && prog > 0) ctx.say("꿀색 동그라미에서 이어 그리면 돼요"); draw(); };
+      const endStroke = () => { if (!drawing) return; drawing = false; if (!done && kind === "line" && prog > 0) ctx.say(T("g.maze.say.resume")); draw(); };
       cv.addEventListener("pointerup", endStroke); cv.addEventListener("pointercancel", endStroke);
       function lineStep(q) {
         const [lo, hi] = lineWindow(), [i, d] = nearest(q[0], q[1], lo, hi), ok = d <= pw / 2;
         if (ok) prog = Math.max(prog, i);
-        if (!ok && !off) { mistakes++; ctx.say("길 위로 돌아와서 이어 그려요"); }
-        if (ok && off) ctx.say("좋아요, 계속 가요");
+        if (!ok && !off) { mistakes++; ctx.say(T("g.maze.say.back")); }
+        if (ok && off) ctx.say(T("g.maze.say.go"));
         off = !ok;
         const cur = runs[runs.length - 1];
         if (cur.ok === ok) cur.pts.push(q); else runs.push({ ok, pts: [cur.pts[cur.pts.length - 1], q] });
@@ -223,7 +223,7 @@
           if (prev && same(c, prev)) route.pop();
           else if (canMove(mz, cur[0], cur[1], c[0], c[1])) { route.push(c); if (c[0] === mz.n - 1 && c[1] === mz.n - 1) { finger = null; win(); return; } }
           else if (Math.abs(c[0] - cur[0]) + Math.abs(c[1] - cur[1]) === 1) {
-            if (!finger || !finger.blocked) { mistakes++; ctx.say("벽은 지나갈 수 없어요. 길로 돌아가요"); }
+            if (!finger || !finger.blocked) { mistakes++; ctx.say(T("g.maze.say.wall")); }
             finger = clampToCell(q, route[route.length - 1]); finger.blocked = true; return;
           }
         }
@@ -237,7 +237,7 @@
         draw();
         const metrics = { kind }; if (kind === "line") metrics.course = st.courses[courseIdx];
         ctx.finish({ cleared: true, advance: lastCourse, time, mistakes, hints, metrics,
-          title: kind === "line" ? "끝까지 잘 그렸어요!" : "강아지가 집에 왔어요!", line: courseName() + (lastCourse ? "" : " · 다음 길도 있어요"),
+          title: kind === "line" ? T("g.maze.title.line") : T("g.maze.title.maze"), line: courseName() + (lastCourse ? "" : T("g.maze.line.more")),
           bestKey: st.id + (kind === "line" ? ":" + st.courses[courseIdx] : ""), bestValue: U.r1(time) });
       }
       ctx.hint(mode === "button", () => { if (done) return; hints++; guideUntil = performance.now() + DATA.hintButtonMs; ctx.later(draw, DATA.hintButtonMs + 30); draw(); });
@@ -245,7 +245,7 @@
       if (kind === "line") buildLine(); else buildMaze();
       draw();
       return {
-        start() { done = false; ctx.say((kind === "line" ? "초록 동그라미에서 별까지 손을 떼지 말고 그어요" : "강아지를 집까지 데려다줘요") + " (" + (courseIdx + 1) + "/" + total + ")"); draw(); },
+        start() { done = false; ctx.say((kind === "line" ? T("g.maze.say.begin.line") : T("g.maze.intro.maze")) + " (" + (courseIdx + 1) + "/" + total + ")"); draw(); },
         resize() { const ch = layout(); if (ch && !done) buildLine(); draw(); },
         destroy() { done = true; cancelAnimationFrame(raf); },
         test: {

@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#F5EDDC">
 <meta name="robots" content="noindex, nofollow">
-<meta name="description" content="집중 놀이터를 폰·태블릿·PC에 앱처럼 설치하는 방법">
-<title>앱으로 설치 · 집중 놀이터</title>
+<meta name="description" content="" data-t-content="inst.meta.desc">
+<title data-t="inst.meta.title"></title>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <link rel="stylesheet" href="css/tokens.css">
@@ -14,69 +14,73 @@
 <link rel="stylesheet" href="css/install.css">
 </head>
 <body class="jn-app inst">
+<!-- 화면 글자는 lang/ko.js 에 있어요 (data-t="키", **굵게** 는 data-t-rich) -->
 <main class="inst-wrap">
-  <a class="jn-btn inst-back" href="index.html" id="backLink">놀이터로 돌아가기</a>
+  <a class="jn-btn inst-back" href="index.html" id="backLink" data-t="inst.back"></a>
 
   <header class="inst-head">
     <img src="icons/icon-192.png" width="96" height="96" alt="" class="inst-icon">
-    <h1>앱으로 설치하기</h1>
-    <p class="sub">집중 놀이터를 홈 화면(또는 바탕화면)에 두면 앱처럼 바로 열 수 있어요. 무료이고, 결제나 광고가 없어요.</p>
+    <h1 data-t="inst.title"></h1>
+    <p class="sub" data-t="inst.sub"></p>
   </header>
 
   <section class="inst-card jn-card" aria-labelledby="stateTitle">
-    <h2 id="stateTitle">지금 이 기기는</h2>
-    <p id="stateText" class="inst-state" role="status" aria-live="polite">확인하는 중이에요…</p>
-    <button class="jn-btn jn-btn--primary jn-btn--block" type="button" id="installBtn" hidden>앱으로 설치</button>
+    <h2 id="stateTitle" data-t="inst.state.title"></h2>
+    <p id="stateText" class="inst-state" role="status" aria-live="polite" data-t="inst.state.checking"></p>
+    <button class="jn-btn jn-btn--primary jn-btn--block" type="button" id="installBtn" data-t="install.btn" hidden></button>
     <p class="inst-small" id="installResult" role="status" aria-live="polite"></p>
   </section>
 
-  <h2 class="inst-sec">기기별 설치 방법</h2>
+  <h2 class="inst-sec" data-t="inst.devices"></h2>
   <div class="inst-list" id="devices">
 
     <section class="inst-card jn-card" id="dev-android" data-dev="android" aria-labelledby="t-android">
-      <h3 id="t-android">안드로이드 폰·태블릿 <span class="mine-tag" hidden>지금 쓰는 기기</span></h3>
+      <h3 id="t-android"><span data-t="inst.android.title"></span> <span class="mine-tag" data-t="inst.mine" hidden></span></h3>
       <ol>
-        <li><b>크롬</b> 브라우저로 집중 놀이터 웹 주소를 열어요.</li>
-        <li>위에 <b>"앱으로 설치"</b> 단추가 보이면 눌러요. 안 보이면 오른쪽 위 <b>⋮ 메뉴</b>를 눌러요.</li>
-        <li><b>"앱 설치"</b> 또는 <b>"홈 화면에 추가"</b>를 고르고, 한 번 더 <b>"설치"</b>를 눌러요.</li>
-        <li>홈 화면에 생긴 <b>집중 놀이터</b> 그림을 누르면 앱처럼 열려요.</li>
+        <li data-t-rich="inst.android.1"></li>
+        <li data-t-rich="inst.android.2"></li>
+        <li data-t-rich="inst.android.3"></li>
+        <li data-t-rich="inst.android.4"></li>
       </ol>
     </section>
 
     <section class="inst-card jn-card" id="dev-ios" data-dev="ios" aria-labelledby="t-ios">
-      <h3 id="t-ios">아이폰·아이패드 <span class="mine-tag" hidden>지금 쓰는 기기</span></h3>
+      <h3 id="t-ios"><span data-t="inst.ios.title"></span> <span class="mine-tag" data-t="inst.mine" hidden></span></h3>
       <ol>
-        <li><b>사파리</b>로 웹 주소를 열어요. (다른 앱 안의 화면이나 다른 브라우저에서는 메뉴가 다를 수 있어요.)</li>
-        <li>화면 아래(아이패드는 위)의 <b>공유 단추</b>(네모에서 위로 화살표가 나온 모양)를 눌러요.</li>
-        <li>목록을 밀어 올려 <b>"홈 화면에 추가"</b>를 눌러요.</li>
-        <li>오른쪽 위 <b>"추가"</b>를 누르면 홈 화면에 그림이 생겨요.</li>
+        <li data-t-rich="inst.ios.1"></li>
+        <li data-t-rich="inst.ios.2"></li>
+        <li data-t-rich="inst.ios.3"></li>
+        <li data-t-rich="inst.ios.4"></li>
       </ol>
-      <p class="inst-small">아이폰에는 "앱으로 설치" 단추가 나오지 않아요. 위의 방법으로 해 주세요.</p>
+      <p class="inst-small" data-t="inst.ios.small"></p>
     </section>
 
     <section class="inst-card jn-card" id="dev-pc" data-dev="pc" aria-labelledby="t-pc">
-      <h3 id="t-pc">PC (윈도우·맥) <span class="mine-tag" hidden>지금 쓰는 기기</span></h3>
+      <h3 id="t-pc"><span data-t="inst.pc.title"></span> <span class="mine-tag" data-t="inst.mine" hidden></span></h3>
       <ol>
-        <li><b>크롬</b> 또는 <b>엣지</b>로 웹 주소를 열어요.</li>
-        <li>위에 <b>"앱으로 설치"</b> 단추가 보이면 눌러요. 또는 주소창 오른쪽 끝의 <b>설치 모양 단추</b>를 눌러요.</li>
-        <li>안 보이면 크롬은 <b>⋮ 메뉴 → "캐스트, 저장, 공유" → "페이지를 앱으로 설치"</b>, 엣지는 <b>⋯ 메뉴 → "앱" → "이 사이트를 앱으로 설치"</b>를 골라요. (브라우저 버전에 따라 이름이 조금 달라요.)</li>
-        <li>시작 메뉴나 바탕화면에 생긴 <b>집중 놀이터</b>를 누르면 따로 창이 열려요.</li>
+        <li data-t-rich="inst.pc.1"></li>
+        <li data-t-rich="inst.pc.2"></li>
+        <li data-t-rich="inst.pc.3"></li>
+        <li data-t-rich="inst.pc.4"></li>
       </ol>
-      <p class="inst-small">파이어폭스·맥 사파리의 일반 창은 PC 앱 설치를 지원하지 않을 수 있어요. 그래도 웹에서 바로 놀 수 있어요.</p>
+      <p class="inst-small" data-t="inst.pc.small"></p>
     </section>
   </div>
 
   <section class="inst-card jn-card" aria-labelledby="t-know">
-    <h3 id="t-know">알아 두면 좋아요</h3>
+    <h3 id="t-know" data-t="inst.know.title"></h3>
     <ul>
-      <li>처음 한 번은 <b>인터넷에 연결된 상태</b>로 열어야 해요. 그다음부터는 인터넷이 없어도 열려요.</li>
-      <li>놀이 기록은 <b>그 기기 안에만</b> 저장돼요. 기기마다 따로이고, 밖으로 보내지 않아요.</li>
-      <li>아이폰은 사파리와 홈 화면 앱이 저장 공간을 따로 써요. 홈 화면에 추가한 뒤에는 그 앱 안에서 아이를 만들어 주세요.</li>
-      <li>앱을 지우거나 브라우저의 사이트 데이터를 지우면 기록도 같이 사라져요. 보호자 설정 → 기록 보기 → "기록 내보내기"로 가끔 백업해 두세요.</li>
-      <li>새 버전이 나오면 인터넷에 연결된 상태로 앱을 한 번 열고, 완전히 닫았다가 다시 열면 바뀌어요.</li>
+      <li data-t-rich="inst.know.1"></li>
+      <li data-t-rich="inst.know.2"></li>
+      <li data-t="inst.know.3"></li>
+      <li data-t="inst.know.4"></li>
+      <li data-t="inst.know.5"></li>
     </ul>
   </section>
 </main>
+<script src="lang/ko.js"></script>
+<script>window.JN_LANG = "ko";</script>
+<script src="js/i18n.js"></script>
 <script src="js/install.js"></script>
 <script src="js/install-page.js"></script>
 </body>

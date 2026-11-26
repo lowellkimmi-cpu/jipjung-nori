@@ -1,18 +1,18 @@
 /* 숫자 찾기 (옛 '차례차례 콕콕') — 숫자를 차례대로 콕콕 누르기 */
 "use strict";
 (function () {
-  const U = JN.util, h = U.h;
-  /* [1] 단계 데이터 — 원래 놀이의 GAME_DATA 그대로 */
+  const U = JN.util, h = U.h, T = JN.t;   // T: 화면 글자는 lang/ko.js 에서
+  /* [1] 단계 데이터 — 원래 놀이의 GAME_DATA 그대로 (단계 이름·짧은 이름은 언어 파일, 가나다 글자 목록도 언어 파일) */
   const STAGES = [
-    { id: "n10", name: "1부터 10까지", short: "1~10", type: "range", from: 1, to: 10, step: 1, vary: false },
-    { id: "n15", name: "1부터 15까지", short: "1~15", type: "range", from: 1, to: 15, step: 1, vary: false },
-    { id: "n20", name: "1부터 20까지", short: "1~20", type: "range", from: 1, to: 20, step: 1, vary: false },
-    { id: "n25", name: "1부터 25까지", short: "1~25", type: "range", from: 1, to: 25, step: 1, vary: true },
-    { id: "skip2", name: "2씩 뛰어 세기 (2~20)", short: "2씩", type: "range", from: 2, to: 20, step: 2, vary: true },
-    { id: "tens", name: "10씩 뛰어 세기 (10~100)", short: "10씩", type: "range", from: 10, to: 100, step: 10, vary: true },
-    { id: "down10", name: "거꾸로 세기 (10→1)", short: "거꾸로", type: "range", from: 10, to: 1, step: -1, vary: true },
-    { id: "gana", name: "가나다 순서 (가~차)", short: "가~차", type: "list", items: ["가", "나", "다", "라", "마", "바", "사", "아", "자", "차"], vary: true },
-    { id: "mix", name: "숫자와 한글 번갈아 (1-가-2-나…)", short: "1-가-2", type: "list", items: ["1", "가", "2", "나", "3", "다", "4", "라", "5", "마", "6", "바"], vary: true },
+    { id: "n10", name: T("g.number.n10"), short: T("g.number.n10.short"), type: "range", from: 1, to: 10, step: 1, vary: false },
+    { id: "n15", name: T("g.number.n15"), short: T("g.number.n15.short"), type: "range", from: 1, to: 15, step: 1, vary: false },
+    { id: "n20", name: T("g.number.n20"), short: T("g.number.n20.short"), type: "range", from: 1, to: 20, step: 1, vary: false },
+    { id: "n25", name: T("g.number.n25"), short: T("g.number.n25.short"), type: "range", from: 1, to: 25, step: 1, vary: true },
+    { id: "skip2", name: T("g.number.skip2"), short: T("g.number.skip2.short"), type: "range", from: 2, to: 20, step: 2, vary: true },
+    { id: "tens", name: T("g.number.tens"), short: T("g.number.tens.short"), type: "range", from: 10, to: 100, step: 10, vary: true },
+    { id: "down10", name: T("g.number.down10"), short: T("g.number.down10.short"), type: "range", from: 10, to: 1, step: -1, vary: true },
+    { id: "gana", name: T("g.number.gana"), short: T("g.number.gana.short"), type: "list", items: T("g.number.gana.items"), vary: true },
+    { id: "mix", name: T("g.number.mix"), short: T("g.number.mix.short"), type: "list", items: T("g.number.mix.items"), vary: true },
   ];
   const LAYOUT = { minButtonPx: 64, maxButtonPx: 96, gapPx: 8, scaleRange: [0.88, 1.15], tiltDeg: 12,
     tints: ["seeing", "attention", "memory", "thinking", "hands", "body", "words"] };   // 동그라미 바탕 = 영역 연한 색
@@ -68,16 +68,16 @@
 
   JN.registerGame({
     id: "숫자찾기", stages: STAGES, trackTotal: true,
-    hintHelp: { always: "다음에 누를 숫자가 아래에 늘 보여요", button: "힌트 버튼을 누르면 다음 숫자가 잠깐 빛나요", none: "아래 표시도 자동 힌트도 없어요" },
+    hintHelp: { always: T("g.number.hh.always"), button: T("g.number.hh.button"), none: T("g.number.hh.none") },
     extraSettings: [
-      { key: "showTrail", type: "bool", label: "'늘 보기'에서 지금까지 누른 줄도 보여 주기", sub: "1 → 2 → 3 …", def: false },
-      { key: "autoHint", type: "bool", label: "오래 못 찾으면 자동 힌트", sub: "기본은 꺼짐. '없이'에서는 늘 꺼져요", def: false },
-      { key: "hintDelay", type: "select", label: "자동 힌트가 나오는 시간", def: 10, options: [[5, "5초"], [10, "10초"], [15, "15초"], [20, "20초"], [30, "30초"]] },
-      { key: "vary", type: "select", label: "숫자 크기·기울기 다르게", def: "auto", options: [["auto", "단계에 따라 자동"], ["on", "항상 켜기"], ["off", "끄기"]] },
+      { key: "showTrail", type: "bool", label: T("g.number.x.trail"), sub: T("g.number.x.trail.sub"), def: false },
+      { key: "autoHint", type: "bool", label: T("g.number.x.auto"), sub: T("g.number.x.auto.sub"), def: false },
+      { key: "hintDelay", type: "select", label: T("g.number.x.delay"), def: 10, options: [5, 10, 15, 20, 30].map((n) => [n, T("common.sec", { n })]) },
+      { key: "vary", type: "select", label: T("g.number.x.vary"), def: "auto", options: [["auto", T("g.number.x.vary.auto")], ["on", T("g.number.x.vary.on")], ["off", T("g.number.x.vary.off")]] },
     ],
-    chart: { key: "time", label: "걸린 시간", unit: "초" },
-    describe: (e) => U.fmtTime(e.time) + " · 틀린 횟수 " + (e.mistakes || 0) + "번" + (e.hints ? " · 힌트 " + e.hints + "번" : ""),
-    intro: (st) => st.name + "!",
+    chart: { key: "time", label: T("common.time"), unit: T("common.unit.sec") },
+    describe: (e) => U.fmtTime(e.time) + T("g.number.describe", { m: e.mistakes || 0 }) + (e.hints ? T("g.number.describe.hint", { n: e.hints }) : ""),
+    intro: (st) => T("g.number.intro", { name: st.name }),
     mount(ctx) {
       const st = ctx.stage, set = ctx.settings, mode = set.hintMode, board = ctx.board;
       board.classList.add("nf-board");
@@ -93,7 +93,7 @@
         board.appendChild(el);
         return { el, label, scale: vary ? U.rand(LAYOUT.scaleRange[0], LAYOUT.scaleRange[1]) : 1 };
       });
-      const nb = h("span", { class: "nextbox", "aria-live": "polite" }, h("span", { class: "trail" }), h("span", { class: "w", text: "다음" }), h("b"));
+      const nb = h("span", { class: "nextbox", "aria-live": "polite" }, h("span", { class: "trail" }), h("span", { class: "w", text: T("g.number.next") }), h("b"));
       ctx.bottom.appendChild(nb);
       nb.style.visibility = mode === "always" ? "visible" : "hidden";
 
@@ -138,8 +138,8 @@
       function finish() {
         active = false; clearHint(); clearTimeout(peekT);
         const time = ctx.timer.stop();
-        ctx.finish({ cleared: true, time, mistakes, hints, metrics: { autoHints }, title: U.pick(["다 찾았어요!", "잘했어요!", "끝까지 찾았어요!"]),
-          line: hints ? "힌트 " + hints + "번 썼어요." : "", bestKey: st.id, bestValue: U.r1(time) });
+        ctx.finish({ cleared: true, time, mistakes, hints, metrics: { autoHints }, title: U.pick(T("g.number.titles")),
+          line: hints ? T("g.number.line.hints", { n: hints }) : "", bestKey: st.id, bestValue: U.r1(time) });
       }
       ctx.hint(mode === "button", () => {
         if (!active) return;
@@ -153,7 +153,7 @@
       });
       layout(); updateNext();
       return {
-        start() { active = true; ctx.timer.start(); ctx.say(st.name + " 차례대로 눌러요"); scheduleHint(); },
+        start() { active = true; ctx.timer.start(); ctx.say(T("g.number.say", { name: st.name })); scheduleHint(); },
         resize: layout,
         destroy() { active = false; clearHint(); },
         test: { next: () => seq[idx], seq: () => seq.slice(), idx: () => idx },

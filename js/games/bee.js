@@ -1,16 +1,16 @@
 /* 윙윙 꽃밭 (옛 '윙윙 꽃밭 손님') — 꿀벌이 나타나면 그때 살짝 누르기 */
 "use strict";
 (function () {
-  const U = JN.util, h = U.h;
+  const U = JN.util, h = U.h, T = JN.t;   // T: 화면 글자는 lang/ko.js 에서
   /* [1] 단계 데이터 — 원래 놀이의 LEVELS 그대로 (곤충 이름만 art.js 이름으로) */
   const KINDS4 = ["나비", "무당벌레", "개미", "잠자리"];
   const STAGES = [
-    { id: "L1", name: "곤충 3마리 · 벌이 오래 머물러요", insects: 3, kinds: ["나비", "무당벌레", "개미"], lookalikes: 0, beeStay: 4500, beeCount: [5, 6], glow: false, glowEvery: [0, 0], flowers: 4, frontFlowers: 0, hideChance: 0, doubleChance: 0 },
-    { id: "L2", name: "곤충 5마리 · 다른 곤충이 반짝여요", insects: 5, kinds: KINDS4, lookalikes: 0, beeStay: 3800, beeCount: [5, 7], glow: true, glowEvery: [3500, 5500], flowers: 4, frontFlowers: 0, hideChance: 0, doubleChance: 0 },
-    { id: "L3", name: "곤충 7마리 · 벌이 짧게 머물러요", insects: 7, kinds: KINDS4, lookalikes: 0, beeStay: 2600, beeCount: [6, 8], glow: true, glowEvery: [3000, 5000], flowers: 5, frontFlowers: 0, hideChance: 0, doubleChance: 0 },
-    { id: "L4", name: "벌이 꽃 뒤에 살짝 숨기도 해요", insects: 7, kinds: KINDS4, lookalikes: 0, beeStay: 2600, beeCount: [6, 8], glow: true, glowEvery: [3000, 5000], flowers: 5, frontFlowers: 3, hideChance: 0.5, doubleChance: 0 },
-    { id: "L5", name: "벌과 닮은 꽃등에가 섞여 있어요", insects: 7, kinds: KINDS4, lookalikes: 2, beeStay: 2600, beeCount: [6, 8], glow: true, glowEvery: [3000, 5000], flowers: 5, frontFlowers: 3, hideChance: 0.4, doubleChance: 0 },
-    { id: "L6", name: "벌이 2마리 연달아 나오기도 해요", insects: 7, kinds: KINDS4, lookalikes: 2, beeStay: 2600, beeCount: [6, 8], glow: true, glowEvery: [3000, 5000], flowers: 5, frontFlowers: 3, hideChance: 0.4, doubleChance: 0.4 },
+    { id: "L1", name: T("g.bee.L1"), insects: 3, kinds: ["나비", "무당벌레", "개미"], lookalikes: 0, beeStay: 4500, beeCount: [5, 6], glow: false, glowEvery: [0, 0], flowers: 4, frontFlowers: 0, hideChance: 0, doubleChance: 0 },
+    { id: "L2", name: T("g.bee.L2"), insects: 5, kinds: KINDS4, lookalikes: 0, beeStay: 3800, beeCount: [5, 7], glow: true, glowEvery: [3500, 5500], flowers: 4, frontFlowers: 0, hideChance: 0, doubleChance: 0 },
+    { id: "L3", name: T("g.bee.L3"), insects: 7, kinds: KINDS4, lookalikes: 0, beeStay: 2600, beeCount: [6, 8], glow: true, glowEvery: [3000, 5000], flowers: 5, frontFlowers: 0, hideChance: 0, doubleChance: 0 },
+    { id: "L4", name: T("g.bee.L4"), insects: 7, kinds: KINDS4, lookalikes: 0, beeStay: 2600, beeCount: [6, 8], glow: true, glowEvery: [3000, 5000], flowers: 5, frontFlowers: 3, hideChance: 0.5, doubleChance: 0 },
+    { id: "L5", name: T("g.bee.L5"), insects: 7, kinds: KINDS4, lookalikes: 2, beeStay: 2600, beeCount: [6, 8], glow: true, glowEvery: [3000, 5000], flowers: 5, frontFlowers: 3, hideChance: 0.4, doubleChance: 0 },
+    { id: "L6", name: T("g.bee.L6"), insects: 7, kinds: KINDS4, lookalikes: 2, beeStay: 2600, beeCount: [6, 8], glow: true, glowEvery: [3000, 5000], flowers: 5, frontFlowers: 3, hideChance: 0.4, doubleChance: 0.4 },
   ];
   const CFG = {
     baseSpeed: { 개미: [40, 55], 잠자리: [85, 110], other: [55, 75], 벌: [10, 16] },
@@ -23,16 +23,16 @@
 
   JN.registerGame({
     id: "벌찾기", stages: STAGES,
-    hintHelp: { always: "꿀벌이 나타나면 꿀색 동그라미가 둘레에 보여요", button: "힌트 버튼을 누르면 지금 있는 꿀벌 둘레가 잠깐 보여요", none: "표시 없이 꿀벌을 찾아요" },
+    hintHelp: { always: T("g.bee.hh.always"), button: T("g.bee.hh.button"), none: T("g.bee.hh.none") },
     extraSettings: [
-      { key: "length", type: "select", label: "한 판 길이", def: 60, options: [[30, "30초"], [45, "45초"], [60, "1분"], [90, "1분 30초"]] },
-      { key: "moveSpeed", type: "select", label: "곤충 움직이는 속도", def: "normal", options: [["slow", "느리게"], ["normal", "보통"], ["fast", "빠르게"]] },
+      { key: "length", type: "select", label: T("g.bee.x.length"), def: 60, options: [[30, T("common.sec", { n: 30 })], [45, T("common.sec", { n: 45 })], [60, T("g.bee.len.60")], [90, T("g.bee.len.90")]] },
+      { key: "moveSpeed", type: "select", label: T("g.bee.x.speed"), def: "normal", options: [["slow", T("g.bee.speed.slow")], ["normal", T("g.bee.speed.normal")], ["fast", T("g.bee.speed.fast")]] },
     ],
-    parentNote: "다음 단계는 나타난 꿀벌의 70% 이상을 만나면 열려요",
-    chart: { key: "caught", label: "만난 꿀벌", unit: "마리" },
+    parentNote: T("g.bee.parentNote"),
+    chart: { key: "caught", label: T("g.bee.chart"), unit: T("g.bee.unit") },
     /* 보호자 화면에는 "만난 꿀벌 / 걸린 시간"만 보여요 (평균 반응 시간은 재지도 저장하지도 않아요) */
-    describe: (e) => "만난 꿀벌 " + (e.caught || 0) + "마리 · " + U.fmtTime(e.time),
-    intro: () => "꿀벌이 오면 살짝 눌러요",
+    describe: (e) => T("g.bee.describe", { n: e.caught || 0, time: U.fmtTime(e.time) }),
+    intro: () => T("g.bee.intro"),
     mount(ctx) {
       const lv = ctx.stage, set = ctx.settings, mode = set.hintMode, stage = ctx.board;
       stage.classList.add("bee-board");
@@ -55,7 +55,7 @@
         return U.rand(r[0], r[1]) * (1 + (lvNo - 1) * CFG.levelSpeedStep) * mult;
       }
       function makeCreature(kind, isBee) {
-        const el = h("div", { class: "creature" + (isBee ? " is-bee" : ""), "data-kind": kind, role: isBee ? "button" : null, "aria-label": isBee ? "꿀벌" : kind });
+        const el = h("div", { class: "creature" + (isBee ? " is-bee" : ""), "data-kind": kind, role: isBee ? "button" : null, "aria-label": isBee ? T("g.bee.aria") : kind });
         const halo = h("div", { class: "halo" }), ring = h("div", { class: "ring" }), body = h("div", { class: "body", svg: Art.insect(kind, { label: kind }) });
         el.append(halo, ring, body);
         const c = { el, halo, ring, body, kind, isBee, x: 0, y: 0, angle: U.rand(0, Math.PI * 2), speed: speedOf(kind), turn: U.rand(0.4, 0.9),
@@ -116,7 +116,7 @@
           c.state = "caught"; c.caughtAt = g.t; g.caught++; c.el.classList.add("caught");
           const f = nearestFlower(c);
           c.from = { x: c.x, y: c.y }; c.to = f ? { x: f.cx - c.hit / 2, y: f.cy - c.hit / 2 } : { x: c.x, y: c.y };
-          c.bubble = h("div", { class: "bubble-s", text: U.pick(["찾았다!", "반가워!", "안녕!"]) });
+          c.bubble = h("div", { class: "bubble-s", text: U.pick(T("g.bee.found")) });
           c.el.appendChild(c.bubble);
           ctx.tone(660, 0.35, 0.06); ctx.tone(880, 0.4, 0.05, 0.12);
           queueFollow(c);
@@ -194,7 +194,7 @@
         g.bees.forEach((b) => { if (b.state === "hover") g.missed++; });
         const total = g.caught + g.missed, rate = total ? g.caught / total : 0;
         ctx.finish({ cleared: rate >= CFG.passRate, time: durationMs / 1000, hints: g.hints, metrics: { caught: g.caught },
-          title: "꽃밭을 잘 지켜봤어요!", line: "꿀벌 손님 " + g.caught + "마리를 만났어요!", showTime: false,
+          title: T("g.bee.title"), line: T("g.bee.line", { n: g.caught }), showTime: false,
           bestKey: lv.id, bestValue: g.caught, higherBetter: true });
       }
       ctx.hint(mode === "button", () => {
@@ -210,7 +210,7 @@
       U.shuffle(kinds).forEach((k) => { const c = makeCreature(k, false); randomPos(c); g.creatures.push(c); render(c, 0); });
       g.nextGlow = lv.glow ? U.rand(lv.glowEvery[0], lv.glowEvery[1]) : Infinity;
       return {
-        start() { g.running = true; last = performance.now(); ctx.say("꿀벌이 나타나면 그때 살짝 눌러요"); raf = requestAnimationFrame(loop); },
+        start() { g.running = true; last = performance.now(); ctx.say(T("g.bee.say")); raf = requestAnimationFrame(loop); },
         resize() { const sz = sizes(); g.creatures.concat(g.bees).forEach((c) => { apply(c, sz); clampPos(c); }); layoutFlowers(); },
         visibility(hidden) { if (g.ended || !g.t && !g.running) return; if (hidden) { g.running = false; cancelAnimationFrame(raf); } else if (!g.running) { g.running = true; last = performance.now(); raf = requestAnimationFrame(loop); } },
         destroy() { g.running = false; g.ended = true; cancelAnimationFrame(raf); },

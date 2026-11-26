@@ -6,20 +6,21 @@
    - 낱말 그림은 core.js 의 JN.WORDS / JN.wordArt, 조사는 JN.josa, 소리는 JN.speak (기기 안 음성만). */
 "use strict";
 (function () {
-  const U = JN.util, h = U.h, shuffle = U.shuffle, pick = U.pick, josa = U.josa;
+  const U = JN.util, h = U.h, shuffle = U.shuffle, pick = U.pick, josa = U.josa, TX = JN.t;   // TX: 화면 글자는 lang/ko.js 에서 (T 는 아래 시간 표)
+  /* 문장 만들기의 낱말(동물·하는 일·상태)과 조사 규칙은 놀이 내용(한국어 문법)이라 코드에 둬요. 단추·안내·칸 이름만 언어 파일에 있어요. */
   const ANIMALS = ["강아지", "고양이", "토끼", "곰", "오리", "코끼리"];
   const STATES = [{ w: "자요", face: "쉬어요" }, { w: "웃어요", face: "웃음" }, { w: "놀라요", face: "놀람" }, { w: "응원해요", face: "응원" }];
   /* 하는 일과 어울리는 무엇 (짝이 맞는 것만 문제로 내요) */
   const VERBS = { 먹어요: ["과일"], 타요: ["탈것"], 좋아해요: ["과일", "꽃", "곤충", "탈것"], 봐요: ["꽃", "곤충", "탈것"] };
   const STAGES = [
-    { id: "s1", name: "누가 어때요?", type: "state", n: 2, states: ["자요", "웃어요"] },
-    { id: "s2", name: "누가 어때요? 더", type: "state", n: 3, states: ["자요", "웃어요", "놀라요", "응원해요"] },
-    { id: "s3", name: "누가 무엇을 먹어요", type: "act", n: 3, verbs: ["먹어요"], fixVerb: true },
-    { id: "s4", name: "누가 무엇을 해요", type: "act", n: 3, verbs: ["먹어요", "타요"] },
-    { id: "s5", name: "하는 일 더 많이", type: "act", n: 4, verbs: ["먹어요", "타요", "좋아해요", "봐요"] },
-    { id: "s6", name: "둘이서 해요", type: "two", n: 3, verbs: ["먹어요", "타요", "좋아해요"] },
-    { id: "s7", name: "말 읽고 장면 찾기", type: "read", n: 3, verbs: ["먹어요", "타요", "좋아해요", "봐요"] },
-    { id: "s8", name: "내 마음대로 말 만들기", type: "free", n: 4 },
+    { id: "s1", name: TX("g.sentence.s1"), type: "state", n: 2, states: ["자요", "웃어요"] },
+    { id: "s2", name: TX("g.sentence.s2"), type: "state", n: 3, states: ["자요", "웃어요", "놀라요", "응원해요"] },
+    { id: "s3", name: TX("g.sentence.s3"), type: "act", n: 3, verbs: ["먹어요"], fixVerb: true },
+    { id: "s4", name: TX("g.sentence.s4"), type: "act", n: 3, verbs: ["먹어요", "타요"] },
+    { id: "s5", name: TX("g.sentence.s5"), type: "act", n: 4, verbs: ["먹어요", "타요", "좋아해요", "봐요"] },
+    { id: "s6", name: TX("g.sentence.s6"), type: "two", n: 3, verbs: ["먹어요", "타요", "좋아해요"] },
+    { id: "s7", name: TX("g.sentence.s7"), type: "read", n: 3, verbs: ["먹어요", "타요", "좋아해요", "봐요"] },
+    { id: "s8", name: TX("g.sentence.s8"), type: "free", n: 4 },
   ];
   const PER_GAME = 5, T = { okMs: 700, missMs: 1200 };
   const art = {
@@ -45,27 +46,27 @@
     const S = { key: [who, what, verb, state].join(), slots: [], pics: [] };
     if (st.type === "state") {
       S.pics = [{ kind: "who", w: who }, { kind: "state", w: state }];
-      S.slots = [{ label: "누가", kind: "who", answer: who, pool: ANIMALS, text: (w) => josa(w, "이/가"), part: 0 },
-        { label: "어때요", kind: "state", answer: state, pool: st.states, text: (w) => w, part: 1 }];
+      S.slots = [{ label: TX("g.sentence.slot.who"), kind: "who", answer: who, pool: ANIMALS, text: (w) => josa(w, "이/가"), part: 0 },
+        { label: TX("g.sentence.slot.state"), kind: "state", answer: state, pool: st.states, text: (w) => w, part: 1 }];
     } else if (st.type === "two") {
       S.pics = [{ kind: "who", w: who }, { kind: "who", w: who2 }, { kind: "verb", w: verb }, { kind: "what", w: what }];
-      S.slots = [{ label: "누구와", kind: "who", answer: who, pool: ANIMALS.filter((a) => a !== who2), text: (w) => josa(w, "과/와"), part: 0 },
-        { label: "누가", kind: "who", answer: who2, pool: ANIMALS.filter((a) => a !== who), text: (w) => josa(w, "이/가"), part: 1 },
-        { label: "무엇을", kind: "what", answer: what, pool: wordsOf(VERBS[verb]), text: (w) => josa(w, "을/를"), part: 3 },
-        { label: "어떻게", kind: "verb", answer: verb, pool: st.verbs, text: (w) => w, part: 2 }];
+      S.slots = [{ label: TX("g.sentence.slot.with"), kind: "who", answer: who, pool: ANIMALS.filter((a) => a !== who2), text: (w) => josa(w, "과/와"), part: 0 },
+        { label: TX("g.sentence.slot.who"), kind: "who", answer: who2, pool: ANIMALS.filter((a) => a !== who), text: (w) => josa(w, "이/가"), part: 1 },
+        { label: TX("g.sentence.slot.what"), kind: "what", answer: what, pool: wordsOf(VERBS[verb]), text: (w) => josa(w, "을/를"), part: 3 },
+        { label: TX("g.sentence.slot.verb"), kind: "verb", answer: verb, pool: st.verbs, text: (w) => w, part: 2 }];
     } else if (st.type === "free") {
       const all = JN.WORDS.map((x) => x.w);
       S.pics = [];
-      S.slots = [{ label: "누가", kind: "who", free: true, cards: shuffle(ANIMALS.slice()).slice(0, st.n), text: (w) => josa(w, "이/가"), part: 0 },
-        { label: "무엇을", kind: "what", free: true, cards: shuffle(all.slice()).slice(0, st.n), text: (w) => josa(w, "을/를"), part: 2 },
-        { label: "어떻게", kind: "verb", free: true, cards: Object.keys(VERBS), text: (w) => w, part: 1 }];
+      S.slots = [{ label: TX("g.sentence.slot.who"), kind: "who", free: true, cards: shuffle(ANIMALS.slice()).slice(0, st.n), text: (w) => josa(w, "이/가"), part: 0 },
+        { label: TX("g.sentence.slot.what"), kind: "what", free: true, cards: shuffle(all.slice()).slice(0, st.n), text: (w) => josa(w, "을/를"), part: 2 },
+        { label: TX("g.sentence.slot.verb"), kind: "verb", free: true, cards: Object.keys(VERBS), text: (w) => w, part: 1 }];
     } else {
       S.pics = [{ kind: "who", w: who }, { kind: "verb", w: verb }, { kind: "what", w: what }];
       // 무엇 후보: 하는 일이 하나(먹어요)면 과일끼리, 여럿이면 여러 종류에서 (정답은 그림 줄이 정해요)
       const whatPool = st.verbs.length > 1 ? wordsOf(["과일", "탈것", "꽃", "곤충"]) : wordsOf(VERBS[verb]);
-      S.slots = [{ label: "누가", kind: "who", answer: who, pool: ANIMALS, text: (w) => josa(w, "이/가"), part: 0 },
-        { label: "무엇을", kind: "what", answer: what, pool: whatPool, text: (w) => josa(w, "을/를"), part: 2 },
-        { label: "어떻게", kind: "verb", answer: verb, pool: st.fixVerb ? [verb] : st.verbs, text: (w) => w, part: 1, fixed: !!st.fixVerb }];
+      S.slots = [{ label: TX("g.sentence.slot.who"), kind: "who", answer: who, pool: ANIMALS, text: (w) => josa(w, "이/가"), part: 0 },
+        { label: TX("g.sentence.slot.what"), kind: "what", answer: what, pool: whatPool, text: (w) => josa(w, "을/를"), part: 2 },
+        { label: TX("g.sentence.slot.verb"), kind: "verb", answer: verb, pool: st.fixVerb ? [verb] : st.verbs, text: (w) => w, part: 1, fixed: !!st.fixVerb }];
     }
     for (const s of S.slots) if (!s.cards) s.cards = s.fixed ? [s.answer] : cands(s.answer, s.pool, s.kind === "verb" ? Math.min(st.n, s.pool.length) : st.n);
     return S;
@@ -88,14 +89,14 @@
 
   JN.registerGame({
     id: "문장만들기", stages: STAGES,
-    hintHelp: { always: "지금 채울 칸에 해당하는 그림에 연한 테두리가 늘 보여요",
-      button: "누르면 지금 칸에 해당하는 그림에 테두리가 생기고 맞는 카드가 살짝 커져요 (칸 수만큼)", none: "도움 없이 만들어요" },
-    extraSettings: [{ key: "wordSound", type: "select", label: "낱말 소리", sub: "이게 뭐야?와 같은 값이에요. 버튼 누를 때만 기기 안 음성으로 읽어요",
-      def: "tap", options: [["tap", "버튼 누를 때만"], ["off", "끔"]], shareWith: ["낱말그림", "감정표정"] }],
-    parentNote: "그림 위주라 글자를 못 읽어도 할 수 있어요. 3~5세는 어른이 곁에서 카드 글자를 같이 읽어 주세요. '말했어요'는 아이나 어른이 눌러요(말소리를 듣거나 가리지 않아요)",
-    chart: { key: "time", label: "걸린 시간", unit: "초" },
-    describe: (e) => (e.sentences || PER_GAME) + "문장 · " + U.fmtTime(e.time) + (e.stageNo === 8 ? " · 마음대로 만들기" : " · 다시 고른 " + (e.mistakes || 0) + "번") + (e.hints ? " · 힌트 " + e.hints + "번" : ""),
-    intro: (st) => st.type === "read" ? "말을 읽고 그림을 찾아요" : st.type === "free" ? "마음대로 골라요. 웃긴 말도 좋아요!" : "그림을 보고 말을 만들어요",
+    hintHelp: { always: TX("g.sentence.hh.always"),
+      button: TX("g.sentence.hh.button"), none: TX("g.sentence.hh.none") },
+    extraSettings: [{ key: "wordSound", type: "select", label: TX("g.word.x.sound"), sub: TX("g.sentence.x.sound.sub"),
+      def: "tap", options: [["tap", TX("g.word.x.sound.tap")], ["off", TX("common.off")]], shareWith: ["낱말그림", "감정표정"] }],
+    parentNote: TX("g.sentence.parentNote"),
+    chart: { key: "time", label: TX("common.time"), unit: TX("common.unit.sec") },
+    describe: (e) => TX("g.sentence.describe", { n: e.sentences || PER_GAME, time: U.fmtTime(e.time) }) + (e.stageNo === 8 ? TX("g.sentence.describe.free") : TX("g.sentence.describe.miss", { n: e.mistakes || 0 })) + (e.hints ? TX("g.number.describe.hint", { n: e.hints }) : ""),
+    intro: (st) => st.type === "read" ? TX("g.sentence.intro.read") : st.type === "free" ? TX("g.sentence.free") : TX("g.sentence.intro.make"),
     mount(ctx) {
       const st = ctx.stage, set = ctx.settings, mode = set.hintMode, board = ctx.board;
       board.classList.add("sn-board");
@@ -113,10 +114,10 @@
       function fillSpeak(slot) {
         slot.textContent = "";
         if (canSpeak()) {
-          const b = h("button", { type: "button", class: "speak", id: "snSpeak", "aria-label": "소리 듣기", svg: Art.icon("소리켬") });
+          const b = h("button", { type: "button", class: "speak", id: "snSpeak", "aria-label": TX("g.word.listen"), svg: Art.icon("소리켬") });
           U.tap(b, () => { if (JN.speak(slot.dataset.text)) heard++; });
           slot.appendChild(b);
-        } else if (wantSpeak()) slot.appendChild(h("span", { class: "wd-nosound", text: "소리가 안 나요. 어른이 읽어 주세요" }));
+        } else if (wantSpeak()) slot.appendChild(h("span", { class: "wd-nosound", text: TX("g.word.nosound") }));
       }
       const refreshSpeak = () => board.querySelectorAll(".wd-spk").forEach(fillSpeak);
       function paintProg() {
@@ -154,7 +155,7 @@
         area.appendChild(grid);
         layout();
         phase = "pick";
-        ctx.say(st.type === "free" ? "마음대로 골라요. 웃긴 말도 좋아요!" : "카드를 눌러서 칸에 넣어요");
+        ctx.say(st.type === "free" ? TX("g.sentence.free") : TX("g.sentence.say.cards"));
       }
       function nextSlot() {
         while (S.slots[si] && S.slots[si].fixed) si++;
@@ -176,7 +177,7 @@
         }
         mistakes++;
         b.classList.add("miss");
-        const note = h("span", { class: "again-note", text: "다른 카드를 찾아 봐요" });
+        const note = h("span", { class: "again-note", text: TX("g.sentence.again.card") });
         b.appendChild(note);
         ctx.later(() => { b.classList.remove("miss"); note.remove(); }, T.missMs / JN.TIME_SCALE);
       }
@@ -190,14 +191,14 @@
         }
         picsEl.querySelectorAll(".part").forEach((p) => p.classList.remove("hl"));
         area.textContent = ""; area.className = "sn-area done";
-        const sayBtn = h("button", { type: "button", class: "jn-btn jn-btn--primary jn-btn--big wd-said", id: "snSaid", svg: Art.icon("확인") }, "말했어요");
-        const skip = h("button", { type: "button", class: "jn-btn jn-btn--quiet", id: "snNext" }, "다음");
+        const sayBtn = h("button", { type: "button", class: "jn-btn jn-btn--primary jn-btn--big wd-said", id: "snSaid", svg: Art.icon("확인") }, TX("g.word.said"));
+        const skip = h("button", { type: "button", class: "jn-btn jn-btn--quiet", id: "snNext" }, TX("g.number.next"));
         U.tap(sayBtn, () => { if (phase !== "said") return; said++; ctx.sound("ok"); next(); });
         U.tap(skip, () => { if (phase === "said") next(); });
         area.append(...[h("div", { class: "sn-bubble jn-bubble jn-pop" }, speakSlot(text), h("b", { id: "snText", text })),
-          st.type === "free" ? h("p", { class: "sn-fun", text: "웃긴 말도 좋아요!" }) : null,
+          st.type === "free" ? h("p", { class: "sn-fun", text: TX("g.sentence.fun") }) : null,
           h("div", { class: "sn-btns" }, sayBtn, skip)].filter(Boolean));
-        ctx.say(st.type === "free" ? "어떤 말이 됐을까요? 읽어 봐요" : "말을 잘 만들었어요! 읽어 봐요");
+        ctx.say(st.type === "free" ? TX("g.sentence.say.free.done") : TX("g.sentence.say.done"));
       }
       /* 7단계: 글자 문장 → 그림 줄 고르기 */
       function paintRead() {
@@ -208,14 +209,14 @@
         area.textContent = ""; area.className = "sn-area";
         const list = h("div", { class: "sn-rows", id: "snRows" });
         read.rows.forEach((r, k) => {
-          const b = h("button", { type: "button", class: "sn-rowbtn", "data-k": String(k), "aria-label": "그림 줄 " + (k + 1) });
+          const b = h("button", { type: "button", class: "sn-rowbtn", "data-k": String(k), "aria-label": TX("g.sentence.row.aria", { n: k + 1 }) });
           r.forEach((p) => b.appendChild(h("span", { class: "part", svg: picSvg(p) })));
           U.tap(b, () => chooseRow(k));
           list.appendChild(b);
         });
         area.appendChild(list);
         phase = "pick"; busy = false;
-        ctx.say("말을 읽고 맞는 그림을 찾아요");
+        ctx.say(TX("g.sentence.say.read"));
       }
       function chooseRow(k) {
         if (busy) return;
@@ -228,7 +229,7 @@
         }
         mistakes++;
         b.classList.add("miss");
-        const note = h("span", { class: "again-note", text: "다시 찾아 봐요" });
+        const note = h("span", { class: "again-note", text: TX("g.word.again") });
         b.appendChild(note);
         ctx.later(() => { b.classList.remove("miss"); note.remove(); }, T.missMs / JN.TIME_SCALE);
       }
@@ -263,7 +264,7 @@
         busy = true; phase = "end";
         const time = ctx.timer.stop();
         ctx.finish({ cleared: st.type === "free" ? true : mistakes <= 2, time, mistakes, hints, metrics: { said, heard, sentences: PER_GAME },
-          title: "말을 잘 만들었어요!", line: "말했어요 " + said + "번" });
+          title: TX("g.sentence.title"), line: TX("g.word.line.say", { n: said }) });
       }
       ctx.hint(mode === "button" && st.type !== "free", () => {
         if (busy || !S || phase !== "pick") return;

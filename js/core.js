@@ -27,9 +27,9 @@
   U.r1 = (s) => Math.round(s * 10) / 10;
   U.fmtTime = (sec) => {
     sec = U.r1(sec || 0);
-    if (sec < 60) return sec.toFixed(1) + "초";
+    if (sec < 60) return JN.t("common.sec", { n: sec.toFixed(1) });   // 글자는 lang/ko.js 에서
     const m = Math.floor(sec / 60);
-    return m + "분 " + Math.round(sec - m * 60) + "초";
+    return JN.t("common.minsec", { m, s: Math.round(sec - m * 60) });
   };
   U.fmtClock = (sec) => {
     const t = Math.floor(sec * 10) / 10;

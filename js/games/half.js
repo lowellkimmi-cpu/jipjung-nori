@@ -1,7 +1,8 @@
 /* 반쪽 그림 (옛 '반쪽 그림 완성') — 접는 선 건너편에 나머지 반쪽 그리기 */
 "use strict";
 (function () {
-  const U = JN.util, h = U.h;
+  const U = JN.util, h = U.h, TX = JN.t;   // TX: 화면 글자는 lang/ko.js 에서 (T 는 아래 좌표 뒤집기 함수)
+  const SN = (name) => TX("g.half.shape." + name);   // 그림 이름(name 은 코드용 이름, 화면에는 SN 으로)
   const N = 10, C = 5;   // 10x10 칸, 접는 선 위치
   const SHAPES = {
     "네모": [[[5, 2], [2, 2], [2, 8], [5, 8]]],
@@ -26,7 +27,7 @@
     { name: "나비", axis: "h", dots: false, lines: T(SHAPES["나비"]) }, { name: "하트", axis: "h", dots: false, lines: T(SHAPES["하트"]) },
   ];
   const STAGES = LV.map((l, i) => Object.assign({ id: "h" + (i + 1), lines: l.lines || SHAPES[l.name] }, l,
-    { label: l.name + (l.axis === "h" ? " (위아래)" : "") + " · " + (l.dots ? "점 잇기" : "자유 그리기") }));
+    { label: SN(l.name) + (l.axis === "h" ? TX("g.half.updown") : "") + TX("g.half.mode." + (l.dots ? "dots" : "free")) }));
   const CONF = { feedback: { almost: 0.85, good: 0.55 }, tolerance: { dots: 0.35, free: 0.7 }, peekMs: 2500, checkShowMs: 1600 };
   const ERASER = '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M38 82 L14 58 a8 8 0 0 1 0 -11 L50 11 a8 8 0 0 1 11 0 L86 36 a8 8 0 0 1 0 11 L51 82 Z M30 42 L66 78 M38 82 H86" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
@@ -44,17 +45,17 @@
 
   JN.registerGame({
     id: "반쪽그림", stages: STAGES, stageLabel: (st) => st.label,
-    hintHelp: { always: "그려야 할 선이 아주 옅게 늘 보여요", button: "힌트 버튼을 누르면 정답 선을 잠깐 살짝 보여 줘요", none: "보기 그림만 보고 그려요" },
-    parentNote: "다 그렸을 때 정답 선과 비슷하면 다음 단계로 가요. 비슷한 정도는 점수로 보여 주지 않아요",
-    chart: { key: "time", label: "걸린 시간", unit: "초" },
-    describe: (e) => U.fmtTime(e.time) + " · " + (e.cleared ? "완성" : "한 번 더 해 봄") + " · 선 " + (e.strokes || 0) + "개" + (e.hints ? " · 살짝 보기 " + e.hints + "번" : ""),
-    intro: (st) => (st.axis === "v" ? "오른쪽" : "아래쪽") + "에 " + (st.dots ? "점과 점을 이어" : "손가락으로") + " 반쪽을 그려요",
+    hintHelp: { always: TX("g.half.hh.always"), button: TX("g.half.hh.button"), none: TX("g.half.hh.none") },
+    parentNote: TX("g.half.parentNote"),
+    chart: { key: "time", label: TX("common.time"), unit: TX("common.unit.sec") },
+    describe: (e) => U.fmtTime(e.time) + TX("g.half.describe", { state: e.cleared ? TX("g.half.done") : TX("g.half.retry"), n: e.strokes || 0 }) + (e.hints ? TX("g.half.describe.hint", { n: e.hints }) : ""),
+    intro: (st) => TX("g.half.draw." + st.axis + "." + (st.dots ? "dots" : "free")),
     mount(ctx) {
       const lv = ctx.stage, mode = ctx.settings.hintMode, board = ctx.board;
       board.classList.add("hd-board");
       const COL = { ink: JN.cssVar("--c-ink", "#2F3E46"), kid: JN.cssVar("--c-gentle-strong", "#E07A55"), fold: JN.cssVar("--c-gentle", "#F29E7E"),
         honey: JN.cssVar("--c-honey", "#F2C14E"), sky: JN.cssVar("--area-seeing", "#7FB7D9"), paper: JN.cssVar("--c-surface", "#FFFFFF"), faint: JN.cssVar("--c-ink-faint", "rgba(47,62,70,.3)"), mid: JN.cssVar("--c-ink-mid", "rgba(47,62,70,.6)") };
-      const cv = h("canvas", { class: "hd-canvas", "aria-label": "그림판" }), c2 = cv.getContext("2d");
+      const cv = h("canvas", { class: "hd-canvas", "aria-label": TX("g.half.canvas.aria") }), c2 = cv.getContext("2d");
       const tools = h("div", { class: "hd-tools" });
       board.append(h("div", { class: "hd-wrap" }, cv), tools);
       const tool = (label, svgText, fn, extra) => { const b = h("button", Object.assign({ type: "button", class: "toolbtn", "aria-label": label }, extra || {}), h("span", { class: "ic", svg: svgText }), label); U.onTap(b, fn); tools.appendChild(b); return b; };
@@ -161,21 +162,21 @@
         misses = A.filter((p, i) => i % 3 === 0 && minDist(p, mine) > tol);
         return Math.min(recall, precision);
       }
-      tool("한 획 취소", Art.icon("다시"), () => { if (checked) return; if (pending) pending = null; else strokes.pop(); draw(); });
-      const er = tool("지우개", ERASER, () => { eraser = !eraser; er.setAttribute("aria-pressed", String(eraser)); }, { "aria-pressed": "false" });
-      tool("처음부터", Art.icon("지우기"), () => { if (checked) return; strokes = []; pending = null; draw(); });
-      const doneBtn = h("button", { type: "button", class: "jn-btn jn-btn--primary", id: "hdDone" }, "다 그렸어요");
+      tool(TX("g.half.tool.undo"), Art.icon("다시"), () => { if (checked) return; if (pending) pending = null; else strokes.pop(); draw(); });
+      const er = tool(TX("g.half.tool.eraser"), ERASER, () => { eraser = !eraser; er.setAttribute("aria-pressed", String(eraser)); }, { "aria-pressed": "false" });
+      tool(TX("g.half.tool.reset"), Art.icon("지우기"), () => { if (checked) return; strokes = []; pending = null; draw(); });
+      const doneBtn = h("button", { type: "button", class: "jn-btn jn-btn--primary", id: "hdDone" }, TX("g.half.done.btn"));
       ctx.bottom.appendChild(doneBtn);
       U.onTap(doneBtn, () => {
         if (!active || checked) return;
-        if (!strokes.length) { ctx.say((lv.axis === "v" ? "오른쪽" : "아래쪽") + "에 반쪽을 그려 볼까요?"); return; }
+        if (!strokes.length) { ctx.say(TX("g.half.say.empty." + lv.axis)); return; }
         checked = true; peek = false; pending = null; active = false;
         const s = similarity(), time = ctx.timer.stop(), cleared = s >= CONF.feedback.good;
         if (s >= CONF.feedback.almost) misses = [];
-        ctx.say(s >= CONF.feedback.almost ? "거의 똑같아요!" : cleared ? "잘했어요! 꿀색 점은 다음에 같이 봐요" : "꿀색 점이 있는 곳을 다시 볼까?");
+        ctx.say(s >= CONF.feedback.almost ? TX("g.half.fb.almost") : cleared ? TX("g.half.fb.good") : TX("g.half.fb.again"));
         draw();
-        ctx.later(() => ctx.finish({ cleared, time, hints, metrics: { strokes: strokes.length }, title: cleared ? "반쪽을 완성했어요!" : "끝까지 그려 봤어요!",
-          line: cleared ? lv.name + " 그림이 생겼어요." : "같은 그림으로 한 번 더 해 볼까요?", bestKey: cleared ? lv.id : null, bestValue: U.r1(time) }), CONF.checkShowMs / JN.TIME_SCALE);
+        ctx.later(() => ctx.finish({ cleared, time, hints, metrics: { strokes: strokes.length }, title: cleared ? TX("g.half.title.ok") : TX("g.half.title.try"),
+          line: cleared ? TX("g.half.line.ok", { name: SN(lv.name) }) : TX("g.half.line.try"), bestKey: cleared ? lv.id : null, bestValue: U.r1(time) }), CONF.checkShowMs / JN.TIME_SCALE);
       });
       ctx.hint(mode === "button", () => {
         if (checked || !active) return;
@@ -184,7 +185,7 @@
       });
       layout();
       return {
-        start() { active = true; ctx.timer.start(); ctx.say((lv.axis === "v" ? "오른쪽" : "아래쪽") + "에 " + (lv.dots ? "점과 점을 이어" : "손가락으로") + " 반쪽을 그려요"); },
+        start() { active = true; ctx.timer.start(); ctx.say(TX("g.half.draw." + lv.axis + "." + (lv.dots ? "dots" : "free"))); },
         resize: layout,
         destroy() { active = false; },
         test: {

@@ -6,60 +6,60 @@
    - 표정 그림은 이 파일에서 코드로 직접 그려요 (손그림풍 SVG, 색은 Art.COLORS · 선은 Art.INK). 사진·AI 그림·바깥 파일 없음.
    - 틀려도 벌 없음: 그 카드만 잠깐 흐려지고 "다시 찾아 봐요". 힌트(보호자 설정)와 "다시 읽어 줘요" 단추.
    - 이야기는 무섭거나 슬퍼도 끝에는 꼭 안심이 되게 끝나요.
-   - 화면 문구는 아래 TXT 에 모아 뒀어요 (이 앱은 따로 언어 파일이 없어서 놀이마다 문구를 한곳에 둬요).
+   - 화면 문구(낱말·이야기 포함)는 lang/ko.js 의 g.emotion.* 에 있어요. 아래 TXT 는 그 문구를 꺼내 쓰는 표예요.
    - 소리는 JN.speak (기기 안 음성만). 마이크·카메라·바깥 요청 없음. 아이 이름·사진 등 개인정보 없음(이야기 속 이름은 지어낸 이름). */
 "use strict";
 (function () {
-  const U = JN.util, h = U.h, shuffle = U.shuffle, pick = U.pick;
+  const U = JN.util, h = U.h, shuffle = U.shuffle, pick = U.pick, L = JN.t;   // L: 화면 글자는 lang/ko.js 에서
 
   const TXT = {
-    name: "감정 표정 고르기",
-    introW2F: "낱말에 맞는 표정을 찾아요",
-    introF2W: "표정에 맞는 낱말을 찾아요",
-    introStory: "이야기를 읽고 마음을 찾아요",
-    sayW2F: "이 낱말에는 어떤 표정이 어울릴까요?",
-    sayF2W: "이 표정은 어떤 마음일까요?",
-    sayStoryFace: "주인공은 어떤 표정일까요?",
-    sayStoryWord: "맞아요! 이 마음을 뭐라고 할까요?",
-    again: "다시 찾아 봐요",
-    reread: "다시 읽어 줘요",
-    good: "잘 찾았어요!",
-    title: "마음을 잘 찾았어요!",
-    hintAlways: "맞는 카드가 살짝 커져서 늘 보여요",
-    hintButton: "누르면 틀린 카드가 하나씩 흐려져요 (한 문제에 한 번 이상 눌러도 돼요)",
-    hintNone: "도움 없이 찾아요",
-    parentNote: "얼굴 표정과 마음 낱말을 이어 보는 놀이예요. 정답을 못 맞춰도 괜찮아요. 아이와 함께 \"너는 언제 이런 마음이었어?\" 하고 이야기해 보세요. 3~5세는 어른이 낱말과 이야기를 읽어 주세요",
+    name: L("game.감정표정.name"),
+    introW2F: L("g.emotion.introW2F"),
+    introF2W: L("g.emotion.introF2W"),
+    introStory: L("g.emotion.introStory"),
+    sayW2F: L("g.emotion.sayW2F"),
+    sayF2W: L("g.emotion.sayF2W"),
+    sayStoryFace: L("g.emotion.sayStoryFace"),
+    sayStoryWord: L("g.emotion.sayStoryWord"),
+    again: L("g.word.again"),
+    reread: L("g.emotion.reread"),
+    good: L("g.emotion.good"),
+    title: L("g.emotion.title"),
+    hintAlways: L("g.emotion.hintAlways"),
+    hintButton: L("g.emotion.hintButton"),
+    hintNone: L("g.word.hh.none"),
+    parentNote: L("g.emotion.parentNote"),
   };
 
   /* 다섯 가지 마음: k=표정 이름, w=낱말 */
   const EM = [
-    { k: "joy", w: "기쁘다" }, { k: "sad", w: "슬프다" }, { k: "angry", w: "화나다" },
-    { k: "scared", w: "무섭다" }, { k: "surprised", w: "놀랐다" },
+    { k: "joy", w: L("g.emotion.word.joy") }, { k: "sad", w: L("g.emotion.word.sad") }, { k: "angry", w: L("g.emotion.word.angry") },
+    { k: "scared", w: L("g.emotion.word.scared") }, { k: "surprised", w: L("g.emotion.word.surprised") },
   ];
   const emOf = (k) => EM.find((e) => e.k === k);
   const ALL = EM.map((e) => e.k);
 
   /* 이야기 (아이 일상, 2~3문장). 무섭거나 슬픈 이야기도 마지막은 안심 */
   const STORIES = [
-    { k: "joy", text: "민이가 새 장난감 자동차를 선물로 받았어요. 바퀴가 데굴데굴 잘 굴러가요. 민이는 방긋 웃으며 자동차를 꼭 안았어요." },
-    { k: "sad", text: "소라의 곰 인형이 빨래통에 들어갔어요. 소라는 눈물이 또르르 났어요. 엄마가 꼭 안아 주었고, 인형은 보송보송해져서 돌아왔어요." },
-    { k: "angry", text: "동생이 하준이가 쌓은 블록 탑을 와르르 무너뜨렸어요. 하준이는 얼굴이 빨개지고 주먹을 꽉 쥐었어요. 숨을 크게 세 번 쉬니 마음이 차분해졌어요." },
-    { k: "scared", text: "깜깜한 밤에 천둥이 쿠르릉 울렸어요. 지아는 이불 속으로 쏙 숨었어요. 아빠가 옆에 와서 \"괜찮아, 아빠 여기 있어\" 하고 말해 주었어요." },
-    { k: "surprised", text: "서윤이가 선물 상자를 열자 인형이 팡 하고 튀어나왔어요. 서윤이는 눈이 동그래졌어요. 친구가 몰래 준비한 선물이었어요." },
-    { k: "sad", text: "비 오는 날, 도윤이는 친구와 놀이터에서 놀기로 했는데 비가 와서 못 나가게 됐어요. 도윤이는 시무룩했어요. 그런데 친구가 우산을 쓰고 놀러 와서 같이 블록놀이를 했어요." },
-    { k: "joy", text: "친구가 \"같이 놀자!\" 하고 불러 주었어요. 유나는 친구 손을 잡고 신나게 달려갔어요. 둘이 깔깔깔 웃으며 놀았어요." },
-    { k: "scared", text: "비 오는 날, 큰 강아지가 멍멍 짖으며 달려왔어요. 하늘이는 다리가 덜덜 떨렸어요. 강아지 주인이 얼른 와서 데려갔고, 엄마가 하늘이 손을 꼭 잡아 주었어요." },
-    { k: "angry", text: "친구가 우진이 장난감을 말도 없이 가져갔어요. 우진이는 입을 꾹 다물고 \"내 거야!\" 하고 소리쳤어요. 친구가 \"미안해\" 하고 돌려주어서 함께 놀았어요." },
-    { k: "surprised", text: "비가 그친 뒤 하늘에 커다란 무지개가 짠 하고 나타났어요. 나연이는 입이 떡 벌어졌어요. 엄마와 함께 한참 무지개를 바라보았어요." },
+    { k: "joy", text: L("g.emotion.story.1") },
+    { k: "sad", text: L("g.emotion.story.2") },
+    { k: "angry", text: L("g.emotion.story.3") },
+    { k: "scared", text: L("g.emotion.story.4") },
+    { k: "surprised", text: L("g.emotion.story.5") },
+    { k: "sad", text: L("g.emotion.story.6") },
+    { k: "joy", text: L("g.emotion.story.7") },
+    { k: "scared", text: L("g.emotion.story.8") },
+    { k: "angry", text: L("g.emotion.story.9") },
+    { k: "surprised", text: L("g.emotion.story.10") },
   ];
 
   const STAGES = [
-    { id: "e1", name: "쉬움 1 · 낱말 듣고 표정 찾기", mode: "w2f", n: 2, pool: ["joy", "sad"], count: 5 },
-    { id: "e2", name: "쉬움 2 · 낱말 듣고 표정 찾기 더", mode: "w2f", n: 3, pool: ALL, count: 5 },
-    { id: "e3", name: "보통 1 · 표정 보고 낱말 찾기", mode: "f2w", n: 3, pool: ALL, count: 5 },
-    { id: "e4", name: "보통 2 · 표정 보고 낱말 찾기 더", mode: "f2w", n: 5, pool: ALL, count: 5 },
-    { id: "e5", name: "어려움 1 · 이야기 속 마음 찾기", mode: "story", n: 3, pool: ALL, count: 5 },
-    { id: "e6", name: "어려움 2 · 이야기 속 마음 찾기 더", mode: "story", n: 5, pool: ALL, count: 5 },
+    { id: "e1", name: L("g.emotion.e1"), mode: "w2f", n: 2, pool: ["joy", "sad"], count: 5 },
+    { id: "e2", name: L("g.emotion.e2"), mode: "w2f", n: 3, pool: ALL, count: 5 },
+    { id: "e3", name: L("g.emotion.e3"), mode: "f2w", n: 3, pool: ALL, count: 5 },
+    { id: "e4", name: L("g.emotion.e4"), mode: "f2w", n: 5, pool: ALL, count: 5 },
+    { id: "e5", name: L("g.emotion.e5"), mode: "story", n: 3, pool: ALL, count: 5 },
+    { id: "e6", name: L("g.emotion.e6"), mode: "story", n: 5, pool: ALL, count: 5 },
   ];
   const T = { okMs: 900, missMs: 1200 };
 
@@ -95,7 +95,7 @@
       '<path d="M26 28 Q34 17 46 15" fill="none" stroke="#FFF9EE" stroke-width="4" stroke-linecap="round" opacity=".55"/>';
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="' + String(label).replace(/[&<>"]/g, "") + '" style="overflow:visible">' + body + f + "</svg>";
   }
-  const faceLabel = (k) => emOf(k).w + " 표정";
+  const faceLabel = (k) => L("g.emotion.face", { word: emOf(k).w });
 
   /* ---------- 문제 만들기 ---------- */
   function makeQuestions(st) {
@@ -120,11 +120,11 @@
   JN.registerGame({
     id: "감정표정", stages: STAGES, name: TXT.name,
     hintHelp: { always: TXT.hintAlways, button: TXT.hintButton, none: TXT.hintNone },
-    extraSettings: [{ key: "wordSound", type: "select", label: "낱말 소리", sub: "이게 뭐야?와 같은 값이에요. 버튼 누를 때만 기기 안 음성으로 읽어요",
-      def: "tap", options: [["tap", "버튼 누를 때만"], ["off", "끔"]], shareWith: ["낱말그림", "문장만들기"] }],
+    extraSettings: [{ key: "wordSound", type: "select", label: L("g.word.x.sound"), sub: L("g.sentence.x.sound.sub"),
+      def: "tap", options: [["tap", L("g.word.x.sound.tap")], ["off", L("common.off")]], shareWith: ["낱말그림", "문장만들기"] }],
     parentNote: TXT.parentNote,
-    chart: { key: "time", label: "걸린 시간", unit: "초" },
-    describe: (e) => (e.questions || 5) + "문제 · " + U.fmtTime(e.time) + " · 다시 찾은 " + (e.mistakes || 0) + "번" + (e.hints ? " · 힌트 " + e.hints + "번" : ""),
+    chart: { key: "time", label: L("common.time"), unit: L("common.unit.sec") },
+    describe: (e) => L("g.emotion.describe", { q: e.questions || 5, time: U.fmtTime(e.time), n: e.mistakes || 0 }) + (e.hints ? L("g.number.describe.hint", { n: e.hints }) : ""),
     intro: (st) => st.mode === "w2f" ? TXT.introW2F : st.mode === "f2w" ? TXT.introF2W : TXT.introStory,
     mount(ctx) {
       const st = ctx.stage, set = ctx.settings, mode = set.hintMode, board = ctx.board;
@@ -144,10 +144,10 @@
       function fillSpeak(slot) {
         slot.textContent = "";
         if (canSpeak()) {
-          const b = h("button", { type: "button", class: "speak", id: "emSpeak", "aria-label": "소리 듣기", svg: Art.icon("소리켬") });
+          const b = h("button", { type: "button", class: "speak", id: "emSpeak", "aria-label": L("g.word.listen"), svg: Art.icon("소리켬") });
           U.tap(b, () => { if (JN.speak(slot.dataset.text)) heard++; });
           slot.appendChild(b);
-        } else if (wantSpeak()) slot.appendChild(h("span", { class: "wd-nosound", text: "소리가 안 나요. 어른이 읽어 주세요" }));
+        } else if (wantSpeak()) slot.appendChild(h("span", { class: "wd-nosound", text: L("g.word.nosound") }));
       }
       const refreshSpeak = () => board.querySelectorAll(".wd-spk").forEach(fillSpeak);
       function paintProg() {
@@ -226,7 +226,7 @@
         busy = true; phase = "end";
         const time = ctx.timer.stop();
         ctx.finish({ cleared: mistakes <= 3, time, mistakes, hints, metrics: { questions: qs.length, heard },
-          title: TXT.title, line: "마음 " + qs.length + "개를 찾았어요" });
+          title: TXT.title, line: L("g.emotion.line", { n: qs.length }) });
       }
       ctx.hint(mode === "button", () => {
         if (busy || !q || phase !== "pick") return;

@@ -73,6 +73,8 @@
     if (!CFG.HINT_MODES[s.hintMode]) s.hintMode = CFG.DEFAULT_SETTINGS.hintMode;
     for (const k of ["sound", "showTimer", "autoNext", "suggestEasier", "from1"]) s[k] = !!s[k];
     s.restEvery = clampInt(s.restEvery, 0, 10, 0);
+    s.eyeRest = s.eyeRest !== false;   // 옛 저장값(없음)은 켬
+    s.dailyLimit = CFG.DAILY_LIMITS.includes(Number(s.dailyLimit)) ? Number(s.dailyLimit) : 0;
     const out = { settings: s, games: {}, state: {}, bests: {}, firsts: {} };
     for (const k of ["games", "state", "bests", "firsts"]) if (isObj(d[k])) out[k] = d[k];
     return out;
@@ -140,13 +142,13 @@
   }
   /* 형식을 검사한 뒤에만 반영해요. 이상하면 아무것도 바꾸지 않아요. */
   function validateImport(obj) {
-    if (!isObj(obj) || obj.format !== FORMAT || obj.version !== 1) return { ok: false, msg: "집중 놀이터 기록 파일이 아니에요." };
-    if (!Array.isArray(obj.profiles) || obj.profiles.length > CFG.MAX_CHILDREN) return { ok: false, msg: "아이 목록 형식이 맞지 않아요." };
+    if (!isObj(obj) || obj.format !== FORMAT || obj.version !== 1) return { ok: false, msg: JN.t("import.notfile") };
+    if (!Array.isArray(obj.profiles) || obj.profiles.length > CFG.MAX_CHILDREN) return { ok: false, msg: JN.t("import.kids") };
     const list = [];
     for (const p of obj.profiles) {
       const c = cleanProfile(p);
-      if (!c || c.id !== p.id) return { ok: false, msg: "아이 정보 형식이 맞지 않아요." };
-      if (list.some((x) => x.id === c.id)) return { ok: false, msg: "같은 아이가 두 번 들어 있어요." };
+      if (!c || c.id !== p.id) return { ok: false, msg: JN.t("import.kid") };
+      if (list.some((x) => x.id === c.id)) return { ok: false, msg: JN.t("import.dup") };
       list.push(c);
     }
     const children = {}, hist = {};
@@ -156,15 +158,15 @@
       const h = isObj(obj.history) ? obj.history[p.id] : null;
       const rounds = isObj(h) && Array.isArray(h.rounds) ? h.rounds : [];
       const summary = isObj(h) && Array.isArray(h.summary) ? h.summary : [];
-      if (rounds.length > CFG.HISTORY_MAX * 2 || summary.length > 20000) return { ok: false, msg: "기록이 너무 많아요." };
+      if (rounds.length > CFG.HISTORY_MAX * 2 || summary.length > 20000) return { ok: false, msg: JN.t("import.toomany") };
       const cleanR = [];
       for (const e of rounds) {
-        if (!validRound(e)) return { ok: false, msg: "판 기록 형식이 맞지 않아요." };
+        if (!validRound(e)) return { ok: false, msg: JN.t("import.round") };
         cleanR.push(cleanEntry(e));
       }
       const cleanS = [];
       for (const s of summary) {
-        if (!validSummary(s)) return { ok: false, msg: "요약 기록 형식이 맞지 않아요." };
+        if (!validSummary(s)) return { ok: false, msg: JN.t("import.summary") };
         cleanS.push({ date: s.date, game: String(s.game).slice(0, 20), rounds: clampInt(s.rounds, 0, 1e6, 0),
           cleared: clampInt(s.cleared, 0, 1e6, 0), time: Number(s.time) || 0, maxStage: clampInt(s.maxStage, 0, 99, 0) });
       }
@@ -189,9 +191,22 @@
     for (const p of profiles()) { del("child." + p.id); del("hist." + p.id); }
     saveProfiles(r.list);
     for (const p of r.list) { saveChild(p.id, r.children[p.id]); set("hist." + p.id, r.hist[p.id]); }
-    return { ok: true, msg: "기록을 가져왔어요. 아이 " + r.list.length + "명" };
+    return { ok: true, msg: JN.t("import.done", { n: r.list.length }) };
   }
 
-  JN.Store = { profiles, addProfile, updateProfile, deleteProfile, child, saveChild, history, addRound, clearHistory,
+  /* 오늘 한 놀이 요약 (보호자 화면용): 판 수 · 걸린 시간(초) · 놀이별 판 수. 점수는 만들지 않아요 */
+  function today(id) {
+    const d = dateStr(new Date()), out = { rounds: 0, seconds: 0, byGame: {} };
+    for (const e of history(id).rounds) {
+      if (e.at.slice(0, 10) !== d) continue;
+      out.rounds++;
+      out.seconds += Number(e.time) || 0;
+      out.byGame[e.game] = (out.byGame[e.game] || 0) + 1;
+    }
+    out.seconds = Math.round(out.seconds);
+    return out;
+  }
+
+  JN.Store = { today, profiles, addProfile, updateProfile, deleteProfile, child, saveChild, history, addRound, clearHistory,
                exportAll, importAll, validateImport, dateStr, stamp, getApp: () => get("app", {}), setApp: (v) => set("app", v) };
 })();

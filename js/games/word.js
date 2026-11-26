@@ -5,16 +5,16 @@
    - 다른 그림을 누르면 그 칸만 잠깐 흐려지고 "다시 찾아 봐요" 쪽지 (빨간 X·흔들기 없음). */
 "use strict";
 (function () {
-  const U = JN.util, h = U.h, shuffle = U.shuffle, pick = U.pick;
+  const U = JN.util, h = U.h, shuffle = U.shuffle, pick = U.pick, TX = JN.t;   // TX: 화면 글자는 lang/ko.js 에서 (T 는 아래 시간 표)
   const STAGES = [
-    { id: "w1", name: "과일 친구 이름", mode: "say", count: 5, pool: "fruit" },
-    { id: "w2", name: "동물·탈것 친구 이름", mode: "say", count: 6, pool: "all" },
-    { id: "w3", name: "듣고 찾기 (2장)", mode: "find", count: 5, cands: 2 },
-    { id: "w4", name: "듣고 찾기 (4장)", mode: "find", count: 6, cands: 4, sameCat: true },
-    { id: "w5", name: "두 가지 심부름", mode: "order", count: 5, cands: 6, targets: 2 },
-    { id: "w6", name: "세 가지 심부름", mode: "order", count: 5, cands: 8, targets: 3 },
-    { id: "w7", name: "글자 보고 찾기", mode: "read", count: 6, cands: [4, 4, 4, 6, 6, 6] },
-    { id: "w8", name: "처음 소리가 같은 친구", mode: "sound", count: 5, cands: 8, targets: 3 },
+    { id: "w1", name: TX("g.word.w1"), mode: "say", count: 5, pool: "fruit" },
+    { id: "w2", name: TX("g.word.w2"), mode: "say", count: 6, pool: "all" },
+    { id: "w3", name: TX("g.word.w3"), mode: "find", count: 5, cands: 2 },
+    { id: "w4", name: TX("g.word.w4"), mode: "find", count: 6, cands: 4, sameCat: true },
+    { id: "w5", name: TX("g.word.w5"), mode: "order", count: 5, cands: 6, targets: 2 },
+    { id: "w6", name: TX("g.word.w6"), mode: "order", count: 5, cands: 8, targets: 3 },
+    { id: "w7", name: TX("g.word.w7"), mode: "read", count: 6, cands: [4, 4, 4, 6, 6, 6] },
+    { id: "w8", name: TX("g.word.w8"), mode: "sound", count: 5, cands: 8, targets: 3 },
   ];
   /* 8단계: 처음 소리가 같은 묶음 (기획서 3-1) — 글자 이름(기역)은 쓰지 않고 기준 그림으로만 */
   const SOUND_GROUPS = [["강아지", "고양이", "곰", "귤", "기차", "개미"], ["바나나", "버스", "배", "벌", "비행기"]];
@@ -62,19 +62,18 @@
   JN.registerGame({
     id: "낱말그림", stages: STAGES,
     hintHelp: {
-      always: "1~2단계는 그림 아래 낱말 글자가 늘 보여요. 3~7단계는 부른 그림이 조금 크게 놓여요. 8단계는 기준 그림 이름이 늘 보여요",
-      button: "1~2단계는 누르면 글자가 나타나요. 3~7단계는 누를 때마다 다른 그림이 하나씩 흐려져요. 8단계는 기준 그림 이름이 나타나요",
-      none: "도움 없이 그림만 봐요",
+      always: TX("g.word.hh.always"),
+      button: TX("g.word.hh.button"),
+      none: TX("g.word.hh.none"),
     },
-    extraSettings: [{ key: "wordSound", type: "select", label: "낱말 소리", sub: "버튼 누를 때만 기기 안 음성으로 읽어요. '소리'가 켜져 있고 기기에 한국어 음성이 있을 때만 단추가 보여요",
-      def: "tap", options: [["tap", "버튼 누를 때만"], ["off", "끔"]], shareWith: ["문장만들기", "감정표정"] }],
-    parentNote: "말하기 단계는 아이나 어른이 '말했어요'를 눌러요. 말소리를 듣거나 맞고 틀림을 가리지 않아요. 3~5세는 그림 위주로, 글자는 어른이 읽어 줘도 돼요",
-    chart: { key: "time", label: "걸린 시간", unit: "초" },
+    extraSettings: [{ key: "wordSound", type: "select", label: TX("g.word.x.sound"), sub: TX("g.word.x.sound.sub"),
+      def: "tap", options: [["tap", TX("g.word.x.sound.tap")], ["off", TX("common.off")]], shareWith: ["문장만들기", "감정표정"] }],
+    parentNote: TX("g.word.parentNote"),
+    chart: { key: "time", label: TX("common.time"), unit: TX("common.unit.sec") },
     describe: (e) => e.said != null && e.stageNo <= 2
-      ? (e.words || 0) + "낱말 · " + U.fmtTime(e.time) + " · 말했어요 " + (e.said || 0) + "번"
-      : (e.words || 0) + "낱말 · " + U.fmtTime(e.time) + " · 다시 찾은 " + (e.mistakes || 0) + "번" + (e.hints ? " · 힌트 " + e.hints + "번" : ""),
-    intro: (st) => st.mode === "say" ? "그림 친구 이름을 말해 봐요" : st.mode === "read" ? "글자를 보고 그림을 찾아 봐요"
-      : st.mode === "sound" ? "처음 소리가 같은 친구를 찾아 봐요" : st.mode === "order" ? "부르는 순서대로 찾아 봐요" : "이름을 듣고 찾아 봐요",
+      ? TX("g.word.describe.say", { words: e.words || 0, time: U.fmtTime(e.time), n: e.said || 0 })
+      : TX("g.word.describe.find", { words: e.words || 0, time: U.fmtTime(e.time), n: e.mistakes || 0 }) + (e.hints ? TX("g.number.describe.hint", { n: e.hints }) : ""),
+    intro: (st) => TX("g.word.intro." + (["say", "read", "sound", "order"].includes(st.mode) ? st.mode : "find")),
     mount(ctx) {
       const st = ctx.stage, set = ctx.settings, mode = set.hintMode, board = ctx.board;
       board.classList.add("wd-board");
@@ -99,10 +98,10 @@
       function fillSpeak(slot) {
         slot.textContent = "";
         if (canSpeak()) {
-          const b = h("button", { type: "button", class: "speak" + (slot.classList.contains("big") ? " big" : ""), id: "wdSpeak", "aria-label": "소리 듣기", svg: Art.icon("소리켬") });
+          const b = h("button", { type: "button", class: "speak" + (slot.classList.contains("big") ? " big" : ""), id: "wdSpeak", "aria-label": TX("g.word.listen"), svg: Art.icon("소리켬") });
           U.tap(b, () => { if (JN.speak(slot.dataset.text)) heard++; });
           slot.appendChild(b);
-        } else if (wantSpeak()) slot.appendChild(h("span", { class: "wd-nosound", text: "소리가 안 나요. 어른이 읽어 주세요" }));
+        } else if (wantSpeak()) slot.appendChild(h("span", { class: "wd-nosound", text: TX("g.word.nosound") }));
       }
       const refreshSpeak = () => board.querySelectorAll(".wd-spk").forEach(fillSpeak);
       function paintProg() {
@@ -116,15 +115,15 @@
         return d;
       }
       const promptText = () => {
-        if (st.mode === "find") return q.words[q.targets[0]].w + " 어디 있어요?";
+        if (st.mode === "find") return TX("g.word.prompt.find", { word: q.words[q.targets[0]].w });
         if (st.mode === "order") {   // "사과, 그다음 버스를 눌러요"
           const ws = q.targets.map((t) => q.words[t].w), last = ws.pop();
-          return ws.concat(U.josa(last, "을/를")).join(", 그다음 ") + " 눌러요";
+          return TX("g.word.prompt.order", { list: ws.concat(U.josa(last, "을/를")).join(TX("g.word.then")) });
         }
-        if (st.mode === "read") return "이 글자의 그림을 찾아요";
-        return "이 그림과 처음 소리가 같은 친구 " + q.targets.length + "개를 찾아요";
+        if (st.mode === "read") return TX("g.word.prompt.read");
+        return TX("g.word.prompt.sound", { n: q.targets.length });
       };
-      const speakText = () => st.mode === "find" ? promptText() : st.mode === "order" ? q.targets.map((t) => q.words[t].w).join(", 그다음 ")
+      const speakText = () => st.mode === "find" ? promptText() : st.mode === "order" ? q.targets.map((t) => q.words[t].w).join(TX("g.word.then"))
         : st.mode === "read" ? q.words[q.targets[0]].w : q.base.w;
 
       /* ---------- 1~2단계: 보고 말하기 ---------- */
@@ -136,12 +135,12 @@
         main.appendChild(h("div", { class: "wd-say" },
           h("div", { class: "wd-pic jn-float", svg: JN.wordArt(it, { face: "웃음" }) }),
           h("div", { class: "wd-namerow" }, speakBtn(it.w, true), h("b", { class: "wd-name" + (nameShown ? "" : " hide"), id: "wdName", text: it.w, "aria-hidden": nameShown ? null : "true" }))));
-        const sayBtn = h("button", { type: "button", class: "jn-btn jn-btn--primary jn-btn--big wd-said", id: "wdSaid", svg: Art.icon("확인") }, "말했어요");
-        const skip = h("button", { type: "button", class: "jn-btn jn-btn--quiet wd-skip", id: "wdNext" }, "다음");
+        const sayBtn = h("button", { type: "button", class: "jn-btn jn-btn--primary jn-btn--big wd-said", id: "wdSaid", svg: Art.icon("확인") }, TX("g.word.said"));
+        const skip = h("button", { type: "button", class: "jn-btn jn-btn--quiet wd-skip", id: "wdNext" }, TX("g.number.next"));
         U.tap(sayBtn, () => { if (busy) return; said++; ctx.sound("ok"); next(); });
         U.tap(skip, () => { if (!busy) next(); });
         foot.append(sayBtn, skip);
-        ctx.say("이게 뭐야? 이름을 말해 봐요");
+        ctx.say(TX("g.word.say.say"));
       }
 
       /* ---------- 3~8단계: 찾기 ---------- */
@@ -155,7 +154,7 @@
         else if (st.mode === "sound") {
           const showBase = mode === "always" || revealed;
           row.appendChild(h("span", { class: "wd-base" },
-            h("i", { svg: JN.wordArt(q.base, { face: "웃음", label: "기준 그림" }) }), h("b", { class: showBase ? null : "hide", text: q.base.w })));
+            h("i", { svg: JN.wordArt(q.base, { face: "웃음", label: TX("g.word.base.aria") }) }), h("b", { class: showBase ? null : "hide", text: q.base.w })));
         }
         row.appendChild(h("span", { class: "wd-ptext", text: st.mode === "read" ? "" : ptxt }));
         top.appendChild(row);
@@ -178,8 +177,7 @@
         main.appendChild(grid);
         markExpected();
         layout();
-        ctx.say(st.mode === "read" ? "글자를 보고 그림을 찾아요" : st.mode === "sound" ? "처음 소리가 같은 친구를 찾아요"
-          : st.mode === "order" ? "부르는 순서대로 눌러요" : "이름을 듣고 찾아 봐요");
+        ctx.say(TX("g.word.say." + (["read", "sound", "order"].includes(st.mode) ? st.mode : "find")));
       }
       function expectedSet() {
         if (st.mode === "order") return [q.targets[step]];
@@ -197,13 +195,13 @@
         if (!b || b.classList.contains("right") || b.classList.contains("miss")) return;
         if (expectedSet().includes(k)) {
           right(b, k);
-          if (st.mode === "order") { step++; paintSlots(); if (step >= q.targets.length) return doneQ(); markExpected(); ctx.say("좋아요! 다음 것도 찾아요"); return; }
-          if (st.mode === "sound") { found.push(k); paintSlots(); if (found.length >= q.targets.length) return doneQ(); ctx.say("찾았어요! 또 있어요"); return; }
+          if (st.mode === "order") { step++; paintSlots(); if (step >= q.targets.length) return doneQ(); markExpected(); ctx.say(TX("g.word.say.next")); return; }
+          if (st.mode === "sound") { found.push(k); paintSlots(); if (found.length >= q.targets.length) return doneQ(); ctx.say(TX("g.word.say.more")); return; }
           return doneQ();
         }
         mistakes++;
         b.classList.add("miss");
-        const note = h("span", { class: "wd-again", text: "다시 찾아 봐요" });
+        const note = h("span", { class: "wd-again", text: TX("g.word.again") });
         b.appendChild(note);
         ctx.later(() => { b.classList.remove("miss"); note.remove(); }, T.missMs / JN.TIME_SCALE);
       }
@@ -225,7 +223,7 @@
       }
       function doneQ() {
         busy = true;
-        ctx.say(pick(["잘 찾았어요!", "찾았어요!", "맞아요, 이거예요!"]));
+        ctx.say(pick(TX("g.word.say.ok")));
         ctx.later(next, T.okMs / JN.TIME_SCALE);
       }
       function layout() {
@@ -234,7 +232,7 @@
         const Wd = main.clientWidth - 8, Hd = main.clientHeight - 8;
         if (Wd < 40 || Hd < 40) return;
         let best = { cols: 1, s: 0 };
-        for (let cols = 1; cols <= n; cols++) {
+        for (let cols = (n <= 3 ? n : 1); cols <= n; cols++) {   // 보기 3장 이하(듣고 찾기 2장)는 늘 한 줄
           const rows = Math.ceil(n / cols);
           const s = Math.min((Wd - gap * (cols - 1)) / cols, (Hd - gap * (rows - 1)) / rows, 220);
           if (s > best.s) best = { cols, s };
@@ -260,8 +258,8 @@
         const limit = st.mode === "sound" ? 3 : 2;
         ctx.finish({ cleared: say ? true : mistakes <= limit, time, mistakes, hints,
           metrics: { said, heard, words: qs.length },
-          title: say ? "그림 친구를 모두 만났어요!" : "이름을 잘 찾았어요!",
-          line: say ? "말했어요 " + said + "번" : "" });
+          title: say ? TX("g.word.title.say") : TX("g.word.title.find"),
+          line: say ? TX("g.word.line.say", { n: said }) : "" });
       }
       ctx.hint(mode === "button", () => {
         if (busy || !q) return;

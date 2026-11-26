@@ -34,7 +34,7 @@
     snail(face, pose, label) { const f = FILES.snail[face + "," + pose]; return f ? img(f, label) : Art.snail({ face, pose, label }); },
     areaIcon(id) { const f = FILES.areaIcon[id]; return f ? img(f, id) : Art.areaIcon(id); },
     roomArt(id) { const f = FILES.roomArt[id]; return f ? img(f, id) : Art.roomArt(id); },
-    cardBack() { return FILES.cardBack ? img(FILES.cardBack, "카드 뒷면") : Art.cardBack(); },
+    cardBack() { return FILES.cardBack ? img(FILES.cardBack, JN.t("art.cardback")) : Art.cardBack(); },
     /* 화면 배경 장면: BACKGROUNDS 에 이미지가 있으면 그 그림, 없으면 v2 코드 그림 (tall = 세로 화면용) */
     scene(key, tall) {
       const f = BACKGROUNDS[key];

@@ -133,7 +133,7 @@
 .pt-row .cell.unit::after { content: ""; position: absolute; left: 8%; right: 8%; bottom: -8px; height: 5px; background: var(--c-mustard); clip-path: var(--cut-c); }
 .pt-tip { font-size: 16px; color: var(--c-ink-soft); text-align: center; }
 .pt-tip:empty { display: none; }
-.pt-choices { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
+.pt-choices { display: flex; flex-wrap: nowrap; gap: 12px; justify-content: center; max-width: 100%; }   /* 보기는 늘 한 줄 (칸 크기 계산의 간격 12px 과 같게) */
 .pt-choices .choice { padding: 9%; border: 0; background: none; cursor: pointer; filter: var(--sh-paper-down); }
 .pt-choices .choice:nth-child(2n) { --cut: var(--cut-b); transform: rotate(1deg); }
 .pt-choices .choice:nth-child(2n+1) { transform: rotate(-1deg); }

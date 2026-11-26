@@ -409,4 +409,18 @@ table.log td.nw { white-space: nowrap; }
 .jn-stage .of-n { display: none; font-size: 15px; color: var(--c-ink-soft); }
 @media (max-width: 480px) { .frame-top .jn-stage .jn-dots { display: none; } .frame-top .jn-stage .of-n { display: inline; } }
 .again p { font-size: var(--fs-button); margin: 0; }
+
+/* ---------- 눈 쉬기 · 오늘은 여기까지 · 새 놀이 단추 · 보호자 오늘 요약 (움직임·깜빡임 없음) ---------- */
+.eye-scr { z-index: 60; }
+.eye-in { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; padding: 24px; max-width: 420px; margin: auto; }
+.eye-owl { width: 170px; height: 170px; }
+.eye-owl svg { width: 100%; height: 100%; display: block; }
+.eye-in h1 { font-size: var(--fs-title); }
+.eye-in p { color: var(--c-ink-soft); font-size: var(--fs-body); }
+.eye-count { font-size: 22px; }
+.eye-count b { font-size: 44px; color: var(--c-ink); }
+.update-btn { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 40; min-width: 220px; }
+.today-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 6px 0 8px; }
+.today-grid > div { padding: 10px 8px; text-align: center; font-size: 14px; color: var(--c-ink-soft); background: var(--c-surface-2); border-radius: var(--r-s); }
+.today-grid b { display: block; font-size: 24px; color: var(--c-ink); font-variant-numeric: tabular-nums; }
 .safety-note b { color: var(--c-terracotta-deep); }

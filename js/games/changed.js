@@ -4,14 +4,14 @@
    틀려도 벌이 없어요: 엉뚱한 곳을 눌러도 물결만 나오고, '처음 그림 다시 보기'는 몇 번이든 눌러 볼 수 있어요. */
 "use strict";
 (function () {
-  const U = JN.util, h = U.h, rnd = U.rnd, shuffle = U.shuffle;
+  const U = JN.util, h = U.h, rnd = U.rnd, shuffle = U.shuffle, T = JN.t;   // T: 화면 글자는 lang/ko.js 에서
   const A = JN.spotArt;
   if (!A) { console.warn("달라진 그림 찾기: spot.js 를 먼저 불러와야 해요"); return; }
   const LOOK_MS = 10000, PEEK_MS = 4000, AUTO_HINT_SEC = 30;
   const STAGES = [
-    { id: "c1", name: "쉬움 · 달라진 곳 3개 (큰 차이)", diffs: 3, style: "flat", kinds: ["color", "scale"], bigOnly: true, items: [4, 6] },
-    { id: "c2", name: "보통 · 달라진 곳 5개", diffs: 5, style: "flat2", kinds: ["color", "scale", "move", "remove"], items: [8, 12] },
-    { id: "c3", name: "어려움 · 달라진 곳 5개 (작은 차이)", diffs: 5, style: "flat2", kinds: ["color", "scale", "move", "remove", "flip", "pattern"], items: null },
+    { id: "c1", name: T("g.changed.c1"), diffs: 3, style: "flat", kinds: ["color", "scale"], bigOnly: true, items: [4, 6] },
+    { id: "c2", name: T("g.changed.c2"), diffs: 5, style: "flat2", kinds: ["color", "scale", "move", "remove"], items: [8, 12] },
+    { id: "c3", name: T("g.changed.c3"), diffs: 5, style: "flat2", kinds: ["color", "scale", "move", "remove", "flip", "pattern"], items: null },
   ];
   const NS = "http://www.w3.org/2000/svg";
   const PLATE = "plate";
@@ -45,25 +45,25 @@
 
   JN.registerGame({
     id: "달라진그림", stages: STAGES, stageLabel: (st) => st.name,
-    hintHelp: { always: "한동안 못 찾으면 달라진 곳 근처를 은은하게 비춰요", button: "힌트 버튼을 누르면 달라진 곳 근처를 비춰요", none: "힌트 없이 찾아요 (처음 그림 다시 보기 단추는 늘 있어요)" },
-    parentNote: "처음 그림은 10초 보여 줘요. 외우기 어려우면 '처음 그림 다시 보기'를 몇 번이든 누를 수 있고, 엉뚱한 곳을 눌러도 벌은 없어요",
-    chart: { key: "time", label: "걸린 시간", unit: "초" },
-    describe: (e) => U.fmtTime(e.time) + " · 달라진 곳 아닌 데 누름 " + (e.mistakes || 0) + "번" + (e.replays ? " · 처음 그림 다시 봄 " + e.replays + "번" : "") + (e.hints ? " · 힌트 " + e.hints + "번" : ""),
-    intro: (st) => "그림을 10초 보고, 달라진 곳 " + st.diffs + "개를 찾아요",
+    hintHelp: { always: T("g.changed.hh.always"), button: T("g.changed.hh.button"), none: T("g.changed.hh.none") },
+    parentNote: T("g.changed.parentNote"),
+    chart: { key: "time", label: T("common.time"), unit: T("common.unit.sec") },
+    describe: (e) => U.fmtTime(e.time) + T("g.changed.describe", { m: e.mistakes || 0 }) + (e.replays ? T("g.changed.describe.replay", { n: e.replays }) : "") + (e.hints ? T("g.number.describe.hint", { n: e.hints }) : ""),
+    intro: (st) => T("g.changed.intro", { n: st.diffs }),
     mount(ctx) {
       const lv = ctx.stage, mode = ctx.settings.hintMode, board = ctx.board, mem = ctx.mem;
       board.classList.add("sd-board", "cg-board");
       const mk = (id) => { const s = document.createElementNS(NS, "svg"); s.setAttribute("viewBox", "0 0 400 300"); s.setAttribute("class", "cg-svg"); s.id = id; return s; };
       const svgA = mk("cgA"), svgB = mk("cgB");
-      svgA.setAttribute("aria-label", "처음 그림"); svgB.setAttribute("aria-label", "달라진 그림");
-      const tag = h("span", { class: "tag", text: "처음 그림" });
+      svgA.setAttribute("aria-label", T("g.changed.first")); svgB.setAttribute("aria-label", T("g.changed.second"));
+      const tag = h("span", { class: "tag", text: T("g.changed.first") });
       const pic = h("div", { class: "sd-pic cg-pic" }, tag); pic.append(svgA, svgB);
       const barFill = h("i"), barText = h("span", { class: "cg-count", text: "" });
       const bar = h("div", { class: "cg-bar", "aria-hidden": "true" }, h("span", { class: "cg-track" }, barFill), barText);
       board.appendChild(h("div", { class: "cg-col" }, bar, pic));
-      const dotsBox = h("span", { class: "sd-dots", "aria-label": "찾은 개수" });
+      const dotsBox = h("span", { class: "sd-dots", "aria-label": T("g.spot.count.aria") });
       ctx.status(dotsBox);
-      const mainBtn = h("button", { type: "button", class: "jn-btn jn-btn--primary", id: "cgMain", text: "다 봤어요" });
+      const mainBtn = h("button", { type: "button", class: "jn-btn jn-btn--primary", id: "cgMain", text: T("g.changed.seen") });
       ctx.bottom.appendChild(mainBtn);
 
       const G = build(lv, mem), diffs = G.list;
@@ -112,7 +112,7 @@
         phase = "done"; clearHint(); clearInterval(iv);
         const time = ctx.timer.stop();
         mainBtn.disabled = true;
-        ctx.finish({ cleared: true, time, mistakes: wrong, hints, metrics: { autoHints, replays }, title: "다 찾았어요!", line: "달라진 곳 " + diffs.length + "개를 모두 찾았어요.", bestKey: lv.id, bestValue: U.r1(time) });
+        ctx.finish({ cleared: true, time, mistakes: wrong, hints, metrics: { autoHints, replays }, title: T("g.spot.title"), line: T("g.changed.line", { n: diffs.length }), bestKey: lv.id, bestValue: U.r1(time) });
       }
       svgB.addEventListener("pointerdown", (e) => {
         e.preventDefault();
@@ -124,7 +124,7 @@
           best.found = true; found++; lastFind = Date.now(); clearHint();
           circle(svgA, "mark", best.a.x, best.a.y, A.hitR(best.a) - 4); circle(svgB, "mark", best.b.x, best.b.y, A.hitR(best.b) - 4);
           ctx.sound("ok"); paintDots();
-          if (found === diffs.length) finish(); else ctx.say(found === 1 ? "찾았어요!" : "좋아요, 또 찾았어요!");
+          if (found === diffs.length) finish(); else ctx.say(found === 1 ? T("g.spot.say.first") : T("g.spot.say.more"));
         } else {
           wrong++;   // 벌은 없어요. 물결만 살짝
           const r = circle(svgB, "ripple", p[0], p[1], 22); setTimeout(() => r.remove(), 800);
@@ -136,19 +136,19 @@
         phase = "find"; clearInterval(iv);
         barFill.style.width = "100%"; barText.textContent = "";
         bar.classList.add("off");
-        tag.textContent = "달라진 그림"; show("B");
-        mainBtn.textContent = "처음 그림 다시 보기";
+        tag.textContent = T("g.changed.second"); show("B");
+        mainBtn.textContent = T("g.changed.replay");
         lastFind = Date.now(); ctx.timer.start();
-        ctx.say("달라진 곳 " + diffs.length + "개를 찾아 눌러 보세요");
+        ctx.say(T("g.changed.say.find", { n: diffs.length }));
         iv = setInterval(() => {
           if (phase === "find" && mode === "always" && !hintShown && !peeking && Date.now() - lastFind >= AUTO_HINT_SEC * 1000 / JN.TIME_SCALE) { autoHints++; showHint(); }
         }, 500);
       }
       function peek() {   // 처음 그림을 잠깐 다시 보여 줘요 (벌 없음, 횟수는 기록에 '다시 봄'으로만)
         if (phase !== "find" || peeking) return;
-        peeking = true; replays++; clearHint(); tag.textContent = "처음 그림"; show("A"); mainBtn.disabled = true;
-        ctx.say("처음 그림이에요. 잘 보세요");
-        ctx.later(() => { peeking = false; if (phase !== "find") return; tag.textContent = "달라진 그림"; show("B"); mainBtn.disabled = false; ctx.say("달라진 곳을 찾아 눌러 보세요"); lastFind = Date.now(); }, PEEK_MS / JN.TIME_SCALE);
+        peeking = true; replays++; clearHint(); tag.textContent = T("g.changed.first"); show("A"); mainBtn.disabled = true;
+        ctx.say(T("g.changed.say.peek"));
+        ctx.later(() => { peeking = false; if (phase !== "find") return; tag.textContent = T("g.changed.second"); show("B"); mainBtn.disabled = false; ctx.say(T("g.changed.say.find2")); lastFind = Date.now(); }, PEEK_MS / JN.TIME_SCALE);
       }
       U.onTap(mainBtn, () => { if (phase === "look") toFind(); else if (phase === "find") peek(); });
       ctx.hint(mode === "button", () => { if (phase === "find" && !peeking && !hintShown) { hints++; showHint(); } });
@@ -156,11 +156,11 @@
       return {
         start() {
           phase = "look"; lookEnd = Date.now() + LOOK_MS / JN.TIME_SCALE;
-          ctx.say("그림을 잘 보세요. 10초 뒤에 달라진 그림이 나와요");
+          ctx.say(T("g.changed.say.look"));
           const tick = () => {
             const left = Math.max(0, lookEnd - Date.now()), total = LOOK_MS / JN.TIME_SCALE;
             barFill.style.width = Math.round(left / total * 100) + "%";
-            barText.textContent = Math.ceil(left * JN.TIME_SCALE / 1000) + "초";
+            barText.textContent = T("common.sec", { n: Math.ceil(left * JN.TIME_SCALE / 1000) });
             if (left <= 0) toFind();
           };
           tick(); iv = setInterval(tick, 100);

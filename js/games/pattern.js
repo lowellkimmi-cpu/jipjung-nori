@@ -1,18 +1,18 @@
 /* 패턴 잇기 (옛 '다음에 올 모양') — 규칙을 찾아 빈칸에 올 모양 고르기 */
 "use strict";
 (function () {
-  const U = JN.util, h = U.h, rnd = U.rnd, pick = U.pick, shuffle = U.shuffle;
+  const U = JN.util, h = U.h, rnd = U.rnd, pick = U.pick, shuffle = U.shuffle, T = JN.t;   // T: 화면 글자는 lang/ko.js 에서
   const K = Art.COLORS, INK = Art.INK;
   const DATA = {
     stages: [
-      { id: "ab", name: "두 가지 번갈아 (AB)", rule: "repeat", unit: "AB", shown: [5, 6], choices: 3, tip: "두 가지가 번갈아 나와요" },
-      { id: "aab", name: "같은 것 둘, 다른 것 하나 (AAB)", rule: "repeat", unit: "AAB", shown: [5, 7], choices: 3, tip: "같은 것 두 번, 다른 것 한 번이 되풀이돼요" },
-      { id: "abc", name: "세 가지 차례로 (ABC)", rule: "repeat", unit: "ABC", shown: [5, 7], choices: 4, tip: "세 가지가 차례로 되풀이돼요" },
-      { id: "abb", name: "하나, 같은 것 둘 (ABB)", rule: "repeat", unit: "ABB", shown: [5, 7], choices: 4, tip: "하나, 그다음 같은 것 두 번이 되풀이돼요" },
-      { id: "grow", name: "점점 커지기", rule: "grow", shown: [4, 4], choices: 4, tip: "하나씩 점점 커져요" },
-      { id: "count", name: "개수가 늘어나기 (1, 2, 3…)", rule: "count", shown: [3, 4], choices: 4, tip: "하나씩 개수가 늘어나요. 세어 볼까요?" },
-      { id: "rotate", name: "90°씩 돌기", rule: "rotate", shown: [4, 5], choices: 4, tip: "화살표가 시계 방향으로 한 번씩(90°) 돌아요" },
-      { id: "two", name: "색과 모양이 함께 바뀌기", rule: "two", shown: [5, 7], choices: 4, tip: "모양 따로, 색 따로 되풀이돼요. 하나씩 나눠서 살펴봐요" },
+      { id: "ab", name: T("g.pattern.ab"), rule: "repeat", unit: "AB", shown: [5, 6], choices: 3, tip: T("g.pattern.ab.tip") },
+      { id: "aab", name: T("g.pattern.aab"), rule: "repeat", unit: "AAB", shown: [5, 7], choices: 3, tip: T("g.pattern.aab.tip") },
+      { id: "abc", name: T("g.pattern.abc"), rule: "repeat", unit: "ABC", shown: [5, 7], choices: 4, tip: T("g.pattern.abc.tip") },
+      { id: "abb", name: T("g.pattern.abb"), rule: "repeat", unit: "ABB", shown: [5, 7], choices: 4, tip: T("g.pattern.abb.tip") },
+      { id: "grow", name: T("g.pattern.grow"), rule: "grow", shown: [4, 4], choices: 4, tip: T("g.pattern.grow.tip") },
+      { id: "count", name: T("g.pattern.count"), rule: "count", shown: [3, 4], choices: 4, tip: T("g.pattern.count.tip") },
+      { id: "rotate", name: T("g.pattern.rotate"), rule: "rotate", shown: [4, 5], choices: 4, tip: T("g.pattern.rotate.tip") },
+      { id: "two", name: T("g.pattern.two"), rule: "two", shown: [5, 7], choices: 4, tip: T("g.pattern.two.tip") },
     ],
     palette: [K.leaf, K.sky, K.honey, K.apricot, K.lilac],
     shapes: ["circle", "square", "triangle", "diamond", "star", "hexagon"],
@@ -99,15 +99,15 @@
 
   JN.registerGame({
     id: "패턴", stages: DATA.stages,
-    hintHelp: { always: "규칙을 말로 알려 주고, 되풀이되는 묶음에 밑줄을 그어 줘요", button: "힌트 버튼을 누르면 규칙 안내와 밑줄이 보여요", none: "힌트 없이 규칙을 찾아요" },
-    parentNote: "한 판은 8문제예요. 7개 이상 맞히면 다음 판은 한 단계 위에서 해요",
-    chart: { key: "correct", label: "맞힌 개수 (8문제 중)", unit: "개" },
-    describe: (e) => (e.total || 8) + "문제 중 " + (e.correct || 0) + "개 · " + U.fmtTime(e.time),
+    hintHelp: { always: T("g.pattern.hh.always"), button: T("g.pattern.hh.button"), none: T("g.pattern.hh.none") },
+    parentNote: T("g.pattern.parentNote"),
+    chart: { key: "correct", label: T("g.pattern.chart"), unit: T("g.light.unit") },
+    describe: (e) => T("g.shape.describe", { total: e.total || 8, n: e.correct || 0, time: U.fmtTime(e.time) }),
     intro: (st) => st.name,
     mount(ctx) {
       const st = ctx.stage, mode = ctx.settings.hintMode, board = ctx.board;
       board.classList.add("pt-board");
-      const row = h("div", { class: "pt-row", "aria-label": "규칙이 있는 줄" }), tip = h("div", { class: "pt-tip" }), choices = h("div", { class: "pt-choices" });
+      const row = h("div", { class: "pt-row", "aria-label": T("g.pattern.row.aria") }), tip = h("div", { class: "pt-tip" }), choices = h("div", { class: "pt-choices" });
       board.append(row, tip, choices);
       let prob = null, qNo = 0, correct = 0, mistakes = 0, hints = 0, busy = true, hinted = false;
       const prog = h("span", { class: "qprog" }); ctx.status(prog);
@@ -129,7 +129,7 @@
         const cs = Math.max(64, Math.min(140, Math.floor((W - 12 * (m - 1)) / m), Math.floor(H * 0.42)));
         for (const b of choices.children) box(b, cs);
       }
-      function showHint() { tip.textContent = "힌트: " + st.tip; if (prob.unitLen) [...row.children].slice(0, prob.unitLen).forEach((c) => c.classList.add("unit")); }
+      function showHint() { tip.textContent = T("g.pattern.tip", { tip: st.tip }); if (prob.unitLen) [...row.children].slice(0, prob.unitLen).forEach((c) => c.classList.add("unit")); }
       function next() {
         if (!ctx.alive()) return;
         if (qNo >= DATA.questionsPerGame) return end();
@@ -137,17 +137,17 @@
         prog.textContent = (qNo + 1) + " / " + DATA.questionsPerGame;
         row.textContent = "";
         for (const it of prob.seq) row.appendChild(h("div", { class: "cell", svg: svg(it) }));
-        row.appendChild(h("div", { class: "cell blank", id: "ptBlank", "aria-label": "빈칸", text: "?" }));
+        row.appendChild(h("div", { class: "cell blank", id: "ptBlank", "aria-label": T("g.pattern.blank.aria"), text: "?" }));
         choices.textContent = "";
         prob.choices.forEach((c, k) => {
-          const b = h("button", { type: "button", class: "choice", "data-k": String(k), "aria-label": "보기 " + (k + 1), svg: svg(c) });
+          const b = h("button", { type: "button", class: "choice", "data-k": String(k), "aria-label": T("g.pattern.choice.aria", { n: k + 1 }), svg: svg(c) });
           b.addEventListener("click", () => choose(k));
           choices.appendChild(b);
         });
         tip.textContent = "";
         if (mode === "always") showHint();
         layout();
-        ctx.say("빈칸에는 무엇이 올까요?");
+        ctx.say(T("g.pattern.say.ask"));
       }
       function choose(k) {
         if (busy) return;
@@ -157,13 +157,13 @@
         JN.markRight(btns[prob.answerIdx]);   // 정답 = 연필 동그라미
         const blank = row.lastChild; blank.className = "cell filled"; blank.textContent = ""; blank.innerHTML = svg(prob.answer);
         layout();
-        if (k === prob.answerIdx) { correct++; ctx.sound("ok"); ctx.say(pick(["규칙을 찾았어요!", "맞았어요!", "잘 이어 갔어요!"])); ctx.later(next, DATA.timing.okMs / JN.TIME_SCALE); }
-        else { mistakes++; btns[k].classList.add("dim"); ctx.say("빈칸에는 이게 와요. 다음 것도 해 봐요"); ctx.later(next, DATA.timing.showAnswerMs / JN.TIME_SCALE); }
+        if (k === prob.answerIdx) { correct++; ctx.sound("ok"); ctx.say(pick(T("g.pattern.say.ok"))); ctx.later(next, DATA.timing.okMs / JN.TIME_SCALE); }
+        else { mistakes++; btns[k].classList.add("dim"); ctx.say(T("g.pattern.say.miss")); ctx.later(next, DATA.timing.showAnswerMs / JN.TIME_SCALE); }
       }
       function end() {
         const time = ctx.timer.stop();
         ctx.finish({ cleared: correct >= DATA.passScore, time, mistakes, hints, metrics: { correct, total: DATA.questionsPerGame },
-          title: correct + "개를 맞혔어요!", line: "규칙을 끝까지 찾아봤어요.", bestKey: st.id, bestValue: correct, higherBetter: true });
+          title: T("g.pattern.title", { n: correct }), line: T("g.pattern.line"), bestKey: st.id, bestValue: correct, higherBetter: true });
       }
       ctx.hint(mode === "button", () => { if (busy || hinted) return; hinted = true; hints++; showHint(); });
       return {

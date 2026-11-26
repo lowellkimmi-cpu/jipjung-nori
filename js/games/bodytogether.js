@@ -6,34 +6,28 @@
    - 판이 끝나면 "한 번 더 할까요?"를 묻고 기다려요. 단계 자동 올리기 없음. */
 "use strict";
 (function () {
-  const U = JN.util, h = U.h, Kit = JN.BodyKit, TXT = Kit.TXT;
-  /* 카드 7종 — 안전 한 줄은 정해 둔 문장 그대로 */
+  const U = JN.util, h = U.h, Kit = JN.BodyKit, TXT = Kit.TXT, L = JN.t;   // L: 화면 글자는 lang/ko.js 에서
+  /* 카드 7종 — 안전 한 줄은 정해 둔 문장 그대로 (키 g.tog.<카드>.name · short · prop · line · safety · chal) */
+  const CD = (k) => ({ name: L("g.tog." + k + ".name"), short: L("g.tog." + k + ".short"), line: L("g.tog." + k + ".line"), safety: L("g.tog." + k + ".safety"), chal: L("g.tog." + k + ".chal") });
   const CARDS = {
-    공: { name: "톡톡 공 주고받기", short: "공 주고받기", how: ["공주고받기"], rep: { prop: "공" }, prop: "공", propText: "준비물: 말랑한 공이나 양말 뭉치",
-      line: "말랑한 공이나 양말 뭉치를 어른과 굴리거나 던져서 주고받아요", safety: "가까이에서 부드럽게. 얼굴 쪽으로 던지지 않아요", chal: "도전! 공을 받을 때마다 \"하나, 둘\" 세어요" },
-    풍선: { name: "풍선아 떨어지지 마!", short: "풍선 띄우기", how: [{ prop: "풍선" }, "풍선치기"], rep: { prop: "풍선" }, prop: "풍선", propText: "준비물: 풍선 (어른이 불어 줘요)",
-      line: "풍선이 바닥에 닿지 않게 손으로 톡톡 쳐요", safety: TXT.balloon, chal: "도전! 풍선을 한 번 치고 박수 한 번" },
-    징검다리: { name: "징검다리 건너요", short: "징검다리", how: ["징검다리"], rep: { prop: "방석" }, prop: "방석", propText: "준비물: 미끄러지지 않는 방석이나 매트",
-      line: "방석이나 매트를 띄엄띄엄 놓고 밟아서 건너요", safety: "미끄러지지 않는 방석이나 매트만. 맨발이나 미끄럼 방지 양말을 신어요", chal: "도전! 방석 위에서 \"하나, 둘\" 멈췄다 가요" },
-    쿠션: { name: "쿠션 산 넘기", short: "쿠션 산", how: ["기어가기"], rep: { prop: "쿠션" }, prop: "쿠션", propText: "준비물: 낮은 쿠션",
-      line: "낮은 쿠션을 기어서 넘고 돌아와요", safety: "높게 쌓지 않아요. 가구 모서리를 치워요. 쿠션 위에서 뛰어내리지 않아요", chal: "도전! 쿠션을 넘을 때마다 \"영차\" 말해요" },
-    짐: { name: "짐 나르는 일꾼", short: "짐 나르기", how: ["짐안기"], rep: { prop: "상자" }, prop: "상자", propText: "준비물: 가벼운 빈 상자나 빨래 바구니",
-      line: "가벼운 빈 상자를 들고 이쪽에서 저쪽으로 옮겨요", safety: "가벼운 것만. 앞이 잘 보이게. 상자를 머리에 쓰거나 안에 들어가지 않아요. 계단에서는 하지 않아요", chal: "도전! 상자를 살살 내려놓아요" },
-    거울: { name: "거울 놀이", short: "거울 놀이", how: ["거울"], rep: "거울", prop: null, propText: "준비물 없음",
-      line: "어른이 천천히 움직이면 거울처럼 똑같이 따라 해요. 다음엔 내가 먼저!", safety: "천천히 움직여요", chal: "도전! 아주아주 천천히 움직여요" },
-    벽: { name: "벽을 쭉 밀어요", short: "벽 밀기", how: ["벽밀기"], rep: "벽밀기", prop: null, propText: "준비물 없음 (벽)", cap: 30,
-      line: "두 손으로 벽을 쭉 밀어요", safety: "맨발이나 미끄럼 방지 양말을 신어요. 아프거나 어지러우면 멈춰요.", chal: "도전! 벽을 밀면서 열까지 세어요" },
+    공: Object.assign(CD("ball"), { how: ["공주고받기"], rep: { prop: "공" }, prop: "공", propText: L("g.tog.ball.prop") }),
+    풍선: Object.assign(CD("balloon"), { how: [{ prop: "풍선" }, "풍선치기"], rep: { prop: "풍선" }, prop: "풍선", propText: L("g.tog.balloon.prop"), safety: TXT.balloon }),
+    징검다리: Object.assign(CD("stones"), { how: ["징검다리"], rep: { prop: "방석" }, prop: "방석", propText: L("g.tog.stones.prop") }),
+    쿠션: Object.assign(CD("cushion"), { how: ["기어가기"], rep: { prop: "쿠션" }, prop: "쿠션", propText: L("g.tog.cushion.prop") }),
+    짐: Object.assign(CD("box"), { how: ["짐안기"], rep: { prop: "상자" }, prop: "상자", propText: L("g.tog.box.prop") }),
+    거울: Object.assign(CD("mirror"), { how: ["거울"], rep: "거울", prop: null, propText: L("g.body.noprop") }),
+    벽: Object.assign(CD("wall"), { how: ["벽밀기"], rep: "벽밀기", prop: null, propText: L("g.tog.wall.prop"), cap: 30 }),
   };
   const KEYS = Object.keys(CARDS);
   const STAGES = [
-    { id: "t1", name: "어른과 공", kind: "fixed", list: ["공"], sec: 60 },
-    { id: "t2", name: "풍선 하나", kind: "fixed", list: ["풍선"], sec: 60 },
-    { id: "t3", name: "내가 고르는 놀이", kind: "pick", sec: 90 },
-    { id: "t4", name: "도전 한 줄", kind: "challenge", sec: 120 },
-    { id: "t5", name: "놀이길 2칸", kind: "path", n: 2, sec: 60 },
-    { id: "t6", name: "놀이길 3칸", kind: "path", n: 3, sec: 60 },
-    { id: "t7", name: "서로 바꿔 거울", kind: "mirror", sec: 30 },
-    { id: "t8", name: "놀이길 4칸 + 도전", kind: "path", n: 4, sec: 60, chal: true },
+    { id: "t1", name: L("g.tog.t1"), kind: "fixed", list: ["공"], sec: 60 },
+    { id: "t2", name: L("g.tog.t2"), kind: "fixed", list: ["풍선"], sec: 60 },
+    { id: "t3", name: L("g.tog.t3"), kind: "pick", sec: 90 },
+    { id: "t4", name: L("g.tog.t4"), kind: "challenge", sec: 120 },
+    { id: "t5", name: L("g.tog.t5"), kind: "path", n: 2, sec: 60 },
+    { id: "t6", name: L("g.tog.t6"), kind: "path", n: 3, sec: 60 },
+    { id: "t7", name: L("g.tog.t7"), kind: "mirror", sec: 30 },
+    { id: "t8", name: L("g.tog.t8"), kind: "path", n: 4, sec: 60, chal: true },
   ];
   function card(key, st, set, extra) {
     const c = Object.assign({ id: key }, CARDS[key], extra || {});
@@ -45,14 +39,14 @@
     if (st.kind === "fixed") return st.list.map((k) => card(k, st, set));
     if (st.kind === "challenge") { const k = U.pick(KEYS); return [card(k, st, set, { challenge: CARDS[k].chal })]; }
     if (st.kind === "mirror") {
-      const a = { name: "거울 놀이 · 어른이 먼저", line: "어른이 천천히 움직이면 내가 거울처럼 따라 해요" };
-      const b = { name: "거울 놀이 · 내가 먼저", line: "내가 천천히 움직이면 어른이 거울처럼 따라 해요" };
+      const a = { name: L("g.tog.mirror.a.name"), line: L("g.tog.mirror.a.line") };
+      const b = { name: L("g.tog.mirror.b.name"), line: L("g.tog.mirror.b.line") };
       return [a, b, a, b].map((x) => card("거울", st, set, x));
     }
     if (st.kind === "path") return U.shuffle(KEYS.slice()).slice(0, st.n).map((k) => card(k, st, set, st.chal ? { challenge: CARDS[k].chal } : null));
     return [];
   }
-  const pathText = (cards) => "순서를 봐요. " + cards.map((c) => c.short).join(", 그다음 ");
+  const pathText = (cards) => L("g.tog.pathText", { list: cards.map((c) => c.short).join(L("g.word.then")) });
 
   /* 3단계: 아이가 고르는 화면 */
   function picker(api, ctx, st, set, done) {
@@ -66,9 +60,9 @@
       U.tap(b, () => { delete board.dataset.screen; api.cards = [card(k, st, set)]; done(); });
       grid.appendChild(b);
     });
-    api.put(h("h2", { class: "bm-h", text: "오늘은 어떤 놀이를 할까요?" }), grid);
+    api.put(h("h2", { class: "bm-h", text: L("g.tog.pick.title") }), grid);
     layoutGrid(board);
-    ctx.say("하고 싶은 놀이를 골라요");
+    ctx.say(L("g.tog.pick.say"));
   }
   function layoutGrid(board) {
     const grid = board.querySelector(".bt-grid"); if (!grid) return;
@@ -95,13 +89,13 @@
       h("b", { class: "nm", text: c.name }),
       c.prop ? h("i", { class: "pp", svg: Art.prop(c.prop, { label: "" }) }) : null)));
     const props = [...new Set(cards.map((c) => c.prop).filter(Boolean))];
-    const prep = h("div", { class: "bt-prep" }, h("b", { text: props.length ? "준비물" : "준비물 없음" }),
+    const prep = h("div", { class: "bt-prep" }, h("b", { text: props.length ? L("g.tog.prep") : L("g.body.noprop") }),
       ...props.map((p) => h("i", { class: "pi", svg: Art.prop(p, { label: p }) })),
-      props.includes("풍선") ? h("small", { text: "풍선은 어른이 불어 줘요" }) : null);
+      props.includes("풍선") ? h("small", { text: L("g.tog.prep.balloon") }) : null);
     let covered = false;
     const msg = pathText(cards);
-    const cover = () => { if (mode === "always" || !board.classList.contains("bt-path-scr")) return; covered = true; wrap.querySelectorAll(".bt-stop").forEach((s) => s.classList.add("covered")); ctx.say("순서가 기억나요? 어른에게 말해 봐요"); };
-    api.put(wrap, prep, api.btn("jn-btn--primary jn-btn--big jn-btn--block bm-go", "준비됐어요", null, () => { delete board.dataset.screen; done(); }, "btReady"));
+    const cover = () => { if (mode === "always" || !board.classList.contains("bt-path-scr")) return; covered = true; wrap.querySelectorAll(".bt-stop").forEach((s) => s.classList.add("covered")); ctx.say(L("g.tog.remember")); };
+    api.put(wrap, prep, api.btn("jn-btn--primary jn-btn--big jn-btn--block bm-go", L("g.body.readyBtn"), null, () => { delete board.dataset.screen; done(); }, "btReady"));
     ctx.say(msg);
     requestAnimationFrame(() => drawLine(board));
     if (mode !== "always") ctx.later(cover, 5000 / JN.TIME_SCALE);
@@ -125,20 +119,20 @@
 
   JN.registerGame({
     id: "같이몸놀이", stages: STAGES, autoRepeat: false, autoNext: false,
-    hintHelp: { always: "하는 법 그림 + 한 줄 설명 + 준비물이 늘 보여요. 놀이길 단계는 순서 그림이 늘 보여요",
-      button: "처음엔 이름과 준비물만. 힌트 단추를 누르면 하는 법이 나와요. 놀이길 단계는 '다음 칸이 뭐였지?'처럼 덮인 칸을 하나씩 열어 줘요",
-      none: "이름과 준비물만 보여요. 놀이길 단계는 순서 그림을 5초 보여 주고 덮어요" },
+    hintHelp: { always: L("g.tog.hh.always"),
+      button: L("g.tog.hh.button"),
+      none: L("g.tog.hh.none") },
     extraSettings: [Kit.cardTimeSetting("몸따라해요")],
-    parentNote: "항상 어른과 함께해요(3~5세는 손 닿는 거리에서). 집에 있는 풍선·말랑한 공·방석·쿠션·빈 상자만 써요. 판이 끝나면 '한 번 더 할까요?'를 묻고 기다려요. 단계는 자동으로 오르지 않으니 여기서 직접 골라 주세요",
+    parentNote: L("g.tog.parentNote"),
     parentSafety: TXT.parent,
-    chart: { key: "cards", label: "같이 한 카드", unit: "장" },
-    describe: (e) => (e.path ? "놀이길 " + e.path + "칸 · " : "") + "같이 한 카드 " + (e.cards || 0) + "장 · 움직인 시간 " + Kit.fmtMove(e.moveSec) + (e.stopped ? " · 일찍 멈춘 카드 " + e.stopped + "장" : ""),
+    chart: { key: "cards", label: L("g.tog.chart"), unit: L("g.tog.unit") },
+    describe: (e) => (e.path ? L("g.tog.describe.path", { n: e.path }) : "") + L("g.tog.line", { n: e.cards || 0, time: Kit.fmtMove(e.moveSec) }) + (e.stopped ? L("g.body.describe.stopped", { n: e.stopped }) : ""),
     intro: (st, set, ctx) => Kit.intro(ctx),
     mount(ctx) {
       const st = ctx.stage, set = ctx.settings;
       ctx.board.classList.add("bt-board");
-      const opts = { cards: deal(st, set), balloon: true, path: st.kind === "path", title: "같이 놀아서 신나요!",
-        line: (s) => "같이 한 카드 " + s.cards + "장 · 움직인 시간 " + Kit.fmtMove(s.moveSec) };
+      const opts = { cards: deal(st, set), balloon: true, path: st.kind === "path", title: L("g.tog.title"),
+        line: (s) => L("g.tog.line", { n: s.cards, time: Kit.fmtMove(s.moveSec) }) };
       if (st.kind === "pick") opts.before = (api, done) => picker(api, ctx, st, set, done);
       if (st.kind === "path") opts.before = (api, done) => pathView(api, ctx, done);
       const inst = Kit.run(ctx, opts);
