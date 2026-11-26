@@ -39,7 +39,7 @@ window.JN_LANGS.ko = {
   "animal.여우": "여우", "animal.펭귄": "펭귄", "animal.사자": "사자", "animal.다람쥐": "다람쥐",
 
   /* ===== 방 이름 · 방이 키우는 힘 ===== */
-  "area.attention.name": "주의집중", "area.attention.power": "끝까지 찾기 · 기다렸다 누르기",
+  "area.attention.name": "주의집중", "area.attention.power": "끝까지 찾기 · 기다렸다 톡 누르기 놀이",
   "area.memory.name": "기억력", "area.memory.power": "보고 기억하기 · 순서 기억",
   "area.seeing.name": "보는 힘", "area.seeing.power": "꼼꼼히 비교 · 모양 구별",
   "area.thinking.name": "생각·추리", "area.thinking.power": "규칙 찾기 · 순서 · 분류",
@@ -814,6 +814,16 @@ window.JN_LANGS.ko = {
   "g.dalrong.line": "꽃길에 꽃이 {n}송이 피었어요.",
   "g.dalrong.line.full": "꽃길에 꽃 {n}송이가 모두 피었어요! 꽃길이 완성됐어요.",
   "g.dalrong.line.again": "꽃길은 이미 다 피어 있어요. 시냇물을 또 건넜어요.",
+  "g.dalrong.done.title": "꽃길이 완성됐어요!",
+  "g.dalrong.done.body": "꽃 30송이가 모두 피었어요. 달롱과 보미가 함께 걸어 온 예쁜 길이에요.",
+  "g.dalrong.done.ok": "고마워요",
+  "g.dalrong.done.say": "꽃길이 완성됐어요! 정말 멋져요",
+  "g.dalrong.reset.label": "새 꽃길 시작",
+  "g.dalrong.reset.sub": "꽃길의 꽃 수만 처음으로 돌려요. 놀이 기록은 그대로 남아요.",
+  "g.dalrong.reset.btn": "새 꽃길 시작",
+  "g.dalrong.reset.confirm": "새 꽃길을 시작할까요? 꽃길의 꽃이 모두 사라져요. 놀이 기록은 지워지지 않아요.",
+  "g.dalrong.reset.done": "새 꽃길을 시작했어요. 지금 꽃 0송이예요.",
+  "g.dalrong.reset.now": "지금 꽃길: {n} / {max}",
 
   /* ===== 몸으로 따라 해요! (몸·감각 방 — 지금은 닫혀 있어요) ===== */
   "g.body.safeAll": "주변을 치우고 어른과 함께 해요. 아프거나 어지러우면 멈춰요.",

@@ -31,6 +31,8 @@
     id: "달롱건너기", stages: STAGES, stageLabel: (st) => st.name,
     hintHelp: { always: T("g.dalrong.hh.always"), button: T("g.dalrong.hh.button"), none: T("g.dalrong.hh.none") },
     parentNote: T("g.dalrong.parentNote"),
+    /* 보호자 설정의 '새 꽃길 시작': 지우는 것은 이 아이의 꽃길 수(mem.flowers)뿐이에요. 놀이 기록은 그대로 */
+    memReset: { key: "flowers", max: FLOWER_MAX, label: T("g.dalrong.reset.label"), sub: T("g.dalrong.reset.sub"), button: T("g.dalrong.reset.btn"), confirm: T("g.dalrong.reset.confirm"), done: T("g.dalrong.reset.done") },
     chart: { key: "crossings", label: T("g.dalrong.chart"), unit: T("g.dalrong.unit") },
     describe: (e) => T("g.dalrong.describe", { n: e.crossings || 1, r: e.retries || 0 }) + (e.hints ? T("g.number.describe.hint", { n: e.hints }) : ""),
     intro: (st) => (st.night ? T("g.dalrong.intro.night") : T("g.dalrong.intro")),
@@ -139,8 +141,24 @@
         ctx.tone(392, 0.15, 0.05); ctx.tone(523, 0.18, 0.05, 0.12); ctx.tone(880, 0.3, 0.04, 0.26);
         ctx.say(T("g.dalrong.say.arrive"));
         const time = ctx.timer.stop();
-        after(JN.ms(1500), () => ctx.finish({ cleared: true, time, mistakes: retries, hints, metrics: { crossings: 1, steps, retries }, title: T("g.dalrong.title"),
-          line: T(now >= FLOWER_MAX ? (grew ? "g.dalrong.line.full" : "g.dalrong.line.again") : "g.dalrong.line", { n: now }), showTime: false }));
+        const fin = () => ctx.finish({ cleared: true, time, mistakes: retries, hints, metrics: { crossings: 1, steps, retries }, title: T("g.dalrong.title"),
+          line: T(now >= FLOWER_MAX ? (grew ? "g.dalrong.line.full" : "g.dalrong.line.again") : "g.dalrong.line", { n: now }), showTime: false });
+        if (grew && now >= FLOWER_MAX) after(JN.ms(1500), () => showDone(fin));   // 30송이가 다 피면 칭찬 화면 앞에 '꽃길 완성' 카드
+        else after(JN.ms(1500), fin);
+      }
+      /* 꽃길 완성 카드: 꽃 30송이를 한 줄로 세운 그림 + 따뜻한 말. 벌·점수 없이 '고마워요' 단추 하나 */
+      function showDone(next) {
+        if (!ctx.alive()) return;
+        const row = h("div", { class: "dg-doneflowers", "aria-hidden": "true" });
+        for (let i = 0; i < FLOWER_MAX; i++) row.appendChild(h("span", { svg: Art.flower(FLOWER_KINDS[i % 3], { label: "" }) }));
+        const ok = h("button", { type: "button", class: "jn-btn jn-btn--big", id: "dgDoneOk" }, T("g.dalrong.done.ok"));
+        const card = h("div", { class: "dg-done", id: "dgDone", role: "group", "aria-label": T("g.dalrong.done.title") },
+          h("div", { class: "dg-donecard" }, h("h2", { text: T("g.dalrong.done.title") }), row, h("p", { text: T("g.dalrong.done.body") }), ok));
+        board.appendChild(card);
+        phase = "card";
+        U.onTap(ok, () => { if (card.isConnected) { card.remove(); next(); } });
+        ctx.say(T("g.dalrong.done.say"));
+        try { ok.focus({ preventScroll: true }); } catch (e) { /* 포커스는 없어도 돼요 */ }
       }
       function press() {
         if (done) return;

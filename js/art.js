@@ -274,7 +274,7 @@
      2. 영역 7개 · 놀이 13개 · UI 아이콘
      ========================================================= */
   const AREAS = [
-    { id: 'attention', name: '주의집중', power: '끝까지 찾기 · 기다렸다 누르기', color: '#DCA43C', tint: '#F6E6BF', deep: '#74540F', games: ['숫자찾기', '벌찾기', '달라진그림', '달롱건너기'] },
+    { id: 'attention', name: '주의집중', power: '끝까지 찾기 · 기다렸다 톡 누르기 놀이', color: '#DCA43C', tint: '#F6E6BF', deep: '#74540F', games: ['숫자찾기', '벌찾기', '달라진그림', '달롱건너기'] },
     { id: 'memory', name: '기억력', power: '보고 기억하기 · 순서 기억', color: '#B08EA8', tint: '#EEE0EA', deep: '#654662', games: ['짝꿍카드', '불빛순서'] },
     { id: 'seeing', name: '보는 힘', power: '꼼꼼히 비교 · 모양 구별', color: '#8AA6BD', tint: '#E0E9EF', deep: '#3C5D76', games: ['다른그림', '같은모양'] },
     { id: 'thinking', name: '생각·추리', power: '규칙 찾기 · 순서 · 분류', color: '#93AE87', tint: '#E2EBDB', deep: '#466140', games: ['패턴', '퍼즐'] },

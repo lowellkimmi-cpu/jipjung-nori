@@ -566,5 +566,13 @@
 .dg-flowers { display: inline-flex; align-items: center; gap: 6px; font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
 .dg-flowers .fl { width: 28px; height: 28px; display: inline-block; }
 .dg-flowers .fl svg { width: 100%; height: 100%; display: block; }
+.dg-done { position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; padding: 10px; box-sizing: border-box; background: var(--c-surface-2); overflow: auto; }
+.dg-donecard { display: grid; gap: 8px; justify-items: center; text-align: center; max-width: 560px; width: 100%; padding: 12px; box-sizing: border-box; border: 2px solid var(--c-pencil); border-radius: var(--r-m); background: var(--c-surface); }
+.dg-donecard h2 { margin: 0; font-size: var(--fs-title); }
+.dg-donecard p { margin: 0; }
+.dg-doneflowers { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; width: 100%; }
+.dg-doneflowers span { display: block; aspect-ratio: 1; }
+.dg-doneflowers svg { width: 100%; height: 100%; display: block; }
+.dg-done .jn-btn--big { min-height: 56px; min-width: 120px; }
 @media (max-height: 520px) and (orientation: landscape) { .dg-board { grid-template-rows: minmax(0, 1fr); grid-template-columns: minmax(0, 1fr) auto; } }
 @media (prefers-reduced-motion: reduce) { .dg-snail, .dg-snail.slip, .dg-flag, .dg-flag .cloth-g, .dg-bloom.on { transition: none; } .dg-bfly { animation: none; } }
