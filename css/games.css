@@ -621,6 +621,8 @@
 .ly-bag .bg.pop { transform: scale(1.18); }
 .ly-bag .bag { fill: var(--c-mustard-tint); stroke: var(--c-pencil); stroke-width: 2.4; stroke-linejoin: round; }
 .ly-bag .bagline { fill: none; stroke: var(--c-pencil); stroke-width: 2.2; stroke-linecap: round; }
+.ly-flyfruit { position: fixed; z-index: 60; pointer-events: none; display: block; transform-origin: center; }
+.ly-flyfruit svg { width: 100%; height: 100%; display: block; }
 .ly-done { position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; padding: 10px; box-sizing: border-box; background: var(--c-surface-2); overflow: auto; }
 .ly-donecard { display: grid; gap: 8px; justify-items: center; text-align: center; max-width: 560px; width: 100%; padding: 12px; box-sizing: border-box; border: 2px solid var(--c-pencil); border-radius: var(--r-m); background: var(--c-surface); }
 .ly-donecard h2 { margin: 0; font-size: var(--fs-title); }

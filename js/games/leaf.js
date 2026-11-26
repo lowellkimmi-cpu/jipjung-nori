@@ -21,6 +21,10 @@
     { id: "y3", name: T("g.leaf.s3"), leaves: 3, swaps: 4, sec: 0.8 },
     { id: "y4", name: T("g.leaf.s4"), leaves: 4, swaps: 3, sec: 1.0, ask: true },
     { id: "y5", name: T("g.leaf.s5"), leaves: 5, swaps: 6, sec: 0.9, butterfly: true },
+    /* 6~8단계: 열매 3개가 하나씩 차례로 숨고, 잎이 멈추면 '마지막에 숨은 것'이 어느 잎 아래인지 물어요 (hide: 숨는 열매 수) */
+    { id: "y6", name: T("g.leaf.s6"), leaves: 5, swaps: 3, sec: 1.0, ask: true, hide: 3 },
+    { id: "y7", name: T("g.leaf.s7"), leaves: 5, swaps: 4, sec: 0.9, ask: true, hide: 3 },
+    { id: "y8", name: T("g.leaf.s8"), leaves: 6, swaps: 5, sec: 0.8, ask: true, hide: 3 },
   ];
   const GY = 66;   // 땅 줄 높이(장면 위에서부터 %)
 
@@ -79,11 +83,33 @@
         bagTxt.textContent = T("g.leaf.bag", { n, max: FRUIT_MAX });
         if (popFruit != null) { bagIcon.innerHTML = fruitSvg(popFruit); bagIcon.classList.add("pop"); ctx.later(() => bagIcon.classList.remove("pop"), 900); }
       };
+      /* 찾은 열매가 보따리로 날아 들어가요. 움직임 줄이기 설정이면 날지 않고 보따리만 살짝 커져요 */
+      const flyers = [];
+      let flights = 0, reducedNow = false;
+      const reduced = () => { try { return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); } catch (e) { return false; } };
+      function flyToBag(L, fruitIdx) {
+        flights++; reducedNow = reduced();
+        const src = leaves[L].fr, a = src.getBoundingClientRect(), b = bagIcon.getBoundingClientRect();
+        if (reducedNow || a.width < 4 || b.width < 4 || typeof src.animate !== "function") { paintBag(fruitIdx); return; }
+        const fly = h("span", { class: "ly-flyfruit", "aria-hidden": "true", svg: fruitSvg(fruitIdx) });
+        fly.style.cssText = "left:" + a.left + "px;top:" + a.top + "px;width:" + a.width + "px;height:" + a.height + "px";
+        document.body.appendChild(fly); flyers.push(fly); src.style.opacity = "0";
+        const dx = (b.left + b.width / 2) - (a.left + a.width / 2), dy = (b.top + b.height / 2) - (a.top + a.height / 2), sc = b.width / a.width;
+        const dur = Math.max(JN.ms(900), 60);
+        const end = () => { fly.remove(); const i = flyers.indexOf(fly); if (i >= 0) flyers.splice(i, 1); if (ctx.alive()) paintBag(fruitIdx); };
+        try {
+          fly.animate([{ transform: "translate(0,0) scale(1)" },
+            { transform: "translate(" + dx * 0.5 + "px," + (dy * 0.5 - 50) + "px) scale(" + (1 + sc) / 2 + ")", offset: 0.55 },
+            { transform: "translate(" + dx + "px," + dy + "px) scale(" + sc + ")" }], { duration: dur, easing: "ease-in-out", fill: "forwards" });
+        } catch (e) { end(); return; }
+        ctx.later(end, dur + 30);
+      }
 
       /* ---- 놀이 상태 ---- */
       let slotOf = leaves.map((_, i) => i);      // 잎 → 지금 자리
       let fruitOf = new Array(N).fill(-1);       // 잎 → 그 아래 열매(0~11), 없으면 -1
       let phase = "idle", done = false, tm = 0, trial = 0, found = 0, retries = 0, hints = 0, speed = 1;
+      let seq = [];   // 열매가 숨는 차례(잎 번호). 6~8단계에서는 3개, 맨 끝이 '마지막에 숨은 것'
       let plan = [], targetLeaf = 0, targetFruit = 0, hintUsed = false, completed = false, extra = 0, swapsDone = 0;
       const after = (ms, fn) => { clearTimeout(tm); tm = ctx.later(fn, ms); };
       const setPhase = (p) => { phase = p; scene.dataset.phase = p; };
@@ -101,7 +127,7 @@
         if (instant) { void scene.offsetWidth; scene.classList.remove("nomove"); }
       }
       function paintFruits() {
-        leaves.forEach((o, L) => { o.fr.innerHTML = fruitOf[L] >= 0 ? fruitSvg(fruitOf[L]) : ""; o.el.classList.remove("open", "found", "up", "down"); });
+        leaves.forEach((o, L) => { o.fr.innerHTML = fruitOf[L] >= 0 ? fruitSvg(fruitOf[L]) : ""; o.fr.style.opacity = ""; o.el.classList.remove("open", "found", "up", "down"); });
       }
       const slotsAfter = (k) => { const s = leaves.map((_, i) => i); for (let i = 0; i < k; i++) { const [a, b] = plan[i]; [s[a], s[b]] = [s[b], s[a]]; } return s; };
       function makePlan() {
@@ -152,8 +178,15 @@
         targetFruit = nextFruit();
         const order = U.shuffle(leaves.map((_, i) => i));
         fruitOf.fill(-1);
-        targetLeaf = order[0]; fruitOf[targetLeaf] = targetFruit;
-        if (lv.ask) fruitOf[order[1]] = (targetFruit + 1) % FRUIT_MAX;   // 다른 종류 열매 하나를 더 숨겨요 (물어보는 것은 늘 보따리에 들어갈 열매)
+        if (lv.hide) {   // 열매 3개: 차례대로 숨고, 마지막에 숨은 것(보따리에 들어갈 열매)을 물어요
+          seq = order.slice(0, lv.hide);
+          targetLeaf = seq[lv.hide - 1]; fruitOf[targetLeaf] = targetFruit;
+          for (let i = 0; i < lv.hide - 1; i++) fruitOf[seq[i]] = (targetFruit + 1 + i) % FRUIT_MAX;
+        } else {
+          seq = [];
+          targetLeaf = order[0]; fruitOf[targetLeaf] = targetFruit;
+          if (lv.ask) fruitOf[order[1]] = (targetFruit + 1) % FRUIT_MAX;   // 다른 종류 열매 하나를 더 숨겨요 (물어보는 것은 늘 보따리에 들어갈 열매)
+        }
         plan = makePlan();
         runTrial();
       }
@@ -163,12 +196,23 @@
         askChip.hidden = true;
         slotOf = leaves.map((_, i) => i); place(true); paintFruits();
         setPhase("look"); setSnail("기본");
+        const closeAll = () => { leaves.forEach((o) => o.el.classList.remove("open")); after(Math.max(JN.ms(500), 40), startShuffle); };
+        if (seq.length > 1) {   // 열매가 하나씩 차례로 잎 아래에 숨어요 (한 번에 한 잎만 열려요)
+          let i = 0;
+          const step = () => {
+            if (done) return;
+            if (i >= seq.length) return closeAll();
+            const L = seq[i], last = i === seq.length - 1; i++;
+            leaves[L].el.classList.add("open");
+            ctx.say(T(last ? "g.leaf.say.seqLast" : "g.leaf.say.seq"));
+            after(JN.ms(1100), () => { leaves[L].el.classList.remove("open"); after(Math.max(JN.ms(350), 40), step); });
+          };
+          step();
+          return;
+        }
         leaves.forEach((o, L) => o.el.classList.toggle("open", fruitOf[L] >= 0));
         ctx.say(T("g.leaf.say.look"));
-        after(JN.ms(2000), () => {
-          leaves.forEach((o) => o.el.classList.remove("open"));
-          after(Math.max(JN.ms(500), 40), startShuffle);
-        });
+        after(JN.ms(2000), closeAll);
       }
       function startShuffle() {
         if (done) return;
@@ -183,7 +227,10 @@
       }
       function endShuffle() {
         setPhase("pick");
-        if (lv.ask) {
+        if (lv.hide) {   // 이름은 부르지 않아요: 마지막에 숨은 열매가 어느 잎 아래인지만 물어요
+          askChip.hidden = true;
+          ctx.say(T("g.leaf.say.askLast"));
+        } else if (lv.ask) {
           askChip.innerHTML = ""; askChip.append(h("i", { svg: fruitSvg(targetFruit), "aria-hidden": "true" }));
           askChip.setAttribute("aria-label", T("g.leaf.fruit." + targetFruit)); askChip.hidden = false;
           ctx.say(T("g.leaf.say.askName", { name: T("g.leaf.fruit." + targetFruit) }));
@@ -201,9 +248,10 @@
           found++;
           const n = fruitsNow();
           if (n < FRUIT_MAX) { mem.fruits = n + 1; ctx.saveMem(); if (n + 1 >= FRUIT_MAX) completed = true; }
-          paintBag(targetFruit);
+          paintBag(null);   // 숫자는 바로, 열매 그림은 날아 들어간 뒤에
+          ctx.later(() => flyToBag(L, targetFruit), Math.max(JN.ms(500), 30));
           ctx.say(T("g.leaf.say.found"));
-          after(JN.ms(1400), () => { if (found >= TRIES) finishRound(); else newTrial(); });
+          after(JN.ms(1800), () => { if (found >= TRIES) finishRound(); else newTrial(); });
         } else {   // 벌 없이: 열어서 보여 주고 같은 배치를 한 번 더, 조금 더 천천히
           retries++;
           leaves.forEach((o, i) => { if (fruitOf[i] >= 0) o.el.classList.add("open"); });
@@ -267,11 +315,12 @@
         start() { ctx.timer.start(); ctx.say(T("g.leaf.say.begin")); newTrial(); },
         resize: layout,
         visibility(hidden) { /* 잎은 저절로 움직여도 벌이 없어서 따로 멈추지 않아요 */ },
-        destroy() { done = true; clearTimeout(tm); },
+        destroy() { done = true; clearTimeout(tm); flyers.forEach((f) => f.remove()); },
         test: {
           state: () => ({ phase, trial, found, retries, hints, speed, leaves: N, swaps: plan.length, swapsDone, ask: !!lv.ask, askFruit: lv.ask ? targetFruit : -1,
             fruit: targetFruit, fruits: fruitsNow(), rightSlot: slotOf[targetLeaf], plan: JSON.stringify(plan), slots: JSON.stringify(slotOf),
-            fruitLeaves: fruitOf.map((f, i) => (f >= 0 ? i : -1)).filter((i) => i >= 0).map((i) => slotOf[i]), hintUsed, done, completed, mode }),
+            fruitLeaves: fruitOf.map((f, i) => (f >= 0 ? i : -1)).filter((i) => i >= 0).map((i) => slotOf[i]), hintUsed, done, completed, mode,
+            hide: lv.hide || 0, seq: JSON.stringify(seq), seqSlots: seq.map((L) => slotOf[L]), lastLeafSlot: slotOf[targetLeaf], flights, flying: flyers.length, reduced: reducedNow, askChipShown: !askChip.hidden }),
         },
       };
     },
