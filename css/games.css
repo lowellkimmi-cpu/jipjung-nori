@@ -313,6 +313,28 @@
   .bm-safe-l { flex: 1 1 60%; }
   .bm-safe-r { flex: 1 1 40%; justify-content: center; }
 }
+/* (2026-11-28 화면 방향·큰 화면 점검) 안전 안내 칸이 판보다 길어도 잘리지 않고 판 안에서 밀어 볼 수 있게, 좁은 폰·낮은 가로에서는 더 작게 */
+.bm-safety-scr { overflow-y: auto; touch-action: pan-y; overscroll-behavior: contain; justify-content: safe center; }
+@media (orientation: portrait) { .bm-safety-scr .bm-safe-l, .bm-safety-scr .bm-safe-r { flex: none; } }   /* 세로: 칸이 줄어들어 글자가 겹치지 않고, 길면 밀어서 봐요 */
+@media (max-width: 480px) {
+  .bm-board { gap: 6px; padding: 10px 12px; }
+  .bm-safe i { width: min(48px, 100%); }
+  .bm-safe b { font-size: 15px; }
+  .bm-safe-l, .bm-safe-r { gap: 8px; }
+  .bm-safety-scr .bm-h { font-size: 22px; }
+  .bm-safeall { font-size: 16px; }
+  .bm-balloon { padding: 6px 10px; gap: 8px; }
+  .bm-balloon i { display: none; }
+  .bm-balloon b, .bm-balloon p { font-size: 14px; }
+  .bm-board .jn-btn--big { min-height: 56px; }
+}
+@media (orientation: landscape) and (max-height: 560px) {
+  .bm-safety-scr { align-items: safe center; }
+  .bm-safe-l { flex: 5 1 0; min-width: 0; }
+  .bm-safe-r { flex: 4 1 0; min-width: 0; justify-content: center; }
+  .bm-balloon i { display: none; }
+  .bm-balloon { padding: 6px 10px; }
+}
 @media (orientation: landscape) and (max-height: 560px) {
   .bm-board { padding: 8px 12px; gap: 6px; }
   .bm-h { font-size: 20px; }

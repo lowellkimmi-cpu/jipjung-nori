@@ -170,13 +170,22 @@
         let gw, left;
         if (wide) { gw = Math.floor(Math.min(H * 4 / 3, W * 0.6, 640)); left = W - gw - 12; }
         else { gw = Math.floor(Math.min(W, 640)); left = W; }
-        const refW = Math.round(U.clamp(left * 0.24, 84, 150));
+        /* 좁은 폰 세로(조각 상자 너비 360px 미만): 간격을 좁히고 원래 그림을 조금 줄여 조각이 한 줄에 4개 들어가게 → 맞출 판의 칸이 커져요 */
+        const compact = !wide && left < 360;
+        tray.style.gap = compact ? "4px" : "";
+        const refW = compact ? 76 : Math.round(U.clamp(left * 0.24, 84, 150));
         ref.style.width = refW + "px";
-        const pw = Math.round(U.clamp(gw / cols * 0.65, minPw, 100));
-        pieces.forEach((p) => { p.style.width = pw + "px"; p.style.height = Math.ceil(pw * r) + "px"; });
+        let pw = Math.round(U.clamp(gw / cols * 0.65, minPw, 100));
+        const setPieces = () => pieces.forEach((p) => { p.style.width = pw + "px"; p.style.height = Math.ceil(pw * r) + "px"; });
+        setPieces();
         tray.style.width = Math.floor(left) + "px";
         if (!wide) {
-          const topH = tray.offsetHeight;
+          let topH = tray.offsetHeight;
+          /* 좁은 폰 세로: 맞출 판의 칸이 44px 보다 작아지면 조각을 (56px 까지) 줄여서 판에 자리를 내줘요 */
+          const needH = Math.ceil(44 * rows + 8 + 3 * (rows - 1)), needW = Math.ceil(44 * cols + 8 + 3 * (cols - 1));
+          while (pw > minPw && Math.min(gw, (H - topH - 10) * 4 / 3) < Math.max(needW, needH * 4 / 3)) {
+            pw = Math.max(minPw, pw - 4); setPieces(); topH = tray.offsetHeight;
+          }
           gw = Math.floor(Math.max(120, Math.min(gw, (H - topH - 10) * 4 / 3)));
         }
         grid.style.width = gw + "px"; grid.style.height = Math.round(gw * 0.75) + "px";
