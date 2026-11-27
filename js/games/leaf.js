@@ -112,6 +112,7 @@
       let seq = [];   // 열매가 숨는 차례(잎 번호). 6~8단계에서는 3개, 맨 끝이 '마지막에 숨은 것'
       let plan = [], targetLeaf = 0, targetFruit = 0, hintUsed = false, completed = false, extra = 0, swapsDone = 0;
       const after = (ms, fn) => { clearTimeout(tm); tm = ctx.later(fn, ms); };
+      const nudge = U.nudge(ctx, () => (phase === "pick" ? (leaves.find((o, L) => isRight(L)) || {}).el || null : null));   // 첫 판: 두 번 못 찾거나 가만있으면 손이 열매 있는 잎을 가리켜요
       const setPhase = (p) => { phase = p; scene.dataset.phase = p; };
       const setSnail = (f) => { snailEl.innerHTML = JN.Assets.snail(f, "기본", T("g.leaf.aria.snail")); };
       const gapMs = () => Math.max(JN.ms(220), 30);
@@ -192,7 +193,7 @@
       }
       function runTrial() {   // 같은 배치를 처음부터 (다시 볼 때도 이 함수)
         if (done) return;
-        clearDew();
+        clearDew(); nudge.hide();
         askChip.hidden = true;
         slotOf = leaves.map((_, i) => i); place(true); paintFruits();
         setPhase("look"); setSnail("기본");
@@ -226,7 +227,7 @@
         next();
       }
       function endShuffle() {
-        setPhase("pick");
+        setPhase("pick"); nudge.arm();
         if (lv.hide) {   // 이름은 부르지 않아요: 마지막에 숨은 열매가 어느 잎 아래인지만 물어요
           askChip.hidden = true;
           ctx.say(T("g.leaf.say.askLast"));
@@ -245,7 +246,7 @@
         if (isRight(L)) {
           el.classList.add("found"); setSnail("웃음");
           ctx.tone(523, 0.15, 0.05);   // 톡
-          found++;
+          found++; nudge.ok();
           const n = fruitsNow();
           if (n < FRUIT_MAX) { mem.fruits = n + 1; ctx.saveMem(); if (n + 1 >= FRUIT_MAX) completed = true; }
           paintBag(null);   // 숫자는 바로, 열매 그림은 날아 들어간 뒤에
@@ -253,7 +254,7 @@
           ctx.say(T("g.leaf.say.found"));
           after(JN.ms(1800), () => { if (found >= TRIES) finishRound(); else newTrial(); });
         } else {   // 벌 없이: 열어서 보여 주고 같은 배치를 한 번 더, 조금 더 천천히
-          retries++;
+          retries++; nudge.wrong();
           leaves.forEach((o, i) => { if (fruitOf[i] >= 0) o.el.classList.add("open"); });
           ctx.tone(262, 0.3, 0.02);   // 부드러운 낮은 음
           ctx.say(T("g.leaf.say.miss"));
@@ -266,7 +267,7 @@
       }
 
       function finishRound() {
-        done = true; setPhase("done"); clearTimeout(tm);
+        done = true; setPhase("done"); clearTimeout(tm); nudge.stop();
         const n = fruitsNow(), time = ctx.timer.stop();
         const fin = () => ctx.finish({ cleared: true, time, mistakes: retries, hints, metrics: { found, retries }, title: T("g.leaf.title"),
           line: T(completed ? "g.leaf.line.full" : n >= FRUIT_MAX ? "g.leaf.line.again" : "g.leaf.line", { n }), showTime: false });
@@ -315,11 +316,11 @@
         start() { ctx.timer.start(); ctx.say(T("g.leaf.say.begin")); newTrial(); },
         resize: layout,
         visibility(hidden) { /* 잎은 저절로 움직여도 벌이 없어서 따로 멈추지 않아요 */ },
-        destroy() { done = true; clearTimeout(tm); flyers.forEach((f) => f.remove()); },
+        destroy() { done = true; clearTimeout(tm); nudge.stop(); flyers.forEach((f) => f.remove()); },
         test: {
           state: () => ({ phase, trial, found, retries, hints, speed, leaves: N, swaps: plan.length, swapsDone, ask: !!lv.ask, askFruit: lv.ask ? targetFruit : -1,
             fruit: targetFruit, fruits: fruitsNow(), rightSlot: slotOf[targetLeaf], plan: JSON.stringify(plan), slots: JSON.stringify(slotOf),
-            fruitLeaves: fruitOf.map((f, i) => (f >= 0 ? i : -1)).filter((i) => i >= 0).map((i) => slotOf[i]), hintUsed, done, completed, mode,
+            fruitLeaves: fruitOf.map((f, i) => (f >= 0 ? i : -1)).filter((i) => i >= 0).map((i) => slotOf[i]), hintUsed, nudgeShown: nudge.shown(), nudgeVisible: nudge.visible(), done, completed, mode,
             hide: lv.hide || 0, seq: JSON.stringify(seq), seqSlots: seq.map((L) => slotOf[L]), lastLeafSlot: slotOf[targetLeaf], flights, flying: flyers.length, reduced: reducedNow, askChipShown: !askChip.hidden }),
         },
       };

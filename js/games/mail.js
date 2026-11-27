@@ -106,6 +106,7 @@
       let rule = "color", phase = "idle", done = false, tm = 0;
       let streak = 0, sent = 0, switchesDone = 0, retries = 0, hints = 0, wrongRun = 0, stampGot = 0, completed = false, hintShows = 0;
       let items = [], curItem = null, last = [], hideTm = 0, justSwitched = false, prevRule = "color";
+      const nudge = U.nudge(ctx, () => (phase === "pick" && curItem && !curItem.sent ? boxes[correctSide(curItem)] : null));   // 첫 판: 두 번 틀리거나 가만있으면 손이 알맞은 우체통을 가리켜요
       const curKind = () => (curItem ? curItem.k : [0, 0, 0]);
       const pickAfter = () => lv.after[0] + U.rnd(lv.after[1] - lv.after[0] + 1);
       const thresholds = []; for (let i = 0; i < lv.switches; i++) thresholds.push(pickAfter());
@@ -160,7 +161,7 @@
         justSwitched = false;
         setCurrent(items[0]);
         boxes.forEach((b) => b.classList.remove("got"));
-        setPhase("pick"); ctx.say(T("g.mail.say.pick"));
+        setPhase("pick"); ctx.say(T("g.mail.say.pick")); nudge.arm();
       }
       /* 소포를 우체통으로 보내요. 우체통을 누르면 지금 차례 소포가, 끌어다 놓으면 끈 소포가 가요 */
       function send(side, p) {
@@ -222,7 +223,7 @@
           p.sent = true; p.el.dataset.now = "0";
           setPhase("ok"); boxes[side].classList.add("got"); p.el.style.opacity = "0";
           ctx.tone(130, 0.12, 0.05); ctx.tone(523, 0.15, 0.04, 0.1);   // 탁 · 톡
-          sent++; streak++; wrongRun = 0;
+          sent++; streak++; wrongRun = 0; nudge.ok();
           const n = stampsNow();
           if (n < STAMP_MAX) {
             mem.stamps = n + 1; ctx.saveMem(); stampGot++; if (n + 1 >= STAMP_MAX) completed = true;
@@ -238,7 +239,7 @@
           });
           else after(Math.max(JN.ms(1000), 40), afterOk);
         } else {   // 벌 없이: 소포가 제자리로 돌아오고 한 번 더
-          setPhase("back"); retries++; wrongRun++;
+          setPhase("back"); retries++; wrongRun++; nudge.wrong();
           p.el.style.transform = ""; p.off = { x: 0, y: 0 };
           ctx.tone(262, 0.25, 0.02);   // 부드러운 낮은 음
           ctx.say(T(lv.quiet && wrongRun >= 2 ? "g.mail.say.maybe" : "g.mail.say.again"));
@@ -266,7 +267,7 @@
 
       /* ---- 판 끝 ---- */
       function finishRound() {
-        done = true; setPhase("done"); clearTimeout(tm);
+        done = true; setPhase("done"); clearTimeout(tm); nudge.stop();
         const n = stampsNow(), time = ctx.timer.stop();
         const fin = () => ctx.finish({ cleared: true, time, mistakes: retries, hints, metrics: { parcels: sent, switches: switchesDone, retries }, title: T("g.mail.title"),
           line: T(completed ? "g.mail.line.full" : n >= STAMP_MAX ? "g.mail.line.again" : "g.mail.line", { n }), showTime: false });
@@ -316,12 +317,12 @@
         },
         resize: layout,
         visibility(hidden) { /* 소포는 저절로 움직이지 않고 벌도 없어서 따로 멈추지 않아요 */ },
-        destroy() { done = true; clearTimeout(tm); clearTimeout(hideTm); },
+        destroy() { done = true; clearTimeout(tm); clearTimeout(hideTm); nudge.stop(); },
         test: {
           state: () => ({ phase, rule, streak, sent, total: lv.parcels, switches: switchesDone, switchesTotal: lv.switches, thresholds: JSON.stringify(thresholds),
             retries, hints, wrongRun, parcel: JSON.stringify(curKind()), kind0: curKind()[0], kind1: curKind()[1], kind2: curKind()[2], correctSide: correctSide(), wrongSide: 1 - correctSide(),
             multi, left: items.filter((x) => !x.sent).length, sizeRule, rules: RULES.join(","), kindsLeft: JSON.stringify(items.filter((x) => !x.sent).map((x) => ({ k: x.k, side: correctSide(x), slot: x.el.dataset.slot }))),
-            stamps: stampsNow(), stampGot, done, completed, cardShow: card.dataset.show, cardRule: card.dataset.rule, mode, conflict: !!lv.conflict, quiet: !!lv.quiet, hintShows }),
+            nudgeShown: nudge.shown(), nudgeVisible: nudge.visible(), stamps: stampsNow(), stampGot, done, completed, cardShow: card.dataset.show, cardRule: card.dataset.rule, mode, conflict: !!lv.conflict, quiet: !!lv.quiet, hintShows }),
         },
       };
     },

@@ -77,6 +77,7 @@
       let stone = 0, phase = "idle", cur = null, steps = 0, retries = 0, hints = 0, done = false, trialNo = 0, tm = 0;
       let retryPending = null, sinceRetry = 9, shownNight = false, held = false;
       const recent = [], forced = [];
+      const nudge = U.nudge(ctx, () => (cur ? (cur.need === "tap" ? tapBtn : flag) : null), { idleMs: 0 });   // 첫 판: 두 번 막히면 손이 '톡' 단추(또는 깃발)를 가리켜요
       const after = (ms, fn) => { clearTimeout(tm); tm = ctx.later(fn, ms); };
       const goMs = () => Math.max(JN.ms(lv.goSec * 1000), 700);   // 시험 속도에서도 눌러 볼 시간은 남겨요
       const nightNow = () => !!lv.night && Math.floor(trialNo / 3) % 2 === 1;
@@ -115,7 +116,7 @@
         if (sig.need === "tap") after(goMs(), onGoTimeout); else after(Math.max(JN.ms(sig.stopLen * 1000), 600), onWaited);   // 시험 속도에서도 최소 0.6초는 기다려요
       }
       function step(kind) {
-        phase = "moving"; steps++; stone++; moveSnail(false); setFlag("down");
+        phase = "moving"; steps++; stone++; moveSnail(false); setFlag("down"); nudge.ok();
         setSnail("웃음"); setRabbit("웃음");
         if (kind === "go") { ctx.tone(392, 0.12, 0.05); ctx.tone(523, 0.16, 0.05, 0.1); ctx.tone(880, 0.1, 0.03, 0.26); ctx.say(T("g.dalrong.say.go")); }
         else { ctx.tone(196, 0.5, 0.04); ctx.say(T("g.dalrong.say.wait")); }
@@ -123,13 +124,13 @@
       }
       function onGoTimeout() {   // 못 눌러도 벌 없이 같은 깃발을 한 번 더 (횟수는 기록하지 않아요)
         if (done || phase !== "show") return;
-        phase = "gap"; setFlag("down"); setSnail("쉬어요"); ctx.say(T("g.dalrong.say.slow"));
+        phase = "gap"; setFlag("down"); setSnail("쉬어요"); ctx.say(T("g.dalrong.say.slow")); nudge.wrong();
         const sig = cur;
         after(JN.ms(1100), () => { setSnail("기본"); present(sig); });
       }
       function onWaited() { if (!done && phase === "show") step("wait"); }
       function slip() {   // 기다려야 할 때 눌렀어요: 빨강·흔들림 없이 쉼 돌로 쭈르륵
-        clearTimeout(tm); phase = "moving"; retries++; setFlag("down");
+        clearTimeout(tm); phase = "moving"; retries++; setFlag("down"); nudge.wrong();
         const sig = cur; setRabbit("기본");
         if (lv.check) {
           const back = stone - (stone % CHECK_EVERY);
@@ -143,7 +144,7 @@
         }
       }
       function arrive() {
-        done = true; phase = "done"; clearTimeout(tm);
+        done = true; phase = "done"; clearTimeout(tm); nudge.stop();
         stone = N + 1; moveSnail(false); setSnail("웃음");
         const had = Math.min(FLOWER_MAX, mem.flowers | 0), grew = had < FLOWER_MAX, now = grew ? had + 1 : had;
         if (grew) { mem.flowers = now; ctx.saveMem(); bloomEl.innerHTML = Art.flower(FLOWER_KINDS[(now - 1) % 3], { label: "" }); bloomEl.classList.add("on"); }
@@ -195,12 +196,13 @@
         start() { ctx.timer.start(); ctx.say(T("g.dalrong.say.begin")); nextTrial(); },
         resize: layout,
         visibility(hidden) { /* 깃발은 저절로 지나가도 벌이 없어서 따로 멈추지 않아요 */ },
-        destroy() { done = true; clearTimeout(tm); },
+        destroy() { done = true; clearTimeout(tm); nudge.stop(); },
         test: {
           state: () => ({ phase, need: cur ? cur.need : null, flag: cur ? cur.flag : null, night: cur ? cur.night : null, stone, stones: N, steps, retries, hints, flowers: Math.min(FLOWER_MAX, mem.flowers | 0), done, check: !!lv.check, warn: !!lv.warn || mode === "always" }),
           queue: (...needs) => { forced.push(...needs); },
           present: (need) => { if (done) return; clearTimeout(tm); present(mk(need, nightNow())); },   // 시험용: 지금 바로 이 깃발을 올려요
           setTrial: (n) => { trialNo = n; },
+          nudge: () => ({ shown: nudge.shown(), visible: nudge.visible() }),
           hold: (b) => { held = !!b; },   // 시험용: 깃발이 올라온 뒤 저절로 지나가는 시간 재기를 멈춰요 (PC 가 바빠도 시험이 흔들리지 않게)
         },
       };

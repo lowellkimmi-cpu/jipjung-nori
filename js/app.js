@@ -345,6 +345,7 @@
     const ctx = A.ctx = {
       _alive: true, def, stage: def.stages[idx], stageIdx: idx, stages: def.stages, settings, mem: st.mem,
       board, bottom, timer, test: JN.TEST,
+      practice: !Object.keys((A.data.firsts && A.data.firsts[gid]) || {}).length,   // 이 놀이를 아직 한 단계도 못 깬 '첫 판'이면 손짓 도우미가 켜져요 (새 놀이 5개)
       firstInVisit: !(A.visitRounds++),   // 놀이를 연 뒤 첫 판인지 (몸놀이 안전 안내를 한 번만 보여 주려고)
       alive() { return this._alive; },
       say(t) { if (this._alive) $("msgLine").textContent = t || ""; },

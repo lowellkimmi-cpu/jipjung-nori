@@ -81,6 +81,43 @@
     el.addEventListener("pointercancel", () => { down = null; });
     el.addEventListener("click", (e) => { if (Date.now() - lastTapAt < 600) return; lastTapAt = Date.now(); fn(e); });
   };
+  /* 첫 판 손짓 도우미: 처음 하는 아이에게만(ctx.practice) 몇 번 막히거나 가만히 있으면 '손 그림'이 알맞은 곳을 천천히 가리켜요.
+     글자·벌점·깜빡임 없음(위아래로 천천히 오가기만, 움직임 줄이기 설정이면 가만히 있어요). 아이가 화면을 누르면 손은 사라져요.
+     getTarget(): 가리킬 칸(없으면 null) · o.idleMs 가만있는 시간(0이면 가만있기로는 안 보임) · o.wrongAt 몇 번째 막힘부터 · o.showMs 손이 보이는 시간 */
+  const HAND_SVG = '<svg viewBox="0 0 60 84" aria-hidden="true"><g class="hd-ol"><rect x="22" y="4" width="15" height="46" rx="7.5"/><rect x="10" y="36" width="42" height="42" rx="15"/><rect x="3" y="46" width="15" height="26" rx="7.5" transform="rotate(-18 10 59)"/></g>' +
+    '<g class="hd-in"><rect x="22" y="4" width="15" height="46" rx="7.5"/><rect x="10" y="36" width="42" height="42" rx="15"/><rect x="3" y="46" width="15" height="26" rx="7.5" transform="rotate(-18 10 59)"/></g></svg>';
+  U.nudge = function (ctx, getTarget, o) {
+    o = o || {};
+    const idleMs = o.idleMs == null ? 8000 : o.idleMs, wrongAt = o.wrongAt || 2, showMs = o.showMs || 4000;
+    let hand = null, idleT = 0, wrongs = 0, shown = 0;
+    const on = () => !!ctx.practice && ctx.alive();
+    const hide = () => { document.querySelectorAll(".jn-hand").forEach((e) => e.remove()); hand = null; };
+    const stop = () => { clearTimeout(idleT); hide(); };
+    function arm(ms) {
+      clearTimeout(idleT);
+      if (!on()) return;
+      const wait = ms != null ? ms : idleMs;
+      if (!wait) return;
+      idleT = ctx.later(show, Math.max(JN.ms(wait), 30));
+    }
+    function show() {
+      if (!on()) return;
+      const el = getTarget(), r = el && el.getBoundingClientRect();
+      if (!el || !r || r.width < 4) { arm(wrongs >= wrongAt ? 1200 : null); return; }   // 지금 가리킬 곳이 없으면 조금 뒤에 다시 봐요
+      hide();
+      hand = U.h("span", { class: "jn-hand", "aria-hidden": "true", svg: HAND_SVG });
+      hand.style.left = (r.left + r.width / 2) + "px"; hand.style.top = (r.top + r.height * 0.55) + "px";
+      document.body.appendChild(hand); shown++;
+      idleT = ctx.later(() => { hide(); arm(); }, Math.max(JN.ms(showMs), 60));
+    }
+    ctx.board.addEventListener("pointerdown", () => { if (hand) { hide(); arm(); } });
+    return {
+      arm: () => arm(),                                         // 새 문제가 나왔어요: 가만있기 시간을 다시 재요
+      ok() { wrongs = 0; hide(); arm(); },                      // 잘 했어요
+      wrong() { wrongs++; hide(); arm(wrongs >= wrongAt ? 1500 : null); },   // 막혔어요: 두 번째부터 손이 나와요
+      hide, stop, shown: () => shown, visible: () => !!hand,
+    };
+  };
   /* 받침이 있으면 "하늘이의", 없으면 "콩의" 처럼 */
   U.withI = (name) => {
     const c = name.charCodeAt(name.length - 1);

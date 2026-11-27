@@ -149,6 +149,12 @@
       const roomIdx = () => (errandsNow >= ERR_MAX ? 2 : Math.floor(errandsNow / ROOM_N));
       const after = (ms, fn) => { clearTimeout(tm); tm = ctx.later(fn, ms); };
       const setPhase = (p) => { phase = p; scene.dataset.phase = p; };
+      /* 첫 판: 두 번 틀리거나 가만있으면 손이 지금 놓을 물건(고른 뒤에는 놓을 자리)을 가리켜요 */
+      const nudge = U.nudge(ctx, () => {
+        const st = order[stepIdx]; if (phase !== "play" || !st) return null;
+        if (selected && selected.key === st.key) return zoneEls[st.place];
+        const it = tray.find((t) => !t.placed && t.key === st.key); return it ? it.el : null;
+      });
 
       /* ---- 화면 짜기: 위(보미 말풍선) · 가운데 집 장면 · 아래 물건 줄 ---- */
       const owlEl = h("span", { class: "er-owl", svg: JN.Assets.owl("웃음", "기본", T("g.err.aria.owl")) });
@@ -252,7 +258,7 @@
         });
         paintWant();
         setPhase("play"); ctx.say(T("g.err.say.listen"));
-        say();
+        say(); nudge.arm();
       }
       function paintWant() {   // 늘 보기: 지금 놓을 자리에 연한 점선
         ZONE_IDS.forEach((z) => zoneEls[z].classList.remove("want"));
@@ -320,13 +326,13 @@
           clearSel();
           addPut(it.key, zone, true); pending.push(it.key + "|" + zone);
           ctx.tone(392, 0.12, 0.05);   // 놓기 톡
-          smile(); ctx.say(T("g.err.say.ok"));
+          smile(); ctx.say(T("g.err.say.ok")); nudge.ok();
           st.left--;
           if (st.left <= 0) stepIdx++;
           paintWant();
           if (stepIdx >= order.length) errandDone();
         } else {   // 벌 없이: 물건이 줄로 둥실 돌아오고 한 번 더 (소리 없음)
-          redo++; it.el.style.transform = ""; clearSel();
+          redo++; it.el.style.transform = ""; clearSel(); nudge.wrong();
           ctx.say(T("g.err.say.again"));
         }
       }
@@ -355,7 +361,7 @@
 
       /* ---- 판 끝 ---- */
       function finishRound() {
-        done = true; setPhase("done"); clearTimeout(tm); clearTimeout(hideTm);
+        done = true; setPhase("done"); clearTimeout(tm); clearTimeout(hideTm); nudge.stop();
         const time = ctx.timer.stop();
         const fin = () => ctx.finish({ cleared: true, time, mistakes: redo, hints, metrics: { errands: doneThis, redo }, title: T("g.err.title"),
           line: T(completed ? "g.err.line.full" : wasFull ? "g.err.line.again" : "g.err.line", { n: errandsNow, max: ERR_MAX }), showTime: false });
@@ -402,12 +408,12 @@
         start() { ctx.timer.start(); ctx.say(T("g.err.say.begin")); layout(); nextErrand(); },
         resize: layout,
         visibility(hidden) { /* 저절로 움직이는 것도 벌도 없어서 따로 멈추지 않아요 */ },
-        destroy() { done = true; clearTimeout(tm); clearTimeout(hideTm); clearTimeout(snailTm); clearTimeout(owlTm); JN.speakStop(); },
+        destroy() { done = true; clearTimeout(tm); clearTimeout(hideTm); clearTimeout(snailTm); clearTimeout(owlTm); nudge.stop(); JN.speakStop(); },
         test: {
           state: () => ({ phase, text: errandText, bubble: bubble.dataset.show, steps: JSON.stringify(order.map((s) => ({ key: s.key, place: s.place, left: s.left }))), stepIdx, stepsTotal: order.length,
             tray: JSON.stringify(tray.filter((t) => !t.placed).map((t) => ({ uid: t.uid, key: t.key }))), trayCount: tray.length, trayPlaced: tray.filter((t) => t.placed).length,
             errands: errandsNow, doneThis, perRound: PER_ROUND, redo, hints, spoken, completed, room: roomIdx(), house: JSON.stringify(house), pending: pending.length,
-            puts: putEls.length, mode, wasFull, selected: selected ? selected.uid : 0, want: ZONE_IDS.filter((z) => zoneEls[z].classList.contains("want")).join(",") }),
+            nudgeShown: nudge.shown(), nudgeVisible: nudge.visible(), puts: putEls.length, mode, wasFull, selected: selected ? selected.uid : 0, want: ZONE_IDS.filter((z) => zoneEls[z].classList.contains("want")).join(",") }),
         },
       };
     },

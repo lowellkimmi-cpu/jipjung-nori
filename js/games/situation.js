@@ -96,6 +96,13 @@
       const tried = [new Set(), new Set()];
       const after = (ms, fn) => { clearTimeout(tm); tm = ctx.later(fn, ms); };
       const setPhase = (p) => { phase = p; board.dataset.phase = p; };
+      /* 첫 판: 정답은 없어요. 가만히 있으면 손이 '눌러 볼 곳'(아직 안 해 본 카드 · 마음 그림 · 말 조각)을 가리켜요. 틀렸다고 알리는 일은 없어요 */
+      const nudge = U.nudge(ctx, () => {
+        if (phase === "choose") { const cs = panel.querySelectorAll(".sit-card"); return Array.from(cs).find((c) => !tried[fi].has(+c.dataset.i)) || cs[0] || null; }
+        if (phase === "feel") return panel.querySelector(".sit-feel");
+        if (phase === "build") return panel.querySelector(".sit-piece:not(.used)");
+        return null;
+      }, { idleMs: 7000 });
       const friendKind = () => (lv.friends ? FRIENDS5[fi] : S.friend);
       const flav = () => (lv.friends ? FLAV5[fi] : "");
 
@@ -131,7 +138,7 @@
         renderPanel();
       }
       function renderPanel() {
-        panel.textContent = "";
+        panel.textContent = ""; nudge.arm();
         if (phase === "choose") {
           const box = h("div", { class: "sit-cards", role: "group", "aria-label": T("g.sit.say.choose") });
           for (let i = 0; i < lv.cards; i++) {
@@ -239,7 +246,7 @@
       }
       function finishRound() {
         if (done) return;
-        done = true; setPhase("done"); clearTimeout(tm);
+        done = true; setPhase("done"); clearTimeout(tm); nudge.stop();
         const time = ctx.timer.stop();
         ctx.finish({ cleared: true, time, mistakes: 0, hints, metrics: { stories: 1, repicks }, title: T("g.sit.title"),
           line: T(completed ? "g.sit.line.full" : wasFull ? "g.sit.line.again" : "g.sit.line", { n: storiesNow, max: STORY_MAX }), showTime: false });
@@ -269,12 +276,12 @@
         start() { ctx.timer.start(); ctx.say(T("g.sit.say.begin")); showSituation(true); },
         resize() { /* 그림은 칸 크기를 따라가요 */ },
         visibility(hidden) { /* 저절로 움직이는 것도 벌도 없어서 따로 멈추지 않아요 */ },
-        destroy() { done = true; clearTimeout(tm); JN.speakStop(); },
+        destroy() { done = true; clearTimeout(tm); nudge.stop(); JN.speakStop(); },
         test: {
           state: () => ({ phase, story: sIdx, stage: lv.id, cards: lv.cards, friend: friendKind(), fi, tried: JSON.stringify(tried.map((s) => Array.from(s).sort())),
             picks: picksN, repicks, hints, spoken, stories: storiesNow, wasFull, completed, feeling: feeling ? feeling.id : "", next: builtN, usedP: JSON.stringify(Array.from(usedP).sort()), order: JSON.stringify(order),
             pending, variant: lastVariant, text: txt.textContent, msg: document.getElementById("msgLine") ? document.getElementById("msgLine").textContent : "",
-            hintOn, complete: isComplete(), done, mode, canSpeak: canSpeak() }),
+            nudgeShown: nudge.shown(), nudgeVisible: nudge.visible(), hintOn, complete: isComplete(), done, mode, canSpeak: canSpeak() }),
         },
       };
     },
