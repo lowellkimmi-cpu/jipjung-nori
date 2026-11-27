@@ -75,7 +75,7 @@
 
       /* ---- 놀이 상태 ---- */
       let stone = 0, phase = "idle", cur = null, steps = 0, retries = 0, hints = 0, done = false, trialNo = 0, tm = 0;
-      let retryPending = null, sinceRetry = 9, shownNight = false;
+      let retryPending = null, sinceRetry = 9, shownNight = false, held = false;
       const recent = [], forced = [];
       const after = (ms, fn) => { clearTimeout(tm); tm = ctx.later(fn, ms); };
       const goMs = () => Math.max(JN.ms(lv.goSec * 1000), 700);   // 시험 속도에서도 눌러 볼 시간은 남겨요
@@ -111,6 +111,7 @@
       function reveal(sig) {
         if (done) return;
         phase = "show"; setFlag("up", sig.flag);
+        if (held) { clearTimeout(tm); return; }   // 시험용 멈춤 (앱에서는 항상 꺼져 있어요)
         if (sig.need === "tap") after(goMs(), onGoTimeout); else after(Math.max(JN.ms(sig.stopLen * 1000), 600), onWaited);   // 시험 속도에서도 최소 0.6초는 기다려요
       }
       function step(kind) {
@@ -200,6 +201,7 @@
           queue: (...needs) => { forced.push(...needs); },
           present: (need) => { if (done) return; clearTimeout(tm); present(mk(need, nightNow())); },   // 시험용: 지금 바로 이 깃발을 올려요
           setTrial: (n) => { trialNo = n; },
+          hold: (b) => { held = !!b; },   // 시험용: 깃발이 올라온 뒤 저절로 지나가는 시간 재기를 멈춰요 (PC 가 바빠도 시험이 흔들리지 않게)
         },
       };
     },
