@@ -443,12 +443,13 @@
     $("eyeText").textContent = T("eye.text");
     let left = CFG.EYE_REST_SECONDS;
     $("eyeCount").textContent = left;
-    $("eyeGo").hidden = true;
+    $("eyeGo").textContent = T("eye.close");   // 처음부터 '닫고 계속 놀기'를 눌러 바로 놀 수 있어요 (강요 없음)
+    $("eyeGo").hidden = false;
     $("eyeRest").hidden = false;
     const tick = () => {
       if ($("eyeRest").hidden) return;
       left--; $("eyeCount").textContent = Math.max(left, 0);
-      if (left <= 0) { $("eyeText").textContent = T("eye.done"); $("eyeGo").hidden = false; }
+      if (left <= 0) { $("eyeText").textContent = T("eye.done"); $("eyeGo").textContent = T("eye.go"); $("eyeGo").hidden = false; }
       else A.timers.push(setTimeout(tick, JN.ms(1000)));
     };
     A.timers.push(setTimeout(tick, JN.ms(1000)));
