@@ -41,7 +41,18 @@
   }
   function profiles() {
     const l = get("profiles", []);
-    return Array.isArray(l) ? l.map(cleanProfile).filter(Boolean).slice(0, CFG.MAX_CHILDREN) : [];
+    if (!Array.isArray(l)) return [];
+    const out = [];
+    let fixed = false;   // 아이디가 없거나 겹쳐서 새로 붙였으면 그 결과를 한 번 저장해 둬요 (읽을 때마다 아이디가 바뀌지 않게)
+    for (const src of l) {
+      const c = cleanProfile(src);
+      if (!c) { fixed = true; continue; }
+      if (!isObj(src) || c.id !== src.id || out.some((x) => x.id === c.id)) { fixed = true; if (out.some((x) => x.id === c.id)) continue; }
+      out.push(c);
+    }
+    const res = out.slice(0, CFG.MAX_CHILDREN);
+    if (fixed) set("profiles", res);
+    return res;
   }
   function saveProfiles(list) { set("profiles", list); }
   function addProfile(p) {
@@ -76,7 +87,10 @@
     s.eyeRest = s.eyeRest !== false;   // 옛 저장값(없음)은 켬
     s.dailyLimit = CFG.DAILY_LIMITS.includes(Number(s.dailyLimit)) ? Number(s.dailyLimit) : 0;
     const out = { settings: s, games: {}, state: {}, bests: {}, firsts: {} };
-    for (const k of ["games", "state", "bests", "firsts"]) if (isObj(d[k])) out[k] = d[k];
+    /* 놀이별 칸은 늘 '상자' 모양이어야 해요. 깨진 값(숫자·글자 등)은 그 칸만 버려요 */
+    for (const k of ["games", "state", "bests", "firsts"]) if (isObj(d[k])) {
+      for (const g of Object.keys(d[k])) if (isObj(d[k][g])) out[k][g] = d[k][g];
+    }
     return out;
   }
   function child(id) { return cleanChild(get("child." + id, null)); }
@@ -208,5 +222,5 @@
   }
 
   JN.Store = { today, profiles, addProfile, updateProfile, deleteProfile, child, saveChild, history, addRound, clearHistory,
-               exportAll, importAll, validateImport, dateStr, stamp, getApp: () => get("app", {}), setApp: (v) => set("app", v) };
+               exportAll, importAll, validateImport, dateStr, stamp, getApp: () => { const a = get("app", {}); return isObj(a) ? a : {}; }, setApp: (v) => set("app", v) };
 })();
