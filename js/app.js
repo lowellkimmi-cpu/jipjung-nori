@@ -125,6 +125,42 @@
   }
 
   /* ---------- 2. 영역 방 ---------- */
+  /* 오늘의 놀이: 열려 있는 방의 놀이 중 최근에 덜 한 놀이를 하나 골라요 (점수·평가 없음, 기록은 이 기기 안에만).
+     규칙: 방금 한 놀이는 빼고 → 최근 20판에서 적게 한 놀이 → 그중 가장 오래전에 한(안 한) 놀이 → 그래도 같으면 날짜에 따라 돌아가며 */
+  function playableIds() {
+    const closed = JN.CONFIG.CLOSED_AREAS || [], out = [];
+    for (const a of Art.AREAS) if (!closed.includes(a.id)) for (const g of a.games) if (JN.GAMES[g] && !out.includes(g)) out.push(g);
+    return out;
+  }
+  function pickToday(rounds, ids, seed) {
+    if (!ids.length) return null;
+    const recent = rounds.slice(-20), cnt = {}, last = {};
+    recent.forEach((e, i) => { cnt[e.game] = (cnt[e.game] || 0) + 1; last[e.game] = i; });
+    const lastGame = recent.length ? recent[recent.length - 1].game : null;
+    let pool = ids.filter((g) => g !== lastGame);
+    if (!pool.length) pool = ids.slice();
+    const min = Math.min(...pool.map((g) => cnt[g] || 0));
+    pool = pool.filter((g) => (cnt[g] || 0) === min);
+    const lastOf = (g) => (g in last ? last[g] : -1);
+    const oldest = Math.min(...pool.map(lastOf));
+    pool = pool.filter((g) => lastOf(g) === oldest);
+    return pool[Math.abs(seed | 0) % pool.length];
+  }
+  A.playableIds = playableIds; A.pickToday = pickToday;
+  function paintToday() {
+    const box = $("todayBox"), card = $("todayCard"); card.textContent = "";
+    const ids = playableIds();
+    const gid = A.kid && !limitReached() ? pickToday(S.history(A.kid.id).rounds, ids, Math.floor(Date.now() / 864e5)) : null;
+    box.hidden = !gid;
+    if (!gid) return;
+    const def = JN.GAMES[gid], area = areaOf(def.area), si = curStage(A.kid, A.data, gid);
+    const el = h("button", { class: "gcard game jn-card", type: "button", "data-today": gid, onclick: () => startGame(gid) },
+      h("span", { class: "ic", svg: JN.Assets.gameIcon(gid) }),
+      h("span", { class: "txt" }, h("b", { text: def.name }), h("small", { class: "meta", text: T("game.now", { n: si + 1 }) })),
+      h("span", { class: "go", svg: Art.icon("다음") }));
+    roomVars(el, area);
+    card.appendChild(el);
+  }
   function renderHome() {
     const p = A.kid;
     $("homeAv").innerHTML = avatar(p);
@@ -144,6 +180,7 @@
       roomVars(el, a);
       box.appendChild(el);
     }
+    paintToday();
     show("scr-home");
   }
   function showSoon(a, text) {
@@ -343,7 +380,7 @@
     tc.querySelector("span").textContent = o.time != null ? U.fmtTime(o.time) : "";
     $("praiseBest").hidden = !o.newBest;
     const an = $("autoNext"), sg = $("suggest"), ad = $("allDone"), ag = $("againBox");
-    an.hidden = true; sg.hidden = true; ad.hidden = true; ag.hidden = true;
+    an.hidden = true; sg.hidden = true; ad.hidden = true; ag.hidden = true; $("nextRow").hidden = true;
     an.classList.remove("run");
     $("praise").hidden = false;
     if (o.allDone) {
@@ -368,6 +405,7 @@
     }
     $("autoNextText").textContent = o.next > o.idx ? T("praise.autonext.stage", { n: o.next + 1 }) : T("praise.autonext.again");
     an.hidden = false;
+    $("nextRow").hidden = false;   // 기다리는 동안에도 '한 번 더 / 다른 놀이 / 쉬기'를 바로 고를 수 있어요
     an.style.setProperty("--praise-ms", JN.ms(CFG.PRAISE_MS) / 1000 + "s");
     requestAnimationFrame(() => requestAnimationFrame(() => an.classList.add("run")));
     A.timers.push(setTimeout(afterPraise, JN.ms(CFG.PRAISE_MS)));
@@ -377,6 +415,11 @@
   const againOpen = () => !$("praise").hidden && !$("againBox").hidden;
   U.tap($("againYes"), () => { if (againOpen()) afterPraise(); });
   U.tap($("againNo"), () => { if (!againOpen()) return; $("praise").hidden = true; stopRound(); openRoom(A.room); });
+  /* 칭찬 화면의 '한 번 더 / 다른 놀이 / 쉬기' (저절로 넘어가기를 기다리지 않고 바로) */
+  const nextOpen = () => !$("praise").hidden && !$("nextRow").hidden;
+  U.tap($("nextAgain"), () => { if (nextOpen()) afterPraise(); });
+  U.tap($("nextOther"), () => { if (!nextOpen()) return; $("praise").hidden = true; stopRound(); renderHome(); });
+  U.tap($("nextRest"), () => { if (!nextOpen()) return; $("praise").hidden = true; stopRound(); showRest(); });
   function afterPraise() {
     if ($("praise").hidden) return;
     $("praise").hidden = true;

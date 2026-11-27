@@ -245,6 +245,11 @@ h1, h2, h3, p { margin: 0; }
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; font-weight: var(--fw-bold); --cut: var(--cut-c); filter: var(--sh-paper-down); }
 .chip i, .chip svg { width: 22px; height: 22px; display: inline-flex; }
 .chip.best { --paper-bg: var(--c-mustard-tint); }
+.today { padding: 0 var(--gutter); }
+.today__label { margin: 8px 2px 0; font-weight: var(--fw-bold); font-size: var(--fs-button); color: var(--c-ink-soft); }
+.today .games { padding: 8px 0 4px; }
+.nextrow { margin-top: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.nextrow[hidden] { display: none; }
 .autonext { width: 240px; max-width: 100%; margin: 18px auto 0; font-size: 15px; color: var(--c-ink-soft); }
 .autonext i { display: block; height: 14px; position: relative; isolation: isolate; margin-top: 8px; }
 .autonext i::before { content: ""; position: absolute; inset: 0; background: var(--c-surface-2); clip-path: var(--cut-a); z-index: -1; }
@@ -437,3 +442,5 @@ table.log td.nw { white-space: nowrap; }
 .jn-toggle input { inset: -8px -6px; width: calc(100% + 12px); height: calc(100% + 16px); }
 /* 글자 입력 칸: 초점이 오면 테두리 색만 바뀌던 것에 점선 테두리도 더해 (색을 못 알아봐도 보이게) */
 .text-in:focus-visible { outline: 3px dashed var(--c-focus); outline-offset: 3px; }
+/* 폰 폭(400px 이하)에서 방 이름이 긴 "그리기 놀이"가 줄임표로 잘리지 않게 두 줄까지 보여 줘요 */
+@media (max-width: 400px) { .roomgrid .jn-room__name { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.15; overflow-wrap: anywhere; } }

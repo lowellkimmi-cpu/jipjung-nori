@@ -41,6 +41,7 @@
     <button class="jn-iconbtn jn-iconbtn--parent" type="button" data-act="parent" aria-label="" data-t-aria="parent.title" data-icon="보호자"></button>
   </div>
   <div class="rooms__hello page-inner"><span class="m" data-owl="기본,가리키기"></span><h1 class="ttl" data-t="home.hello"></h1></div>
+  <div class="today page-inner" id="todayBox" hidden><p class="today__label" data-t="home.today"></p><div class="games" id="todayCard"></div></div>
   <div class="roomgrid page-inner" id="rooms"></div>
 </section>
 
@@ -100,6 +101,11 @@
       <p class="praise-line" id="praiseLine"></p>
       <div class="chips"><span class="chip jn-num" id="praiseTime"><i data-icon="시계"></i><span></span></span><span class="chip best" id="praiseBest" data-t="praise.best"></span></div>
       <div class="autonext" id="autoNext"><span id="autoNextText" data-t="praise.autonext.next"></span><i><b id="autoNextBar"></b></i></div>
+      <div class="nextrow" id="nextRow" hidden>
+        <button class="jn-btn jn-btn--primary" type="button" id="nextAgain" data-t="praise.next.again"></button>
+        <button class="jn-btn" type="button" id="nextOther" data-t="praise.next.other"></button>
+        <button class="jn-btn jn-btn--quiet" type="button" id="nextRest" data-t="praise.next.rest"></button>
+      </div>
       <div class="suggest" id="suggest" hidden>
         <p id="suggestText"></p>
         <button class="jn-btn jn-btn--primary" type="button" id="suggestYes"></button>
