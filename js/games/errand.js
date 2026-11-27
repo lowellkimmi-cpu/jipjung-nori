@@ -230,7 +230,7 @@
       function nextErrand() {
         if (done) return;
         const bank = BANK[lv.id];
-        /* (2026-11-27 로웰님: "전에 했던 게 그대로 있어서 할 수가 없음") 집에 이미 꾸며 둔 물건과 같은 물건·같은 자리를 또 시키면
+        /* (2026-11-27 요청: "전에 했던 게 그대로 있어서 할 수가 없음") 집에 이미 꾸며 둔 물건과 같은 물건·같은 자리를 또 시키면
            아이 눈에는 '벌써 놓여 있는' 심부름이라 헷갈려요 → 이미 놓인 '물건|자리'와 겹치지 않는 심부름을 골라요 */
         const decorated = new Set(house.map((s) => { const p = s.split("|"); return p[0] + "|" + p[3]; }));
         const clash = (ee) => ee.steps.some((s) => decorated.has(s.id + "|" + s.place));

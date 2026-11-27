@@ -20,7 +20,7 @@
   const CHECK_EVERY = 3;   // 3칸마다 쉼 돌
 
   /* 깃발 한 장 (발자국 / 손바닥을 둘 다 그려 두고 data-k 로 하나만 보여요 — 색과 모양이 둘 다 달라요)
-     (2026-11-27 로웰님 '깃발 그림 이상해' → 손바닥을 엄지 있는 진짜 손 모양으로, 발자국도 다시 그림. 같은 모양을 두 번 겹쳐(굵은 선 + 크림색 속) 테두리를 그려요) */
+     (2026-11-27 요청 '깃발 그림 이상해' → 손바닥을 엄지 있는 진짜 손 모양으로, 발자국도 다시 그림. 같은 모양을 두 번 겹쳐(굵은 선 + 크림색 속) 테두리를 그려요) */
   const FLAG_SVG = '<svg viewBox="0 0 70 90" aria-hidden="true"><path class="pole" d="M14 88 V6"/><circle class="knob" cx="14" cy="6" r="3.2"/><g class="cloth-g"><path class="cloth" d="M16 9' +
     ' C26 4 34 12 42 8 S58 5 64 9 L64 53 C56 49 50 57 42 53 S26 50 16 55 Z"/><g class="k-foot"><g class="mk-ol"><ellipse cx="30" cy="41" rx="6.2" ry="9.4"/><circle cx="36.0" c' +
     'y="25.8" r="2.5"/><circle cx="31.6" cy="23.0" r="2.3"/><circle cx="27.1" cy="23.4" r="2.1"/><circle cx="23.4" cy="26.6" r="1.9"/><ellipse cx="50" cy="32" rx="6.2" ry="9.4' +

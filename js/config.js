@@ -99,10 +99,9 @@ JN.AGE_START = {
 
 /* 시험용: 주소 뒤에 ?test=1&speed=10 을 붙이면 기다리는 시간이 10배 빨라져요 (놀이에는 영향 없음) */
 (function () {
-  let p;
-  try { p = new URLSearchParams(location.search); } catch (e) { p = new URLSearchParams(""); }
-  JN.TEST = p.get("test") === "1";
-  JN.TEST_EYE = p.get("eye") === "1";   // 시험 중에도 '눈 쉬기'를 보고 싶을 때 (?test=1&eye=1). 기본 시험에서는 놀이 흐름을 끊지 않게 꺼 둠
-  JN.TIME_SCALE = JN.TEST ? Math.max(1, parseFloat(p.get("speed")) || 5) : 1;
+  const p = null;   // 배포본: 주소에서 시험 설정을 읽지 않아요
+  JN.TEST = false;
+  JN.TEST_EYE = false;   // 시험 중에도 '눈 쉬기'를 보고 싶을 때 (?test=1&eye=1). 기본 시험에서는 놀이 흐름을 끊지 않게 꺼 둠
+  JN.TIME_SCALE = 1;
   JN.ms = (ms) => ms / JN.TIME_SCALE;
 })();
