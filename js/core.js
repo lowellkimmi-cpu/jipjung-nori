@@ -208,10 +208,10 @@
     }
     return {
       start() {
-        if (on) return;
+        if (on || JN.muted) return;   // 놀이 화면의 '소리 꺼짐' 을 누른 뒤에는 배경음도 시작하지 않아요
         try {
-          unlock();
-          if (!ac) return;
+          if (!ac) return;   // 소리 장치는 아이가 화면을 누른 뒤(unlock)에만 생겨요 — 누르기 전에는 배경음도 시작하지 않아요
+          if (ac.state === "suspended") ac.resume();
           if (!master) { master = ac.createGain(); master.connect(ac.destination); }
           master.gain.cancelScheduledValues(ac.currentTime);
           master.gain.setValueAtTime(0.0001, ac.currentTime);
@@ -259,7 +259,7 @@
   /* 음성 목록이 늦게 오는 기기(크롬)를 위해: 바뀌면 fn 을 불러 줘요. 돌려받은 함수를 부르면 그만 들어요 */
   JN.onVoices = (fn) => { voiceFns.push(fn); return () => { const i = voiceFns.indexOf(fn); if (i >= 0) voiceFns.splice(i, 1); }; };
   JN.speak = function (text) {
-    if (!JN.speakAvailable()) return false;
+    if (JN.muted || !JN.speakAvailable()) return false;
     try {
       const ss = window.speechSynthesis, u = new SpeechSynthesisUtterance(String(text));
       if (koVoice) u.voice = koVoice;
@@ -271,6 +271,11 @@
     } catch (e) { return false; }
   };
   JN.speakStop = () => { try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) { /* 무시 */ } };
+  /* 놀이 화면의 소리 단추를 '꺼짐' 으로 하면 배경음·말 안내까지 모두 멈춰요 (저장된 보호자 설정은 그대로 두고, 이번에 켜 둔 동안만) */
+  JN.muted = false;
+  JN.muteAll = function (m) { JN.muted = !!m; if (JN.muted) { JN.bgm.stop(); JN.speakStop(); } };
+  /* 다른 화면·앱으로 가면 소리 장치도 잠시 멈춰요 (다시 소리 나는 건 아이가 화면을 누르거나 놀이로 돌아온 뒤) */
+  JN.audioPause = function () { try { if (ac && ac.state === "running") ac.suspend(); } catch (e) { /* 무시 */ } };
 
   /* ---------- 낱말 그림 목록 (이게 뭐야? · 누가 뭐 해요? 가 같이 써요) — 그림은 art.js 것을 그대로 ---------- */
   const WK = (w, kind, key, cat) => ({ w, kind, key: key || w, cat });

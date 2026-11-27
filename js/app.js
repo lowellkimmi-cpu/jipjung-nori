@@ -456,6 +456,8 @@
     A.data.settings.sound = !A.data.settings.sound; saveData(); paintSound();
     if (A.ctx) A.ctx.settings.sound = A.data.settings.sound;
     if (A.inst && A.inst.soundChanged) A.inst.soundChanged(A.data.settings.sound);
+    JN.muteAll(!A.data.settings.sound);   // 끄면 배경음·말 안내도 멈춤
+    if (A.data.settings.sound && A.screen === "scr-play" && A.data.settings.bgm !== false) JN.bgm.start();
     JN.sound(A.data.settings.sound, "ok");
   };
 
@@ -820,7 +822,7 @@
   window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (A.inst && A.inst.resize) A.inst.resize(); }, 120); });
   document.addEventListener("visibilitychange", () => {
     if (A.inst && A.inst.visibility) A.inst.visibility(document.hidden);
-    if (document.hidden) { JN.bgm.stop(); JN.speakStop(); }
+    if (document.hidden) { JN.bgm.stop(); JN.speakStop(); JN.audioPause(); }
     else if (A.screen === "scr-play" && A.data && A.data.settings.bgm !== false) JN.bgm.start();
   });
 
