@@ -279,7 +279,7 @@
     { id: 'seeing', name: '보는 힘', power: '꼼꼼히 비교 · 모양 구별', color: '#8AA6BD', tint: '#E0E9EF', deep: '#3C5D76', games: ['다른그림', '같은모양'] },
     { id: 'thinking', name: '생각·추리', power: '규칙 찾기 · 순서 · 분류', color: '#93AE87', tint: '#E2EBDB', deep: '#466140', games: ['패턴', '퍼즐', '우체통'] },
     { id: 'hands', name: '손·미술', power: '손 조절 · 공간 · 표현', color: '#CC7754', tint: '#F5DFD1', deep: '#8A4127', games: ['반쪽그림', '선긋기미로'] },
-    { id: 'words', name: '말·언어', power: '낱말 · 듣고 이해하기', color: '#D9A08F', tint: '#F6E3DC', deep: '#874A41', games: ['낱말그림', '문장만들기', '감정표정', '심부름'] },
+    { id: 'words', name: '말·언어', power: '낱말 · 듣고 이해하기', color: '#D9A08F', tint: '#F6E3DC', deep: '#874A41', games: ['낱말그림', '문장만들기', '감정표정', '심부름', '이럴땐'] },
     { id: 'body', name: '몸·감각', power: '몸 움직이기 · 균형 · 숨 고르기', color: '#A2AD58', tint: '#ECEDD0', deep: '#555D20', games: ['몸따라해요', '같이몸놀이'] },
   ];
   const CREAM_W = '#FCF4E2';
@@ -343,6 +343,9 @@
     심부름: () => P(rr(14, 40, 72, 48, 6), '#F6E6BF', { s: 2 }) + P('M8 44 L50 12 L92 44Z', C.terracotta, { s: 2.4, hi: [36, 32, 7, 4] }) +
       P(rr(22, 60, 26, 24, 3), '#E4C796', { s: 1.2, lw: 2 }) + `<path d="M28 68 H42" ${PEN(2.4, .8)}/>` + P(circ(68, 72, 11), C.sage, { s: 1.4, lw: 2, hi: [64, 68, 3, 2] }) +
       P(rr(60, 48, 16, 10, 2), '#E0E9EF', { s: 1, lw: 1.8 }),
+    // 이럴 땐 어떻게?: 말풍선 안에 두 얼굴
+    이럴땐: () => P('M16 21 h68 a9 9 0 0 1 9 9 v33 a9 9 0 0 1 -9 9 h-38 l-17 14 v-14 h-13 a9 9 0 0 1 -9 -9 v-33 a9 9 0 0 1 9 -9Z', '#F7E7E1', { s: 2.6 }) +
+      face(35, 44, .5, '웃음', { gap: 9 }) + face(65, 44, .5, '기본', { gap: 9 }),
     // (2026-11-22 새로) 말·언어 · 몸·감각 놀이
     낱말그림: () => P('M16 21 h68 a9 9 0 0 1 9 9 v33 a9 9 0 0 1 -9 9 h-38 l-17 14 v-14 h-13 a9 9 0 0 1 -9 -9 v-33 a9 9 0 0 1 9 -9Z', '#F7E7E1', { s: 2.6 }) + `<g transform="translate(29 18) scale(.42)">${FRUIT_PARTS.사과(FRUIT_COLOR.사과)}</g>` + face(50, 46, .5, '웃음', { gap: 9 }),
     문장만들기: () => P('M16 21 h68 a9 9 0 0 1 9 9 v33 a9 9 0 0 1 -9 9 h-38 l-17 14 v-14 h-13 a9 9 0 0 1 -9 -9 v-33 a9 9 0 0 1 9 -9Z', '#F7E7E1', { s: 2.6 }) +
@@ -366,6 +369,7 @@
     { id: '우체통', name: '보미 우체통', area: 'thinking' },
     { id: '반쪽그림', name: '반쪽 그림', area: 'hands' }, { id: '선긋기미로', name: '선 긋기 미로', area: 'hands' },
     { id: '심부름', name: '달롱 집 심부름', area: 'words' },
+    { id: '이럴땐', name: '이럴 땐 어떻게?', area: 'words' },
     { id: '낱말그림', name: '이게 뭐야?', area: 'words' }, { id: '문장만들기', name: '누가 뭐 해요?', area: 'words' }, { id: '감정표정', name: '감정 표정 고르기', area: 'words' },
     { id: '몸따라해요', name: '몸으로 따라 해요!', area: 'body' }, { id: '같이몸놀이', name: '같이 놀아요!', area: 'body' },
   ];

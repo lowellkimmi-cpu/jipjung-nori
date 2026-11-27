@@ -52,6 +52,7 @@
     body.appendChild(gbox);
 
     const def = JN.GAMES[R.game], rounds = hist.rounds.filter((e) => e.game === R.game);
+    if (def.recordNote) body.appendChild(h("p", { class: "care", id: "recNote", text: def.recordNote }));   // 놀이가 따로 알리고 싶은 보호자 안내 (예: 이럴 땐 어떻게?)
     body.appendChild(h("p", { class: "care", text: TXT("rec.summary", { name: def.name, stage: A.curStage(kid, data, R.game) + 1, rounds: (c.per[R.game]) || 0 }) }));
 
     // 처음 깬 단계

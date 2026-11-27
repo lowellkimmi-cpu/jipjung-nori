@@ -791,3 +791,93 @@
   .er-tray { grid-column: 2; grid-row: 2; align-content: start; overflow: visible; }
 }
 @media (prefers-reduced-motion: reduce) { .er-item { transition: none; } .er-put.pop { animation: none; } }
+
+/* ===== 이럴 땐 어떻게? (그림 이야기) — 깜빡임·빠른 움직임 없음, 색만으로 구별하지 않음(카드마다 모양 + 글자) ===== */
+.sit-board { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; gap: 6px; padding: 8px; --board-bg: var(--c-surface-2); }
+.sit-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.sit-owl { flex: none; width: 48px; height: 48px; }
+.sit-owl svg, .sit-gl svg, .sit-feelart svg, .sit-rib svg, .sit-mark svg, .sit-donerow svg, .sit-pic svg { display: block; width: 100%; height: 100%; }
+.sit-bubble { flex: 1; min-width: 0; min-height: 48px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 6px 12px; border: 2.5px solid var(--c-pencil); border-radius: var(--r-m); background: var(--c-surface); }
+.sit-text { flex: 1; min-width: 0; font-weight: var(--fw-bold); font-size: var(--fs-body); line-height: 1.35; overflow-wrap: anywhere; }
+.sit-reread { flex: none; min-height: 56px; min-width: 56px; padding: 0 10px; font-size: 15px; }
+.sit-bubble { flex-wrap: wrap; }
+.sit-text { flex: 1 1 8em; }
+.sit-wrap { min-height: 0; min-width: 0; display: grid; place-items: center; container-type: size; }
+.sit-pic { position: relative; overflow: hidden; width: min(100cqw, 133cqh); aspect-ratio: 4 / 3; box-sizing: border-box; border: 2px solid var(--c-pencil); border-radius: var(--r-m); background: var(--c-surface); }
+.sit-pic > span { position: absolute; display: block; }
+.sp-ground { left: 0; right: 0; bottom: 0; height: 16%; background: var(--c-sage-tint); border-top: 2px solid var(--c-pencil); }
+.sp-me { left: 4%; bottom: 8%; width: 34%; z-index: 2; }
+.sp-fr { right: 4%; bottom: 8%; width: 34%; z-index: 2; }
+.sp-prop { left: 39%; bottom: 8%; width: 22%; z-index: 1; }
+.sp-tower { width: 16%; left: 42%; }
+.sp-slide { right: 2%; top: 6%; width: 26%; z-index: 0; }
+.sp-q { bottom: 8%; width: 24%; z-index: 1; }
+.sp-q1 { left: 54%; } .sp-q2 { left: 36%; }
+.sit-pic[data-line="1"] .sp-me { width: 26%; left: 3%; }
+.sit-pic[data-line="1"] .sp-fr { width: 24%; right: 3%; }
+.sp-3 { left: 38%; bottom: 44%; width: 24%; z-index: 3; }
+.sit-pic[data-flav="quiet"] .sp-fr { width: 28%; right: 6%; }
+.sit-pic[data-flav="lively"] .sp-fr { width: 38%; right: 2%; }
+.sit-pic[data-line="1"][data-flav] .sp-fr { width: 24%; right: 3%; }
+.sit-pic[data-line="1"] .sp-3 { left: 40%; bottom: 36%; width: 20%; }
+.sit-pic[data-mode="think"] .sp-fr, .sit-pic[data-mode="think"][data-flav] .sp-fr { right: 13%; }
+.sit-pic[data-mode="think"][data-line="1"] .sp-fr, .sit-pic[data-mode="think"][data-line="1"][data-flav] .sp-fr { right: 3%; }
+.sit-pic[data-mode="think"][data-line="1"] .sp-q1 { left: 46%; } .sit-pic[data-mode="think"][data-line="1"] .sp-q2 { left: 29%; }
+.sb-blk { stroke: var(--c-pencil); stroke-width: 2; } .sb-blk.b1 { fill: var(--c-mustard); } .sb-blk.b2 { fill: var(--c-dustyblue); } .sb-blk.b3 { fill: var(--c-terracotta); }
+.sb-edge { fill: none; stroke: var(--c-pencil); stroke-width: 2; stroke-linecap: round; }
+.sb-wood { fill: var(--c-kraft); stroke: var(--c-pencil); stroke-width: 2; stroke-linejoin: round; }
+.sb-slide { fill: var(--c-mustard); stroke: var(--c-pencil); stroke-width: 2; stroke-linejoin: round; }
+.sb-bub { fill: var(--c-surface); stroke: var(--c-pencil); stroke-width: 2; } .sb-dot { fill: var(--c-pencil); }
+.sb-gl { stroke: var(--c-pencil); stroke-width: 2.5; stroke-linejoin: round; } .sb-gl.g0 { fill: var(--c-mustard); } .sb-gl.g1 { fill: var(--c-sage); } .sb-gl.g2 { fill: var(--c-dustyblue); }
+.sit-panel { min-width: 0; }
+.sit-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 8px; }
+.sit-card { position: relative; display: flex; align-items: center; gap: 10px; min-height: 64px; min-width: 120px; box-sizing: border-box; padding: 6px 12px; border: 2.5px solid var(--c-pencil); border-radius: var(--r-m); background: var(--c-surface); font: inherit; font-weight: var(--fw-bold); text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.sit-card:focus-visible, .sit-feel:focus-visible, .sit-piece:focus-visible, .sit-reread:focus-visible { outline: 4px solid var(--c-focus); outline-offset: 3px; }
+.sit-card.fresh { min-height: 76px; background: var(--c-primary-tint); }
+.sit-card.tried { background: var(--c-surface-2); }
+.sit-gl { flex: none; width: 36px; height: 36px; }
+.sit-cardtxt { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.sit-prev { flex: none; width: 88px; pointer-events: none; }
+.sit-prev .sit-pic { width: 88px; border-width: 1.5px; border-radius: 8px; }
+.sit-mark { flex: none; font-size: 14px; font-weight: var(--fw-bold); text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+.sit-feels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.sit-feel { display: grid; justify-items: center; gap: 2px; min-height: 96px; box-sizing: border-box; padding: 6px; border: 2.5px solid var(--c-pencil); border-radius: var(--r-m); background: var(--c-surface); font: inherit; font-weight: var(--fw-bold); cursor: pointer; }
+.sit-feelart { display: block; width: 56px; height: 56px; }
+.sit-feeltxt { font-size: 16px; text-align: center; }
+.sit-slots { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
+.sit-slot { flex: 1; max-width: 200px; min-height: 52px; box-sizing: border-box; display: grid; place-items: center; padding: 4px 8px; border: 2.5px dashed var(--c-dash); border-radius: var(--r-m); font-weight: var(--fw-bold); }
+.sit-slot.on { border-style: solid; border-color: var(--c-pencil); background: var(--c-primary-tint); }
+.sit-pieces { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.sit-piece { min-height: 64px; min-width: 120px; box-sizing: border-box; padding: 6px 16px; border: 2.5px solid var(--c-pencil); border-radius: var(--r-m); background: var(--c-surface); font: inherit; font-weight: var(--fw-bold); cursor: pointer; }
+.sit-piece.used { opacity: .45; cursor: default; }
+.sit-shelf { display: flex; justify-content: center; gap: 8px; }
+.sit-rib { display: block; width: 36px; height: 72px; }
+.sit-rib.new { animation: sit-fade .8s ease-out 1; }
+.sb-rib { stroke: var(--c-pencil); stroke-width: 2.5; stroke-linejoin: round; }
+.sb-rib.empty { fill: none; stroke: var(--c-dash); stroke-dasharray: 4 4; }
+.sb-rib.c-mustard { fill: var(--c-mustard); } .sb-rib.c-terracotta { fill: var(--c-terracotta); } .sb-rib.c-sage { fill: var(--c-sage); }
+.sb-rib.c-dustyblue { fill: var(--c-dustyblue); } .sb-rib.c-kraft { fill: var(--c-kraft); } .sb-rib.c-honey { fill: var(--c-honey); }
+.sit-bm { display: inline-flex; align-items: center; font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
+.sit-done { position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; padding: 10px; box-sizing: border-box; background: var(--c-surface-2); overflow: auto; }
+.sit-donecard { display: grid; gap: 8px; justify-items: center; text-align: center; max-width: 560px; width: 100%; padding: 12px; box-sizing: border-box; border: 2px solid var(--c-pencil); border-radius: var(--r-m); background: var(--c-surface); }
+.sit-donecard h2 { margin: 0; font-size: var(--fs-title); }
+.sit-donecard p { margin: 0; }
+.sit-donerow { display: flex; justify-content: center; gap: 8px; }
+.sit-donerow span { display: block; width: 40px; height: 80px; }
+.sit-done .jn-btn--big { min-height: 56px; min-width: 120px; }
+@keyframes sit-fade { from { opacity: 0; } to { opacity: 1; } }
+/* 폰 가로: 그림은 왼쪽, 말풍선과 카드는 오른쪽 */
+@media (orientation: landscape) and (max-height: 560px) {
+  .sit-board { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  .sit-top { grid-column: 2; grid-row: 1; align-items: flex-start; }
+  .sit-owl { display: none; }
+  .sit-bubble { padding: 4px 8px; }
+  .sit-wrap { grid-column: 1; grid-row: 1 / span 2; }
+  .sit-panel { grid-column: 2; grid-row: 2; overflow: auto; }
+  .sit-cards { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .sit-card { min-height: 56px; padding: 4px 10px; }
+  .sit-card.fresh { min-height: 64px; }
+  .sit-prev { width: 64px; } .sit-prev .sit-pic { width: 64px; }
+  .sit-feel { min-height: 72px; } .sit-feelart { width: 40px; height: 40px; }
+}
+@media (prefers-reduced-motion: reduce) { .sit-rib.new { animation: none; } }
