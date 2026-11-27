@@ -41,6 +41,8 @@
 
   JN.registerGame({
     id: "짝꿍카드", stages: STAGES,
+    /* 작은 걸음: 미리 보여 주는 시간이 걸음마다 조금씩 줄어요 (최소 1초 — 0초 단계는 그대로) */
+    tune: (lv, f) => Object.assign(lv, { preview: lv.preview > 0 ? Math.max(1, Math.round(lv.preview * (1 - 0.45 * f))) : 0 }),
     hintHelp: { always: T("g.memory.hh.always"), button: T("g.memory.hh.button"), none: T("g.memory.hh.none") },
     extraSettings: [{ key: "compareHelp", type: "bool", label: T("g.memory.x.compare"), def: true }],
     chart: { key: "time", label: T("common.time"), unit: T("common.unit.sec") },

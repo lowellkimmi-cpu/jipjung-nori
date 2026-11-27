@@ -28,6 +28,7 @@ window.JN_LANGS.ko = {
   "star.off": "빈 별",
   "art.cardback": "카드 뒷면",
   "stage.chip": "{n}단계",
+  "stage.step": "작은 걸음 {n}/{of}",
   "game.now": "지금 {n}단계",
   "stepper.less": "{label} 줄이기",
   "stepper.more": "{label} 늘리기",

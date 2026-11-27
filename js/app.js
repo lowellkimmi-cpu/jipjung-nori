@@ -323,10 +323,17 @@
     timer.reset();
     $("praise").hidden = true; $("rest").hidden = true; $("intro").hidden = true; $("eyeRest").hidden = true;
   }
-  function paintStageChip(def, idx) {
+  /* 지금 큰 단계 안의 작은 걸음 (0부터). 큰 단계가 바뀌었으면 0 */
+  function curStep(st, idx) { return st.stepAt === idx ? U.clamp(st.step || 0, 0, CFG.STEPS_PER_STAGE - 1) : 0; }
+  function paintStageChip(def, idx, step) {
     const chip = $("stageChip"); chip.textContent = T("stage.chip", { n: idx + 1 }) + " ";
     if (def.stages.length <= 10) { chip.appendChild(leaves(def.stages.length, idx)); chip.appendChild(h("span", { class: "of-n", text: "/ " + def.stages.length })); }
     else chip.appendChild(h("span", { class: "of", text: "/ " + def.stages.length }));
+    if (step != null && def.autoNext !== false) {   // 작은 걸음 점: "2단계 / 6  ●●●○○"
+      const sd = leaves(CFG.STEPS_PER_STAGE, step); sd.classList.add("stepdots");
+      sd.setAttribute("title", T("stage.step", { n: step + 1, of: CFG.STEPS_PER_STAGE }));
+      chip.appendChild(document.createTextNode(" ")); chip.appendChild(sd);
+    }
   }
   function mountRound() {
     stopRound();
@@ -340,11 +347,14 @@
     bottom.textContent = ""; $("playStatus").textContent = ""; $("msgLine").textContent = "";
     $("hintBtn").hidden = true; hintFn = null;
     timer.hidden = false; syncTimerBox();
-    paintStageChip(def, idx);
+    const step = curStep(st, idx), stepFrac = CFG.STEPS_PER_STAGE > 1 ? step / (CFG.STEPS_PER_STAGE - 1) : 0;
+    paintStageChip(def, idx, step);
+    let stage = def.stages[idx];
+    if (def.tune) { try { stage = def.tune(Object.assign({}, stage), stepFrac, step) || stage; } catch (e) { console.warn(e); } }
     $("missionIcon").innerHTML = JN.Assets.gameIcon(gid);
     $("sideOwl").innerHTML = JN.Assets.owl("기본", "기본", OWL);
     const ctx = A.ctx = {
-      _alive: true, def, stage: def.stages[idx], stageIdx: idx, stages: def.stages, settings, mem: st.mem,
+      _alive: true, def, stage, step, stepFrac, stageIdx: idx, stages: def.stages, settings, mem: st.mem,
       board, bottom, timer, test: JN.TEST,
       practice: !Object.keys((A.data.firsts && A.data.firsts[gid]) || {}).length,   // 이 놀이를 아직 한 단계도 못 깬 '첫 판'이면 손짓 도우미가 켜져요 (새 놀이 5개)
       firstInVisit: !(A.visitRounds++),   // 놀이를 연 뒤 첫 판인지 (몸놀이 안전 안내를 한 번만 보여 주려고)
@@ -407,10 +417,22 @@
     // 다음 단계
     const advance = r.advance != null ? r.advance : !!r.cleared;
     let next = idx, allDone = false;
-    let stay = false;   // 한 단계에서 ROUNDS_PER_STAGE 판을 깨야 다음 단계로 가요
-    if (advance && data.settings.autoNext && def.autoNext !== false) {
-      st.wins = st.winsAt === idx ? (st.wins || 0) + 1 : 1; st.winsAt = idx;
-      if (st.wins < CFG.ROUNDS_PER_STAGE) stay = true; else st.wins = 0;
+    let stay = false;   // 작은 걸음을 다 올라야 다음 큰 단계로 가요 (config.js STEPS_PER_STAGE)
+    if (data.settings.autoNext && def.autoNext !== false) {
+      const step = curStep(st, idx); st.stepAt = idx;
+      if (advance) {
+        st.missStreak = 0;
+        const helped = struggled && mode !== "always";                        // '늘 힌트 보기' 아이는 힌트 때문에 멈추지 않게
+        st.helpedAt = helped ? (st.helpedAt || 0) + 1 : 0;
+        if (helped && st.helpedAt < 2) { st.step = step; stay = true; }      // 힌트로 깼으면 같은 걸음에서 한 번 더 다지기 (두 번째엔 올라가요)
+        else if (helped) { st.helpedAt = 0; if (step + 1 < CFG.STEPS_PER_STAGE) { st.step = step + 1; stay = true; } else st.step = 0; }
+        else if (step + 1 < CFG.STEPS_PER_STAGE) { st.step = step + 1; stay = true; }
+        else st.step = 0;                                                     // 마지막 걸음을 깨면 다음 큰 단계로
+      } else {
+        st.missStreak = (st.missStreak || 0) + 1;
+        st.step = step;
+        if (st.missStreak >= CFG.STEP_DOWN_AFTER) { st.step = Math.max(0, step - 1); st.missStreak = 0; }   // 조용히 한 걸음 쉽게
+      }
     }
     if (advance && !stay && data.settings.autoNext && def.autoNext !== false) {   // 몸놀이처럼 autoNext:false 인 놀이는 보호자가 단계를 직접 올려요
       let n = idx + 1;

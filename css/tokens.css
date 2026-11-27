@@ -6,7 +6,7 @@
    - 외부 파일 없음. 종이결은 CSS 안의 SVG(data URI)로 만든다. 시스템 글꼴만.
    ========================================================= */
 
-:root { color-scheme: only light;   /* 폰 야간(다크) 모드에서 색이 깨지지 않게 (2026-11-28) */
+:root { color-scheme: light dark;   /* 야간 모드 대응을 직접 한다고 알림 → 삼성 인터넷·크롬이 억지로 어둡게 칠하지 않아요. 실제 색은 아래 다크 규칙에서 밝게 고정 (2026-11-28) */
   /* ---------- 종이 (바탕) ---------- */
   --c-bg:        #F5EDDC;  /* 크림 종이: 모든 화면 바탕 */
   --c-surface:   #FCF7EC;  /* 흰 도화지: 카드·판 */
@@ -280,9 +280,10 @@
   .jn-app *, .jn-app *::before, .jn-app *::after { animation-duration: .01s !important; animation-iteration-count: 1 !important; transition-duration: .01s !important; }
 }
 
-/* 폰 야간(다크) 모드: 삼성 인터넷·크롬은 사이트에 '어두운 화면용 규칙'이 없으면 색을 억지로 뒤집어서 그림이 깨져요.
-   이 앱은 밝은 종이 화면 하나만 쓰므로, 어두운 모드에서도 같은 밝은 색을 그대로 쓴다고 알려 줘요 (2026-11-28) */
+/* 폰 야간(다크) 모드: 삼성 인터넷·크롬은 사이트가 '다크 모드 대응'을 알리지 않으면 화면을 억지로 어둡게 칠해서 그림이 깨져요.
+   ("only light" 표시는 삼성 인터넷이 무시해요.) 그래서 다크 대응을 알리고, 다크일 때도 같은 밝은 종이 색을 직접 칠해요 (2026-11-28) */
+html { color: var(--c-ink); background-color: var(--c-bg); }
 @media (prefers-color-scheme: dark) {
-  :root { color-scheme: only light; }
-  html, body { forced-color-adjust: none; }
+  html, body { color: var(--c-ink); background-color: var(--c-bg); forced-color-adjust: none; }
+  input, textarea, select, button { color-scheme: light; }
 }

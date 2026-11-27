@@ -23,6 +23,8 @@
 
   JN.registerGame({
     id: "벌찾기", stages: STAGES,
+    /* 작은 걸음: 벌이 머무는 시간이 걸음마다 조금씩 짧아져요 (마지막 걸음 = 80%) */
+    tune: (lv, f) => Object.assign(lv, { beeStay: Math.round(lv.beeStay * (1 - 0.2 * f)) }),
     hintHelp: { always: T("g.bee.hh.always"), button: T("g.bee.hh.button"), none: T("g.bee.hh.none") },
     extraSettings: [
       { key: "length", type: "select", label: T("g.bee.x.length"), def: 60, options: [[30, T("common.sec", { n: 30 })], [45, T("common.sec", { n: 45 })], [60, T("g.bee.len.60")], [90, T("g.bee.len.90")]] },

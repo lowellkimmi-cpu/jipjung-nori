@@ -461,3 +461,7 @@ table.log td.nw { white-space: nowrap; }
 .unlock-input { width: 100%; box-sizing: border-box; min-height: 72px; padding: 10px 12px; font: inherit; font-size: 15px; letter-spacing: .04em;
   word-break: break-all; border: 2px solid currentColor; border-radius: 12px; background: transparent; color: inherit; resize: vertical; }
 .unlock-item { font-variant-numeric: tabular-nums; }
+
+/* 작은 걸음 점 (큰 단계 안에서 몇 걸음째인지) — 폰에서도 보이게 */
+.jn-stage .jn-dots.stepdots, .frame-top .jn-stage .jn-dots.stepdots { display: inline-flex; gap: 3px; vertical-align: middle; }
+.jn-stage .jn-dots.stepdots i { width: 7px; height: 7px; }

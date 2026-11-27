@@ -24,6 +24,8 @@
 
   JN.registerGame({
     id: "불빛순서", stages: DATA.stages,
+    /* 작은 걸음: 불빛이 걸음마다 조금씩 빨라져요 (켜짐 600→450ms, 사이 400→300ms) */
+    tune: (st, f) => Object.assign(st, { onMs: Math.round(T.onMs * (1 - 0.25 * f)), gapMs: Math.round(T.gapMs * (1 - 0.25 * f)) }),
     hintHelp: { always: TX("g.light.hh.always"), button: TX("g.light.hh.button"), none: TX("g.light.hh.none") },
     extraSettings: [{ key: "order", type: "select", label: TX("g.light.x.order"), def: "forward", options: [["forward", TX("g.light.order.forward")], ["backward", TX("g.light.x.order.backward")]] }],
     parentNote: TX("g.light.parentNote"),
@@ -81,7 +83,7 @@
         phase = "show"; input = 0; paintDots(); status();
         setEnabled(false);
         await wait(T.leadMs);
-        for (const i of seq) { if (my !== token || !alive) return; light(i, T.onMs); await wait(T.onMs + T.gapMs); }
+        for (const i of seq) { if (my !== token || !alive) return; light(i, st.onMs || T.onMs); await wait((st.onMs || T.onMs) + (st.gapMs || T.gapMs)); }
         if (my !== token || !alive) return;
         phase = "input"; setEnabled(true);
         ctx.say(order === "forward" ? TX("g.light.say.forward") : TX("g.light.say.backward"));
