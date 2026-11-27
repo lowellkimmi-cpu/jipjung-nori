@@ -223,6 +223,84 @@
   };
   function syncTimerBox() { $("timerBox").hidden = timer.hidden || !(A.data && A.data.settings.showTimer); }
 
+  /* ---------- 놀이 도중 끊김 안전 (뒤로가기·화면 끄기·다른 앱·전화·새로고침) ----------
+     놀이 중에 화면이 숨으면(visibilitychange/pagehide) 이 한 곳에서 모두 멈춰요: 시간 재기 · 놀이 안의 기다림(ctx.later) · 소리·음성.
+     그리고 '잠깐 멈췄어요' 카드(이어서 / 처음부터)를 띄워요. 놀이마다 따로 만들지 않아요.
+     - 이어서: 멈춘 자리에서 그대로 (남은 기다림 시간 · 잰 시간 · 점수 그대로)
+     - 처음부터: 이 판을 같은 단계의 새 문제로 다시 (끊긴 판은 기록·점수에 넣지 않아요) */
+  const laters = new Set(), aliasOf = new Map();
+  const nativeClear = window.clearTimeout.bind(window);
+  function dropLater(e) { laters.delete(e); e.ids.forEach((i) => aliasOf.delete(i)); }
+  /* 놀이가 clearTimeout(id) 로 취소해도, 멈췄다 다시 건 기다림까지 함께 취소돼요 */
+  window.clearTimeout = function (id) {
+    const e = aliasOf.get(id);
+    if (e) { e.dead = true; nativeClear(e.id); dropLater(e); }
+    nativeClear(id);
+  };
+  function armLater(e) {
+    e.t0 = performance.now();
+    e.id = setTimeout(() => { dropLater(e); if (!e.dead && e.ctx._alive) e.fn(); }, Math.max(0, e.left));
+    e.ids.push(e.id); aliasOf.set(e.id, e);
+  }
+  function laterFor(ctx, fn, ms) {
+    const e = { fn, left: ms, ctx, ids: [], dead: false, id: 0, t0: 0 };
+    laters.add(e); armLater(e); A.timers.push(e.ids[0]);
+    return e.ids[0];
+  }
+  A.pendingLaters = () => laters.size;
+  /* 지금 '놀고 있는 판'(준비 안내 · 놀이 중)인지 — 칭찬·쉬기·눈쉬기·시간끝 화면은 따로 달라요 */
+  function roundActive() {
+    return A.screen === "scr-play" && !!A.ctx && A.ctx._alive && !A.ctx._done &&
+      ["praise", "rest", "eyeRest", "timeUp"].every((id) => $(id).hidden);
+  }
+  function armPraise() {
+    clearTimeout(A.praiseTm);
+    const an = $("autoNext");
+    an.classList.remove("run");
+    requestAnimationFrame(() => requestAnimationFrame(() => an.classList.add("run")));
+    A.praiseTm = setTimeout(afterPraise, JN.ms(CFG.PRAISE_MS)); A.timers.push(A.praiseTm);
+  }
+  function pauseRound() {
+    JN.bgm.stop(); JN.speakStop(); JN.audioPause();
+    if (A.screen === "scr-play" && !$("praise").hidden && !$("autoNext").hidden && A.praiseTm) { clearTimeout(A.praiseTm); A.praiseTm = 0; A.praiseWait = true; }   // 칭찬 화면: 저절로 넘어가기는 돌아온 뒤에
+    if (A.paused || !roundActive()) return;
+    A.paused = true;
+    A.pauseWasTiming = timer.running; if (timer.running) timer.stop();
+    const now = performance.now();
+    laters.forEach((e) => { nativeClear(e.id); e.left = Math.max(0, e.left - (now - e.t0)); });
+    A.pauseCount = (A.pauseCount || 0) + 1;   // 시험용 숫자
+    if (A.inst && A.inst.visibility) { try { A.inst.visibility(true); } catch (e) { console.warn(e); } }
+    $("pauseOwl").innerHTML = JN.Assets.owl("쉬어요", "기본", OWL);
+    $("pauseTitle").textContent = T("pause.title");
+    $("pauseText").textContent = T("pause.text");
+    $("pauseBox").hidden = false;
+    try { $("pauseGo").focus({ preventScroll: true }); } catch (e) { /* 포커스는 없어도 돼요 */ }
+  }
+  function resumeRound() {
+    if (!A.paused) return;
+    A.paused = false; $("pauseBox").hidden = true;
+    laters.forEach((e) => armLater(e));
+    if (A.pauseWasTiming) timer.start();
+    if (A.inst && A.inst.visibility) { try { A.inst.visibility(false); } catch (e) { console.warn(e); } }
+    const s = A.ctx && A.ctx.settings;
+    if (s && s.bgm !== false) JN.bgm.start();
+    if (!$("intro").hidden && s && s.voice !== false) JN.speak($("introText").textContent.replace(/ · /g, ", "));   // 준비 안내가 끊겼으면 다시 읽어 줘요
+  }
+  function restartRound() {
+    A.paused = false; $("pauseBox").hidden = true;
+    A.restartCount = (A.restartCount || 0) + 1;   // 시험용 숫자
+    mountRound();
+  }
+  function comeBack() {   // 화면이 다시 보일 때: 멈춤 카드는 아이가 '이어서'를 누를 때까지 그대로 · 칭찬 화면은 다시 저절로 넘어가요
+    if (A.praiseWait && !$("praise").hidden && !$("autoNext").hidden) armPraise();
+    A.praiseWait = false;
+    try { sessionStorage.removeItem("jn.resume"); } catch (e) { /* 무시 */ }   // 같은 화면으로 돌아온 거라 '새로고침 뒤 이어하기' 표시는 필요 없어요
+    if (!A.paused && A.screen === "scr-play" && A.data && A.data.settings.bgm !== false && roundActive() && !JN.muted) JN.bgm.start();
+  }
+  U.tap($("pauseGo"), resumeRound);
+  U.tap($("pauseRestart"), restartRound);
+  A.pauseRound = pauseRound; A.resumeRound = resumeRound;
+
   function startGame(gid) {
     if (limitReached()) { A.gameId = gid; return showTimeUp(); }   // 보호자가 정한 하루 시간을 다 썼으면 새 놀이를 열지 않아요
     A.gameId = gid; A.run = null; A.room = JN.GAMES[gid].area; A.visitRounds = 0;
@@ -233,7 +311,10 @@
     mountRound();
   }
   function stopRound() {
-    A.timers.forEach(clearTimeout); A.timers = [];
+    A.timers.forEach((t) => clearTimeout(t)); A.timers = [];
+    laters.forEach((e) => { e.dead = true; nativeClear(e.id); dropLater(e); });
+    A.paused = false; A.praiseTm = 0; A.praiseWait = false; $("pauseBox").hidden = true;
+    try { sessionStorage.removeItem("jn.resume"); } catch (e) { /* 무시 */ }   // 놀이를 정상으로 떠났으면 '새로고침 뒤 이어하기' 표시도 지워요
     if (A.ctx) A.ctx._alive = false;
     JN.speakStop();
     if (A.inst && A.inst.destroy) { try { A.inst.destroy(); } catch (e) { console.warn(e); } }
@@ -267,14 +348,14 @@
       firstInVisit: !(A.visitRounds++),   // 놀이를 연 뒤 첫 판인지 (몸놀이 안전 안내를 한 번만 보여 주려고)
       alive() { return this._alive; },
       say(t) { if (this._alive) $("msgLine").textContent = t || ""; },
-      sound(kind) { JN.sound(settings.sound, kind); },
-      tone(f, d, v, dl) { JN.tone(settings.sound, f, d, v, dl); },
+      sound(kind) { if (!A.paused) JN.sound(settings.sound, kind); },
+      tone(f, d, v, dl) { if (!A.paused) JN.tone(settings.sound, f, d, v, dl); },
       hint(showIt, fn) {
         $("hintBtn").hidden = !showIt;
         hintFn = showIt ? () => { if (!ctx._alive) return; $("msgLine").textContent = T("play.hint.say", { name: subj(OWL) }); fn(); } : null;
       },
       status(node) { const s = $("playStatus"); s.textContent = ""; if (node) s.appendChild(node); },
-      later(fn, ms) { const t = setTimeout(() => { if (ctx._alive) fn(); }, ms); A.timers.push(t); return t; },
+      later(fn, ms) { return laterFor(ctx, fn, ms); },   // 놀이 도중 멈춤(pauseRound) 때 남은 시간이 함께 멈춰요
       saveMem() { saveData(); },
       finish(result) { if (ctx._alive && !ctx._done) { ctx._done = true; onFinish(ctx, result || {}); } },
     };
@@ -407,8 +488,7 @@
     an.hidden = false;
     $("nextRow").hidden = false;   // 기다리는 동안에도 '한 번 더 / 다른 놀이 / 쉬기'를 바로 고를 수 있어요
     an.style.setProperty("--praise-ms", JN.ms(CFG.PRAISE_MS) / 1000 + "s");
-    requestAnimationFrame(() => requestAnimationFrame(() => an.classList.add("run")));
-    A.timers.push(setTimeout(afterPraise, JN.ms(CFG.PRAISE_MS)));
+    armPraise();
   }
   /* 몸놀이 "한 번 더 할까요?" 단추: U.tap 으로 달아서, 손가락으로 '했어요'를 누른 뒤 브라우저가 늦게 보내는 click 이
      같은 자리에 나타난 이 단추(특히 '그만할래요')를 누르지 않게 해요 (0.6초 안의 click 은 무시) */
@@ -800,7 +880,9 @@
   function deviceCard() {
     return h("section", { class: "setcard jn-card" }, h("h2", null, h("i", { svg: Art.icon("설정") }), T("device.title")),
       toggleRow(T("device.lite"), T("device.lite.sub"), isLite(), (v) => { setLite(v); renderParent(); }, "set-lite"),
-      installRow());
+      installRow(),
+      h("div", { class: "jn-row", id: "onbRow" }, h("span", { class: "lbl" }, h("b", { text: T("device.onb") }), h("small", { text: T("device.onb.sub") })),
+        h("button", { class: "jn-btn", type: "button", id: "onbAgain", text: T("device.onb.btn"), onclick: () => A.openOnboarding() })));
   }
   /* 앱으로 설치: 브라우저가 설치할 수 있다고 알려 줄 때만 단추가 나와요. 설치 방법 안내 페이지 링크는 늘 있어요. */
   function installRow() {
@@ -842,6 +924,7 @@
      '가드' 기록을 하나 쌓아 두고, 뒤로가기가 오면 한 단계 돌아간 뒤 다시 쌓아요. 첫 화면(누가 놀까요)에서는 원래대로 나가요. */
   function backOneStep() {
     if (!$("soon").hidden) { $("soon").hidden = true; return true; }
+    if (!$("onboard").hidden) { $("onbSkip").hidden ? $("onbNext").click() : $("onbSkip").click(); return true; }   // 처음 안내에서 뒤로가기 = 건너뛰기
     const click = (sel) => { const el = document.querySelector(sel); if (el) { el.click(); return true; } return false; };
     switch (A.screen) {
       case "scr-play": return click('#scr-play [data-act="room"]');
@@ -865,11 +948,41 @@
   document.addEventListener("contextmenu", (e) => { if (!e.target.closest("input,textarea")) e.preventDefault(); });
   let rz = 0;
   window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (A.inst && A.inst.resize) A.inst.resize(); }, 120); });
+  /* 화면 끄기 · 다른 앱 · 전화 · 탭 바꾸기 · 홈으로 나가기: 놀이 도중이면 한꺼번에 멈추고 '이어서 / 처음부터' 카드를 보여요 */
   document.addEventListener("visibilitychange", () => {
-    if (A.inst && A.inst.visibility) A.inst.visibility(document.hidden);
-    if (document.hidden) { JN.bgm.stop(); JN.speakStop(); JN.audioPause(); }
-    else if (A.screen === "scr-play" && A.data && A.data.settings.bgm !== false) JN.bgm.start();
+    if (document.hidden) { saveResumeMark(); pauseRound(); } else comeBack();   // 숨는 순간에 표시를 남겨요: 폰이 백그라운드 탭을 몰래 꺼 버려도(pagehide 없이) 다시 켜질 때 이어하기를 물을 수 있어요
   });
+  window.addEventListener("pagehide", () => { saveResumeMark(); pauseRound(); });   // 새로고침·닫기 직전에도 (사파리는 pagehide 만 올 때가 있어요)
+  document.addEventListener("freeze", () => pauseRound());
+  window.addEventListener("pageshow", (e) => { if (e.persisted) comeBack(); });
+
+  /* 새로고침·앱이 꺼졌다 켜졌을 때: 놀던 놀이를 잊지 않고 '이어서 / 처음부터'를 물어요.
+     기록은 판이 끝날 때마다 이미 저장돼 있어서 그대로예요. 표시는 이 탭에만 잠깐(sessionStorage) 남기고, 한 번 보면 지워요. */
+  const RESUME_KEY = "jn.resume";
+  function saveResumeMark() {
+    try {
+      if (A.kid && A.gameId && A.screen === "scr-play" && A.ctx && A.ctx._alive && !A.ctx._done) sessionStorage.setItem(RESUME_KEY, JSON.stringify({ kid: A.kid.id, game: A.gameId }));
+    } catch (e) { /* 저장 못 해도 놀이는 계속 */ }
+  }
+  function takeResumeMark() {
+    try {
+      const raw = sessionStorage.getItem(RESUME_KEY); sessionStorage.removeItem(RESUME_KEY);
+      const m = raw && JSON.parse(raw);
+      if (m && typeof m.kid === "string" && typeof m.game === "string" && S.profiles().some((p) => p.id === m.kid) && JN.GAMES[m.game] &&
+          !(CFG.CLOSED_AREAS || []).includes(JN.GAMES[m.game].area)) return m;
+    } catch (e) { /* 이상한 표시는 무시 */ }
+    return null;
+  }
+  function offerResume(m) {
+    pickKid(m.kid); openRoom(JN.GAMES[m.game].area);
+    $("resumeTitle").textContent = T("resume.title");
+    $("resumeText").textContent = T("resume.text", { game: JN.GAMES[m.game].name });
+    $("resumeOwl").innerHTML = JN.Assets.owl("웃음", "기본", OWL);
+    $("resumeGo").onclick = () => { $("resumeBox").hidden = true; startGame(m.game); };
+    $("resumeNew").onclick = () => { $("resumeBox").hidden = true; renderWho(); };
+    $("resumeBox").hidden = false;
+    A.resumeOffered = (A.resumeOffered || 0) + 1;   // 시험용 숫자
+  }
 
   A.renderWho = renderWho; A.renderParent = renderParent; A.renderHome = renderHome; A.openRoom = openRoom; A.startGame = startGame;
   A.pickKid = pickKid; A.stopRound = stopRound; A.mountRound = mountRound; A.gameState = gameState; A.gameSettings = gameSettings;
@@ -898,10 +1011,46 @@
     setTimeout(() => { if (!reloading) { reloading = true; location.reload(); } }, 3000);   // 혹시 신호가 안 와도 새로고침
   };
 
+  /* ---------- 5-5. 처음 안내 (3장) ----------
+     처음 여는 기기(아이 목록이 비어 있고 아직 안 봤을 때)에서만 자동으로 떠요. 건너뛰기·끝내기를 하면 jnp.app 의 onboarded 에 true 를 남겨요.
+     이미 아이가 있는 기기는 자동으로 뜨지 않고(저장된 정보는 건드리지 않아요), 보호자 설정 → 이 기기 → '처음 안내 다시 보기'로 볼 수 있어요.
+     시험 주소(?test=1)에서는 저절로 뜨지 않아요(다른 시험이 막히지 않게). */
+  const ONB = [{ n: 1, items: ["a", "b", "c"] }, { n: 2, items: ["a", "b", "c"] }, { n: 3, items: ["a", "b", "c"] }];
+  const onb = { i: 0 };
+  function onbPaint() {
+    const page = ONB[onb.i], last = onb.i === ONB.length - 1;
+    $("onbStep").textContent = T("onb.step", { n: onb.i + 1, total: ONB.length });
+    $("onbTitle").textContent = T("onb." + page.n + ".title");
+    const ul = $("onbList"); ul.textContent = "";
+    for (const k of page.items) ul.appendChild(h("li", { text: T("onb." + page.n + "." + k, { name: subj(OWL) }) }));
+    $("onbBack").hidden = onb.i === 0;
+    $("onbNext").textContent = T(last ? "onb.start" : "onb.next");
+    $("onbSkip").hidden = last;
+    $("onbOwl").innerHTML = JN.Assets.owl("웃음", onb.i === 2 ? "가리키기" : "인사", OWL);
+    $("onbNext").focus();
+  }
+  function onbClose() {
+    $("onboard").hidden = true;
+    const ap = S.getApp(); ap.onboarded = true; S.setApp(ap);
+    if (A.screen === "scr-who") renderWho();
+  }
+  function onbOpen() { onb.i = 0; $("onboard").hidden = false; onbPaint(); }
+  $("onbNext").onclick = () => { if (onb.i >= ONB.length - 1) onbClose(); else { onb.i++; onbPaint(); } };
+  $("onbBack").onclick = () => { if (onb.i > 0) { onb.i--; onbPaint(); } };
+  $("onbSkip").onclick = onbClose;
+  A.openOnboarding = onbOpen;
+  function maybeOnboard(force) {
+    if (JN.TEST && !force) return;   // 시험 주소에서는 저절로 뜨지 않아요 (시험이 직접 maybeOnboard(true) 를 불러요)
+    if (S.getApp().onboarded || S.profiles().length) return;
+    onbOpen();
+  }
+  A.maybeOnboard = maybeOnboard;
+
   /* ---------- 시작 ---------- */
   applyLite();
   fillArt(document.body);
   renderWho();
+  { const rm = takeResumeMark(); if (rm) offerResume(rm); else maybeOnboard(); }
 
   /* 웹(http/https)으로 열었을 때만: 홈 화면 앱(manifest) + 오프라인 캐시(service worker). 더블클릭(file://)이면 조용히 건너뛰어요. */
   if (/^https?:$/.test(location.protocol)) {

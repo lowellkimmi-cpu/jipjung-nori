@@ -160,7 +160,7 @@
   function unlock() {
     try {
       if (!ac) { const AC = window.AudioContext || window.webkitAudioContext; if (AC) ac = new AC(); }
-      if (ac && ac.state === "suspended") ac.resume();
+      if (ac && ac.state !== "running" && ac.state !== "closed") ac.resume();   // 'suspended' 뿐 아니라 아이폰이 전화·화면 끄기 뒤에 남기는 'interrupted' 도 다시 깨워요
     } catch (e) { ac = null; }
   }
   ["pointerdown", "touchend", "keydown"].forEach((t) => window.addEventListener(t, unlock, { capture: true, passive: true }));
@@ -211,7 +211,7 @@
         if (on || JN.muted) return;   // 놀이 화면의 '소리 꺼짐' 을 누른 뒤에는 배경음도 시작하지 않아요
         try {
           if (!ac) return;   // 소리 장치는 아이가 화면을 누른 뒤(unlock)에만 생겨요 — 누르기 전에는 배경음도 시작하지 않아요
-          if (ac.state === "suspended") ac.resume();
+          if (ac.state !== "running" && ac.state !== "closed") ac.resume();
           if (!master) { master = ac.createGain(); master.connect(ac.destination); }
           master.gain.cancelScheduledValues(ac.currentTime);
           master.gain.setValueAtTime(0.0001, ac.currentTime);

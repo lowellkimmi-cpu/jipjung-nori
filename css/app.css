@@ -422,6 +422,16 @@ table.log td.nw { white-space: nowrap; }
 .eye-owl svg { width: 100%; height: 100%; display: block; }
 .eye-in h1 { font-size: var(--fs-title); }
 .eye-in p { color: var(--c-ink-soft); font-size: var(--fs-body); }
+/* 처음 안내 (3장) */
+.onb { z-index: 70; }
+.onb-in { max-width: 460px; gap: 10px; }
+.onb-in .eye-owl { width: 130px; height: 130px; }
+.onb-step { font-size: var(--fs-caption); }
+.onb-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; text-align: left; font-size: var(--fs-body); line-height: 1.55; }
+.onb-list li { padding-left: 1.1em; position: relative; text-wrap: pretty; }
+.onb-list li::before { content: "•"; position: absolute; left: 0; color: var(--c-ink-soft); }
+.onb-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+.onb-in [hidden] { display: none; }
 .eye-count { font-size: 22px; }
 .eye-count b { font-size: 44px; color: var(--c-ink); }
 .update-btn { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 40; min-width: 220px; }

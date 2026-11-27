@@ -161,6 +161,43 @@
   </div>
 </div>
 
+<!-- 5-3. 놀이 도중 멈췄어요 (화면을 껐다 켜거나 다른 앱에 갔다 왔을 때): 이어서 / 처음부터. 깜빡임·소리 없음 -->
+<div id="pauseBox" class="overlay full eye-scr" hidden>
+  <div class="eye-in" role="alertdialog" aria-labelledby="pauseTitle">
+    <div class="eye-owl" id="pauseOwl" aria-hidden="true"></div>
+    <h1 id="pauseTitle" data-t="pause.title"></h1>
+    <p id="pauseText" data-t="pause.text"></p>
+    <button class="jn-btn jn-btn--primary jn-btn--big" type="button" id="pauseGo" data-t="pause.go"></button>
+    <button class="jn-btn jn-btn--quiet" type="button" id="pauseRestart" data-t="pause.restart"></button>
+  </div>
+</div>
+
+<!-- 5-4. 새로고침·앱이 다시 켜진 뒤: 아까 놀던 놀이를 이어서 놀까요? -->
+<div id="resumeBox" class="overlay full eye-scr" hidden>
+  <div class="eye-in" role="alertdialog" aria-labelledby="resumeTitle">
+    <div class="eye-owl" id="resumeOwl" aria-hidden="true"></div>
+    <h1 id="resumeTitle" data-t="resume.title"></h1>
+    <p id="resumeText"></p>
+    <button class="jn-btn jn-btn--primary jn-btn--big" type="button" id="resumeGo" data-t="pause.go"></button>
+    <button class="jn-btn jn-btn--quiet" type="button" id="resumeNew" data-t="pause.restart"></button>
+  </div>
+</div>
+
+<!-- 5-5. 처음 안내 (3장, 건너뛰기 가능, 한 번 보면 다시 안 떠요. 글자는 lang/ko.js 의 onb.*) -->
+<div id="onboard" class="overlay full eye-scr onb" hidden>
+  <div class="eye-in onb-in" role="dialog" aria-labelledby="onbTitle">
+    <div class="eye-owl" id="onbOwl" aria-hidden="true"></div>
+    <p class="onb-step jn-num" id="onbStep"></p>
+    <h1 id="onbTitle"></h1>
+    <ul class="onb-list" id="onbList"></ul>
+    <div class="onb-btns">
+      <button class="jn-btn jn-btn--quiet" type="button" id="onbBack" data-t="onb.back"></button>
+      <button class="jn-btn jn-btn--primary jn-btn--big" type="button" id="onbNext"></button>
+    </div>
+    <button class="jn-btn jn-btn--quiet" type="button" id="onbSkip" data-t="onb.skip"></button>
+  </div>
+</div>
+
 <!-- 새 버전 알림: 새 파일이 준비됐을 때만 보여요 (놀이 중에는 숨김) -->
 <button class="jn-btn jn-btn--primary update-btn" type="button" id="updateBtn" data-t="update.btn" hidden></button>
 
