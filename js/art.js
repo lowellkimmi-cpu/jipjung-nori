@@ -274,13 +274,13 @@
      2. 영역 7개 · 놀이 13개 · UI 아이콘
      ========================================================= */
   const AREAS = [
-    { id: 'attention', name: '주의집중', power: '끝까지 찾기 · 기다렸다 톡 누르기 놀이', color: '#DCA43C', tint: '#F6E6BF', deep: '#74540F', games: ['숫자찾기', '벌찾기', '달라진그림', '달롱건너기'] },
-    { id: 'memory', name: '기억력', power: '보고 기억하기 · 순서 기억', color: '#B08EA8', tint: '#EEE0EA', deep: '#654662', games: ['짝꿍카드', '불빛순서', '잎아래'] },
-    { id: 'seeing', name: '보는 힘', power: '꼼꼼히 비교 · 모양 구별', color: '#8AA6BD', tint: '#E0E9EF', deep: '#3C5D76', games: ['다른그림', '같은모양'] },
-    { id: 'thinking', name: '생각·추리', power: '규칙 찾기 · 순서 · 분류', color: '#93AE87', tint: '#E2EBDB', deep: '#466140', games: ['패턴', '퍼즐', '우체통'] },
-    { id: 'hands', name: '손·미술', power: '손 조절 · 공간 · 표현', color: '#CC7754', tint: '#F5DFD1', deep: '#8A4127', games: ['반쪽그림', '선긋기미로'] },
-    { id: 'words', name: '말·언어', power: '낱말 · 듣고 이해하기', color: '#D9A08F', tint: '#F6E3DC', deep: '#874A41', games: ['낱말그림', '문장만들기', '감정표정', '심부름', '이럴땐'] },
-    { id: 'body', name: '몸·감각', power: '몸 움직이기 · 균형 · 숨 고르기', color: '#A2AD58', tint: '#ECEDD0', deep: '#555D20', games: ['몸따라해요', '같이몸놀이'] },
+    { id: 'attention', name: '찾기 놀이', power: '끝까지 찾기 · 기다렸다 톡 누르기', color: '#DCA43C', tint: '#F6E6BF', deep: '#74540F', games: ['숫자찾기', '벌찾기', '달라진그림', '달롱건너기'] },
+    { id: 'memory', name: '기억 놀이',power: '보고 기억하기 · 순서 기억', color: '#B08EA8', tint: '#EEE0EA', deep: '#654662', games: ['짝꿍카드', '불빛순서', '잎아래'] },
+    { id: 'seeing', name: '비교 놀이', power: '그림 비교하기 · 모양 찾기', color: '#8AA6BD', tint: '#E0E9EF', deep: '#3C5D76', games: ['다른그림', '같은모양'] },
+    { id: 'thinking', name: '규칙 놀이',power: '규칙 찾기 · 순서 · 분류', color: '#93AE87', tint: '#E2EBDB', deep: '#466140', games: ['패턴', '퍼즐', '우체통'] },
+    { id: 'hands', name: '그리기 놀이', power: '그림 그리기 · 선 따라가기', color: '#CC7754', tint: '#F5DFD1', deep: '#8A4127', games: ['반쪽그림', '선긋기미로'] },
+    { id: 'words', name: '말 놀이', power: '낱말 · 듣고 따라 하기', color: '#D9A08F', tint: '#F6E3DC', deep: '#874A41', games: ['낱말그림', '문장만들기', '감정표정', '심부름', '이럴땐'] },
+    { id: 'body', name: '몸 놀이', power: '몸 움직이기 · 따라 하기 · 숨 고르기', color: '#A2AD58', tint: '#ECEDD0', deep: '#555D20', games: ['몸따라해요', '같이몸놀이'] },
   ];
   const CREAM_W = '#FCF4E2';
   const AREA_ICON = {

@@ -30,6 +30,7 @@
   function render() {
     A.kidTabs($("recTabs"), R.kid, (id) => { R.kid = id; R.stage = null; R.mode = null; R.msg = ""; render(); }, false);
     const body = $("recBody"); body.textContent = "";
+    body.appendChild(h("p", { class: "care", id: "recLocal", text: TXT("rec.local") }));   // 기록이 이 기기 안에만 있다는 안내를 맨 위에
     const kid = S.profiles().find((p) => p.id === R.kid);
     if (kid) renderKid(body, kid);
     else body.appendChild(h("p", { class: "care", text: TXT("rec.nokid") }));

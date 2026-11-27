@@ -678,6 +678,7 @@
         h("div", null, T("today.played"), h("b", { id: "todayRounds", text: T("today.rounds", { n: t.rounds }) })),
         h("div", null, T("today.time"), h("b", { id: "todayTime", text: t.seconds ? U.fmtTime(t.seconds) : T("today.zero") }))),
       h("p", { class: "care", id: "todayGames", text: names || T("today.none") }),
+      h("p", { class: "care", id: "todayLocal", text: T("rec.local") }),
       selectRow(T("today.limit"), T("today.limit.sub"), CFG.DAILY_LIMITS.map((m) => [m, m ? T("today.limit.min", { n: m }) : T("today.limit.off")]), s.dailyLimit,
         (v) => { s.dailyLimit = Number(v); save(); }, "set-daylimit"),
       toggleRow(T("today.eye"), T("today.eye.sub", { rounds: CFG.EYE_REST_ROUNDS, minutes: CFG.EYE_REST_MINUTES, name: OWL, sec: CFG.EYE_REST_SECONDS }),
@@ -691,7 +692,7 @@
       h("summary", null, h("span", { class: "gi", style: "background:" + area.tint, svg: JN.Assets.gameIcon(gid) }), h("span", { text: def.name }),
         h("small", null, T("game.now", { n: cur + 1 }), h("br"), startTxt)));
     const inner = h("div", { class: "inner" });
-    inner.appendChild(h("p", { class: "care", text: T("gset.power", { area: area.name, power: area.power }) + (def.parentNote ? ". " + def.parentNote : "") }));
+    inner.appendChild(h("p", { class: "care", text: T("gset.power", { power: area.power }) + (def.parentNote ? ". " + def.parentNote : "") }));
     if (def.parentSafety) inner.appendChild(h("p", { class: "care safety-note" }, h("b", { text: def.parentSafety })));
     const opts = [["auto", T("gset.opt.rec", { n: rec + 1 })]].concat(def.stages.map((st, i) =>
       [i, T("gset.opt.stage", { n: i + 1, name: def.stageLabel ? def.stageLabel(st) : st.name }) + (def.isStageOpen(i) ? "" : T("gset.opt.locked")), !def.isStageOpen(i)]));
