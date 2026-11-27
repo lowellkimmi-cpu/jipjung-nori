@@ -541,14 +541,17 @@
 .dg-flag.big { transform: scale(1.35); }
 .dg-flag svg { width: 100%; height: 100%; display: block; overflow: hidden; }
 .dg-flag .pole { stroke: var(--c-pencil); stroke-width: 3.2; stroke-linecap: round; fill: none; }
+.dg-flag .knob { fill: #E8B04B; stroke: var(--c-pencil); stroke-width: 2; }
 .dg-flag .cloth-g { transition: transform .4s ease-out; }
 .dg-flag[data-s="down"] .cloth-g { transform: translateY(84px); }
 .dg-flag[data-s="half"] .cloth-g { transform: translateY(26px); }
 .dg-flag[data-s="up"] .cloth-g { transform: translateY(0); }
 .dg-flag .cloth { stroke: var(--c-pencil); stroke-width: 2.6; stroke-linejoin: round; }
 .dg-flag[data-k="foot"] .cloth { fill: var(--c-sage); }
-.dg-flag[data-k="palm"] .cloth { fill: var(--c-terracotta-tint); }
-.dg-flag .mark { fill: var(--c-pencil); stroke: none; }
+.dg-flag[data-k="palm"] .cloth { fill: var(--c-terracotta); }
+.dg-flag .mk-ol * { fill: var(--c-pencil); stroke: var(--c-pencil); stroke-width: 3.4; stroke-linejoin: round; }
+.dg-flag .k-palm .mk-ol * { stroke-width: 8.5; }
+.dg-flag .mk-in * { fill: #FFF8EC; stroke: none; }
 .dg-flag[data-k="foot"] .k-palm, .dg-flag[data-k="palm"] .k-foot { display: none; }
 .dg-sign { position: absolute; left: 3%; top: 4%; width: calc(var(--rb) * .6); height: calc(var(--rb) * .6); pointer-events: none; }
 .dg-sign[hidden] { display: none; }

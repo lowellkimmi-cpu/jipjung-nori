@@ -19,11 +19,20 @@
   ];
   const CHECK_EVERY = 3;   // 3칸마다 쉼 돌
 
-  /* 깃발 한 장 (발자국 / 손바닥을 둘 다 그려 두고 data-k 로 하나만 보여요 — 색과 모양이 둘 다 달라요) */
-  const FLAG_SVG = '<svg viewBox="0 0 70 90" aria-hidden="true"><path class="pole" d="M14 88 V6"/><g class="cloth-g"><path class="cloth" d="M16 8 L64 10 Q67 28 64 54 L16 56 Z"/>' +
-    '<g class="k-foot"><ellipse class="mark" cx="33" cy="36" rx="6.5" ry="10"/><circle class="mark" cx="27" cy="22" r="2.6"/><circle class="mark" cx="33" cy="20" r="2.6"/><circle class="mark" cx="39" cy="22" r="2.6"/>' +
-    '<ellipse class="mark" cx="49" cy="40" rx="5.5" ry="8.5"/><circle class="mark" cx="44" cy="27" r="2.2"/><circle class="mark" cx="49" cy="25" r="2.2"/><circle class="mark" cx="54" cy="27" r="2.2"/></g>' +
-    '<g class="k-palm"><circle class="mark" cx="40" cy="40" r="9.5"/><rect class="mark" x="29.5" y="19" width="5.4" height="17" rx="2.7"/><rect class="mark" x="36" y="16" width="5.4" height="19" rx="2.7"/><rect class="mark" x="42.5" y="18" width="5.4" height="18" rx="2.7"/><rect class="mark" x="49" y="22" width="5.2" height="15" rx="2.6"/></g></g></svg>';
+  /* 깃발 한 장 (발자국 / 손바닥을 둘 다 그려 두고 data-k 로 하나만 보여요 — 색과 모양이 둘 다 달라요)
+     (2026-11-27 로웰님 '깃발 그림 이상해' → 손바닥을 엄지 있는 진짜 손 모양으로, 발자국도 다시 그림. 같은 모양을 두 번 겹쳐(굵은 선 + 크림색 속) 테두리를 그려요) */
+  const FLAG_SVG = '<svg viewBox="0 0 70 90" aria-hidden="true"><path class="pole" d="M14 88 V6"/><circle class="knob" cx="14" cy="6" r="3.2"/><g class="cloth-g"><path class="cloth" d="M16 9' +
+    ' C26 4 34 12 42 8 S58 5 64 9 L64 53 C56 49 50 57 42 53 S26 50 16 55 Z"/><g class="k-foot"><g class="mk-ol"><ellipse cx="30" cy="41" rx="6.2" ry="9.4"/><circle cx="36.0" c' +
+    'y="25.8" r="2.5"/><circle cx="31.6" cy="23.0" r="2.3"/><circle cx="27.1" cy="23.4" r="2.1"/><circle cx="23.4" cy="26.6" r="1.9"/><ellipse cx="50" cy="32" rx="6.2" ry="9.4' +
+    '"/><circle cx="44.0" cy="16.8" r="2.5"/><circle cx="48.4" cy="14.0" r="2.3"/><circle cx="52.9" cy="14.4" r="2.1"/><circle cx="56.6" cy="17.6" r="1.9"/></g><g class="mk-in' +
+    '"><ellipse cx="30" cy="41" rx="6.2" ry="9.4"/><circle cx="36.0" cy="25.8" r="2.5"/><circle cx="31.6" cy="23.0" r="2.3"/><circle cx="27.1" cy="23.4" r="2.1"/><circle cx="2' +
+    '3.4" cy="26.6" r="1.9"/><ellipse cx="50" cy="32" rx="6.2" ry="9.4"/><circle cx="44.0" cy="16.8" r="2.5"/><circle cx="48.4" cy="14.0" r="2.3"/><circle cx="52.9" cy="14.4" ' +
+    'r="2.1"/><circle cx="56.6" cy="17.6" r="1.9"/></g></g><g transform="translate(20 11) scale(.4)"><g class="k-palm"><g class="mk-ol"><rect x="30" y="14" width="11" height="' +
+    '46" rx="5.5"/><rect x="43" y="8" width="11.5" height="52" rx="5.75"/><rect x="56" y="12" width="11" height="48" rx="5.5"/><rect x="68" y="25" width="10" height="38" rx="5' +
+    '.0"/><rect x="29" y="44" width="49" height="46" rx="17"/><rect x="19" y="46" width="12.5" height="42" rx="6.25" transform="rotate(-34 25 67)"/></g><g class="mk-in"><rect ' +
+    'x="30" y="14" width="11" height="46" rx="5.5"/><rect x="43" y="8" width="11.5" height="52" rx="5.75"/><rect x="56" y="12" width="11" height="48" rx="5.5"/><rect x="68" y=' +
+    '"25" width="10" height="38" rx="5.0"/><rect x="29" y="44" width="49" height="46" rx="17"/><rect x="19" y="46" width="12.5" height="42" rx="6.25" transform="rotate(-34 25 ' +
+    '67)"/></g></g></g></g></svg>';
   const SUN_SVG = '<svg viewBox="0 0 60 60" aria-hidden="true"><circle class="sun" cx="30" cy="30" r="12"/><path class="ray" d="M30 6 V13 M30 47 V54 M6 30 H13 M47 30 H54 M13 13 L18 18 M42 42 L47 47 M47 13 L42 18 M18 42 L13 47"/></svg>';
   const MOON_SVG = '<svg viewBox="0 0 60 60" aria-hidden="true"><path class="moon" d="M38 8 C22 10 12 24 16 40 C20 54 38 58 50 48 C36 48 28 34 34 20 C35 15 36 11 38 8 Z"/><path class="star" d="M48 14 l1.6 3.6 3.6 1.6 -3.6 1.6 -1.6 3.6 -1.6 -3.6 -3.6 -1.6 3.6 -1.6Z"/></svg>';
 

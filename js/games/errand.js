@@ -230,10 +230,14 @@
       function nextErrand() {
         if (done) return;
         const bank = BANK[lv.id];
-        let i = U.rnd(bank.length), guard = 0;
-        while (usedIdx.includes(i) && guard++ < 30) i = U.rnd(bank.length);
+        /* (2026-11-27 로웰님: "전에 했던 게 그대로 있어서 할 수가 없음") 집에 이미 꾸며 둔 물건과 같은 물건·같은 자리를 또 시키면
+           아이 눈에는 '벌써 놓여 있는' 심부름이라 헷갈려요 → 이미 놓인 '물건|자리'와 겹치지 않는 심부름을 골라요 */
+        const decorated = new Set(house.map((s) => { const p = s.split("|"); return p[0] + "|" + p[3]; }));
+        const clash = (ee) => ee.steps.some((s) => decorated.has(s.id + "|" + s.place));
+        let i = U.rnd(bank.length), e = make(lv.id, bank[i]), guard = 0;
+        while ((usedIdx.includes(i) || clash(e)) && guard++ < 60) { i = U.rnd(bank.length); e = make(lv.id, bank[i]); }
+        if (clash(e)) clearPuts();   // 그래도 겹치면(고를 심부름이 다 겹침) 장면의 옛 물건만 잠깐 치워 헷갈리지 않게 (저장된 집 꾸미기는 그대로)
         usedIdx.push(i);
-        const e = make(lv.id, bank[i]);
         order = e.steps.map((s) => ({ key: keyOf(s.id, s.size, s.color), id: s.id, place: s.place, left: s.n, n: s.n }));
         stepIdx = 0; errandText = e.text; pending = [];
         selected = null; scene.dataset.drag = "";
