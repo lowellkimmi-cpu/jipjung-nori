@@ -1067,6 +1067,16 @@ window.JN_LANGS.ko = {
   "g.sound.describe": "찾은 소리 {n}개 · 한 번에 찾은 판 {c}번",
   "g.sound.title": "소리 {n}개를 찾았어요!",
   "g.sound.line": "소리를 끝까지 잘 들었어요.",
+  "g.sound.album": "소리 카드첩 {n} / {max}",
+  "g.sound.album.line": "소리 카드첩에 카드가 {n}장 꽂혀 있어요.",
+  "g.sound.album.full": "소리 카드 {n}장이 모두 모였어요! 카드첩이 가득 찼어요.",
+  "g.sound.album.again": "소리 카드첩은 이미 가득해요. 소리를 또 찾았어요.",
+  "g.sound.reset.label": "소리 카드첩 비우기",
+  "g.sound.reset.sub": "카드첩 속 소리 카드만 처음으로 돌려요. 놀이 기록은 그대로 남아요.",
+  "g.sound.reset.btn": "카드첩 비우기",
+  "g.sound.reset.confirm": "소리 카드첩을 비울까요? 모은 카드가 모두 사라져요. 놀이 기록은 지워지지 않아요.",
+  "g.sound.reset.done": "카드첩을 비웠어요. 지금 카드 0장이에요.",
+  "g.sound.reset.now": "지금 카드첩: {n} / {max}",
 
   /* ===== 보미 우체통 (생각·추리 방) ===== */
   "game.우체통.name": "보미 우체통",

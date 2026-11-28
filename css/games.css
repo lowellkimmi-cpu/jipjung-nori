@@ -1002,4 +1002,26 @@
 .sd2-card.nope { opacity: .4; transform: translateY(4px); }
 .sd2-card.got::after { content: ""; position: absolute; inset: 3px; border: 3px solid var(--c-olive-deep); border-radius: 50%; pointer-events: none; opacity: .8; }
 .sd2-card[data-n]::after { content: attr(data-n); display: grid; place-items: center; inset: auto 4px 4px auto; width: 30px; height: 30px; border: 0; background: var(--c-olive-deep); color: #fff; font-weight: var(--fw-bold); font-size: 17px; opacity: 1; }
-@media (prefers-reduced-motion: reduce) { .sd2-card { transition: none; } .sd2-again.ring .sd2-spk { animation: none; } }
+/* 소리 카드첩 (아래 줄 상태 칸 + 새 카드가 꽂힐 때 잠깐 보이는 카드, 2026-11-28) */
+.sd2-status { display: inline-flex; align-items: center; gap: 10px; }
+.sd2-album { display: inline-flex; align-items: center; gap: 4px; font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
+.sd2-album .al-i { width: 28px; height: 28px; display: inline-block; transition: transform .5s ease-out; }
+.sd2-album .al-i.pop { transform: scale(1.18); }
+.sd2-album .al-i svg { width: 100%; height: 100%; display: block; }
+.sd2-album .al-b { fill: var(--c-sage-tint); stroke: var(--c-pencil); stroke-width: 2.4; stroke-linejoin: round; }
+.sd2-album .al-c { fill: var(--c-mustard-tint); stroke: var(--c-pencil); stroke-width: 2; }
+.sd2-album .al-c2 { fill: var(--c-terracotta-tint); stroke: var(--c-pencil); stroke-width: 2; }
+.sd2-album .al-l { fill: none; stroke: var(--c-pencil); stroke-width: 2.4; stroke-linecap: round; }
+.sd2-board { position: relative; }
+.sd2-pop { position: absolute; right: 3%; top: 3%; width: clamp(64px, 18vmin, 104px); pointer-events: none; opacity: 0; transform: scale(.6); transition: opacity .3s ease-out, transform .3s ease-out; z-index: 4; }
+.sd2-pop.on { opacity: 1; transform: scale(1); }
+.sd2-cc { position: relative; display: flex; flex-direction: column; align-items: center; aspect-ratio: 100 / 130; padding: 8% 8% 6%; border-radius: 10px; background: var(--c-surface);
+  box-shadow: inset 0 0 0 4px var(--cc, var(--c-sage)), 0 2px 0 var(--c-pencil); color: var(--c-ink); }
+.sd2-cc.f-sage { --cc: var(--c-sage); } .sd2-cc.f-dustyblue { --cc: var(--c-dustyblue); } .sd2-cc.f-terracotta { --cc: var(--c-terracotta); }
+.sd2-cc.shiny { background: var(--c-mustard-tint); }
+.sd2-cc .cc-pic { display: block; width: 100%; aspect-ratio: 1; }
+.sd2-cc .cc-pic svg { width: 100%; height: 100%; display: block; }
+.sd2-cc .cc-w { font-weight: var(--fw-bold); font-size: clamp(11px, 3vmin, 16px); line-height: 1.2; white-space: nowrap; }
+.sd2-cc .cc-n { position: absolute; left: 4px; top: 4px; min-width: 20px; height: 20px; border-radius: 10px; display: grid; place-items: center; font-size: 12px; background: var(--c-ink); color: var(--c-surface); }
+.sd2-cc .cc-star { position: absolute; right: 5px; top: 2px; font-style: normal; font-size: 16px; color: var(--c-mustard-deep); }
+@media (prefers-reduced-motion: reduce) { .sd2-card { transition: none; } .sd2-again.ring .sd2-spk { animation: none; } .sd2-pop, .sd2-album .al-i { transition: none; } }
