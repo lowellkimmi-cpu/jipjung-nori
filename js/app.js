@@ -135,7 +135,7 @@
   }
   function pickToday(rounds, ids, seed) {
     if (!ids.length) return null;
-    const recent = rounds.slice(-20), cnt = {}, last = {};
+    const recent = rounds.slice(-Math.max(20, ids.length)), cnt = {}, last = {};   // 놀이가 20개를 넘어도 한 바퀴를 다 보도록 (골고루)
     recent.forEach((e, i) => { cnt[e.game] = (cnt[e.game] || 0) + 1; last[e.game] = i; });
     const lastGame = recent.length ? recent[recent.length - 1].game : null;
     let pool = ids.filter((g) => g !== lastGame);
