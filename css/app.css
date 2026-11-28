@@ -310,6 +310,7 @@ h1, h2, h3, p { margin: 0; }
 .jn-row .lbl { min-width: 0; }
 .jn-row .lbl b { display: block; font-size: 18px; }
 .jn-row .lbl small, .jn-row small { display: block; font-size: 15px; color: var(--c-ink-soft); line-height: 1.35; margin-top: 2px; font-weight: var(--fw-regular); }
+.jn-row .voice-test { white-space: nowrap; flex: none; align-self: flex-start; }   /* (2026-11-29) 보호자 설정 '들어 보기' 단추가 좁은 폰에서 세로로 꺾이지 않게 */
 .jn-row.col { flex-direction: column; align-items: stretch; }
 .jn-row select { font: inherit; font-size: 16px; min-height: 56px; border-radius: var(--r-s); border: 2px solid var(--c-line); background: var(--c-surface); color: var(--c-ink); padding: 0 8px; max-width: 56vw; }
 .tg { display: flex; align-items: center; gap: 8px; flex: none; }

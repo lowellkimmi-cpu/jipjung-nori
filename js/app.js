@@ -765,6 +765,25 @@
     s.addEventListener("change", () => onChange(s.value));
     return h("div", { class: "jn-row" }, h("span", { class: "lbl" }, h("b", { text: label }), sub ? h("small", { text: sub }) : null), s);
   }
+  /* (2026-11-29) 실제 폰 음성 확인 도우미: 지금 이 기기에서 쓰는 음성 종류(JN.voiceKind)를 한 줄로 보여 주고,
+     '들어 보기' 를 누르면 정해진 문장 하나만 읽어요(아이 정보·이름은 읽지 않음). 음성 목록이 늦게 오는 기기는 오면 글을 바꿔요. */
+  function voiceCheckRow() {
+    const kind = () => (JN.voiceKind ? JN.voiceKind() : "none");
+    const lbl = h("small", { id: "voiceKind" });
+    const msg = h("small", { class: "voice-msg", id: "voiceMsg", role: "status", "aria-live": "polite" });
+    const paint = () => { const k = kind(); lbl.textContent = T("parent.voicecheck." + k); lbl.setAttribute("data-kind", k); };
+    paint();
+    const btn = h("button", { class: "jn-btn voice-test", type: "button", id: "voiceTest", onclick: () => {
+      paint();
+      const k = kind();
+      let ok = false;
+      if (k !== "none") { const m = JN.muted; JN.muted = false; ok = JN.speak(T("parent.voicecheck.sample")); JN.muted = m; }
+      msg.textContent = ok ? T("parent.voicecheck.played") : T("parent.voicecheck.cant");
+    } }, h("i", { svg: Art.icon("소리켬") }), T("parent.voicecheck.btn"));
+    const row = h("div", { class: "jn-row col voice-row" }, h("span", { class: "lbl" }, h("b", { text: T("parent.voicecheck") }), lbl, h("small", { text: T("parent.voicecheck.sub") }), msg), btn);
+    if (JN.onVoices) { const off = JN.onVoices(() => { if (!row.isConnected) { off(); return; } paint(); }); }
+    return row;
+  }
   A.ui = { toggleRow, stepperRow, selectRow };
 
   function renderParent() {
@@ -796,6 +815,7 @@
       toggleRow(T("parent.sound"), T("parent.sound.sub"), s.sound, (v) => { s.sound = v; save(); }, "set-sound"),
       toggleRow(T("parent.bgm"), T("parent.bgm.sub"), s.bgm !== false, (v) => { s.bgm = v; save(); }, "set-bgm"),
       toggleRow(T("parent.voice"), T("parent.voice.sub"), s.voice !== false, (v) => { s.voice = v; save(); }, "set-voice"),
+      voiceCheckRow(),
       toggleRow(T("parent.timer"), null, s.showTimer, (v) => { s.showTimer = v; save(); }, "set-timer"),
       toggleRow(T("parent.autonext"), null, s.autoNext, (v) => { s.autoNext = v; save(); }, "set-autonext"),
       toggleRow(T("parent.suggest"), T("parent.suggest.sub", { n: CFG.HINT_STREAK_SUGGEST }), s.suggestEasier, (v) => { s.suggestEasier = v; save(); }, "set-suggest"),
