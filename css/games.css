@@ -1065,3 +1065,16 @@
 .pt-donenecklace svg { width: 100%; height: auto; display: block; }
 @media (prefers-reduced-motion: reduce) { .pt-neck .nk-i { transition: none; } }
 .pt-done h2 { word-break: keep-all; }
+
+/* 같은 모양 — 조각 이불 (2026-11-29) */
+.ss-status { display: inline-flex; align-items: center; gap: 10px; }
+.ss-quilt { display: inline-flex; align-items: center; gap: 4px; font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
+.ss-quilt .qt-i { width: 28px; height: 28px; display: inline-block; transition: transform .5s ease-out; }
+.ss-quilt .qt-i.pop { transform: scale(1.18); }
+.ss-quilt .qt-i svg { width: 100%; height: 100%; display: block; }
+.ss-quilt .qt-o { fill: var(--c-mustard-tint); stroke: var(--c-pencil); stroke-width: 2.4; }
+.ss-quilt .qt-l { fill: none; stroke: var(--c-pencil); stroke-width: 1.8; stroke-dasharray: 3 3; }
+.ss-donequilt { width: 100%; max-width: 360px; }
+.ss-donequilt svg { width: 100%; height: auto; display: block; }
+@media (prefers-reduced-motion: reduce) { .ss-quilt .qt-i { transition: none; } }
+.ss-done h2 { word-break: keep-all; }

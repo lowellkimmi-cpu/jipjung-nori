@@ -1,4 +1,8 @@
-/* 같은 모양 (옛 '똑같은 모양 찾기') — 보기와 똑같은 모양 찾기. 오답은 보기와 딱 한 가지만 달라요 */
+/* 같은 모양 (옛 '똑같은 모양 찾기') — 보기와 똑같은 모양 찾기. 오답은 보기와 딱 한 가지만 달라요
+   - 조각 이불(수집, 보충 기획 3-2, 2026-11-29): 한 판(10문제)을 끝낼 때마다 이불 조각이 정해진 순서대로 하나씩 붙어요(무작위 아님, 12조각 = 4×3).
+     몇 개를 찾았든 한 판을 끝까지 하면 조각 1개(벌 없음). 12조각이 다 차면 '완성 카드'로 끝이고 저절로 새로 시작하지 않아요.
+     새로 시작은 보호자 설정의 '이불 비우기'에서만 해요. 아이별로 이 기기 안에만 저장돼요 (바깥으로 보내지 않아요). 점수·순위 없음.
+   - 첫 판 손짓 도우미(2026-11-29): 이 놀이를 처음 하는 아이에게만, 두 번 다른 후보를 고르거나 한참 가만있으면 손 그림이 똑같은 모양을 가리켜요. */
 "use strict";
 (function () {
   const U = JN.util, h = U.h, rnd = U.rnd, pick = U.pick, shuffle = U.shuffle, T = JN.t;   // T: 화면 글자는 lang/ko.js 에서
@@ -17,6 +21,27 @@
     dots: [[-10, -5], [10, -5], [0, -16], [0, 2]], lineYs: [10, 16, 22], tab: [[4, -10], [40, -38], [14, -2]],
     questionsPerGame: 10, passScore: 8, timing: { okMs: 1100, showAnswerMs: 2200 },
   };
+  /* 조각 이불 12조각 (정해진 순서): 무늬 4가지 × 바탕색 3가지 + 번호. 색만으로 구별하지 않게 무늬와 번호가 함께 바뀌어요.
+     다른 놀이의 모음(구슬·우표·꽃·조약돌…)과 겹치지 않게 '바느질한 네모 천 조각' 모양이에요 */
+  const PATCH_MAX = 12;
+  const PATCH_MOTIFS = [
+    (m) => `<circle cx="30" cy="30" r="13" fill="${m}" stroke="${INK}" stroke-width="2"/>`,
+    (m) => `<path d="M30 15 L45 42 15 42Z" fill="${m}" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>`,
+    (m) => `<path d="M10 22 H50 M10 30 H50 M10 38 H50" stroke="${m}" stroke-width="4.5" stroke-linecap="round"/>`,
+    (m) => `<rect x="15" y="15" width="12" height="12" fill="${m}"/><rect x="33" y="33" width="12" height="12" fill="${m}"/><rect x="33" y="15" width="12" height="12" fill="none" stroke="${m}" stroke-width="2.5"/><rect x="15" y="33" width="12" height="12" fill="none" stroke="${m}" stroke-width="2.5"/>`];
+  const PATCH_BG = [K.honey, K.sky, K.sprout], PATCH_MO = [K.white, K.cream, K.white];
+  const patchBody = (i) => { const c = Math.floor(i / 4) % 3;
+    return `<rect x="3" y="3" width="54" height="54" rx="6" fill="${PATCH_BG[c]}" stroke="${INK}" stroke-width="2.4"/>` +
+      `<rect x="8" y="8" width="44" height="44" rx="3" fill="none" stroke="${INK}" stroke-width="1.4" stroke-dasharray="3 3" opacity=".55"/>` +
+      PATCH_MOTIFS[i % 4](PATCH_MO[c]) + `<text x="49" y="54" text-anchor="middle" font-size="12" font-weight="700" fill="${INK}">${i + 1}</text>`; };
+  const patchSvg = (i) => `<svg viewBox="0 0 60 60" aria-hidden="true">${patchBody(i)}</svg>`;
+  /* 완성 카드의 이불: 4칸 × 3줄, 정해진 순서대로 */
+  function quiltSvg() {
+    let b = `<rect x="4" y="4" width="252" height="192" rx="12" fill="${K.paper}" stroke="${INK}" stroke-width="2.4"/>`;
+    for (let i = 0; i < PATCH_MAX; i++) b += `<g transform="translate(${10 + (i % 4) * 60} ${10 + Math.floor(i / 4) * 60})">${patchBody(i)}</g>`;
+    return `<svg viewBox="0 0 260 200" aria-hidden="true">${b}</svg>`;
+  }
+  const QUILT_ICON = '<svg viewBox="0 0 60 60" aria-hidden="true"><rect class="qt-o" x="6" y="6" width="48" height="48" rx="6"/><path class="qt-l" d="M30 8 V52 M8 30 H52"/></svg>';
   function regular(n, r, d0) { const out = []; for (let i = 0; i < n; i++) { const a = (d0 + i * 360 / n) * Math.PI / 180; out.push([r * Math.cos(a), r * Math.sin(a)]); } return out; }
   const BODY = { square: [[-28, -28], [28, -28], [28, 28], [-28, 28]], triangle: [[0, -36], [34, 28], [-34, 28]], diamond: [[0, -36], [34, 0], [0, 36], [-34, 0]], pentagon: regular(5, 34, -90), hexagon: regular(6, 32, 0) };
   function xf(d, [x, y]) { if (d.mirror) x = -x; for (let k = 0; k < d.rot; k++) [x, y] = [-y, x]; return [x, y]; }
@@ -81,18 +106,30 @@
     id: "같은모양", stages: DATA.stages,
     hintHelp: { always: T("g.shape.hh.always"), button: T("g.shape.hh.button"), none: T("g.shape.hh.none") },
     parentNote: T("g.shape.parentNote"),
+    /* 보호자 설정의 '이불 비우기': 지우는 것은 이 아이의 이불 조각 수(mem.patches)뿐이에요. 놀이 기록은 그대로 */
+    memReset: { key: "patches", max: PATCH_MAX, label: T("g.shape.reset.label"), sub: T("g.shape.reset.sub"), button: T("g.shape.reset.btn"), confirm: T("g.shape.reset.confirm"), done: T("g.shape.reset.done"), nowKey: "g.shape.reset.now" },
     chart: { key: "correct", label: T("g.shape.chart"), unit: T("g.light.unit") },
     describe: (e) => T("g.shape.describe", { total: e.total || 10, n: e.correct || 0, time: U.fmtTime(e.time) }),
     intro: () => T("g.shape.intro"),
     mount(ctx) {
-      const st = ctx.stage, mode = ctx.settings.hintMode, board = ctx.board;
+      const st = ctx.stage, mode = ctx.settings.hintMode, board = ctx.board, mem = ctx.mem;
       board.classList.add("ss-board");
       const target = h("div", { class: "ss-card ss-target", "aria-label": T("g.shape.target.aria") });
       const tip = h("div", { class: "ss-tip" });
       const cands = h("div", { class: "ss-cands" });
       board.append(h("div", { class: "ss-left" }, h("span", { class: "ss-tag", text: T("g.shape.tag") }), target, tip), cands);
       let prob = null, qNo = 0, correct = 0, mistakes = 0, hints = 0, busy = true, hinted = false;
-      const prog = h("span", { class: "qprog" }); ctx.status(prog);
+      const prog = h("span", { class: "qprog" });
+      /* 조각 이불 (상태 칸, 문제 번호 옆): 이불 그림 + n/12 */
+      const patchesNow = () => Math.max(0, Math.min(PATCH_MAX, mem.patches | 0));
+      const qtTxt = h("span", { class: "ss-qtn" }), qtIcon = h("i", { class: "qt-i", "aria-hidden": "true", svg: QUILT_ICON });
+      const quilt = h("span", { class: "ss-quilt" }, qtIcon, qtTxt);
+      const paintQuilt = () => { qtTxt.textContent = patchesNow() + "/" + PATCH_MAX; quilt.setAttribute("aria-label", T("g.shape.quilt", { n: patchesNow(), max: PATCH_MAX })); };
+      paintQuilt();
+      ctx.status(h("span", { class: "ss-status" }, prog, quilt));
+      let patchGot = 0, completed = false, doneCard = null;
+      /* 첫 판 손짓 도우미: 고를 수 있을 때만 똑같은 모양을 가리켜요 */
+      const nudge = U.nudge(ctx, () => (!busy && prob ? cands.children[prob.answer] || null : null));
 
       function layout() {
         const W = board.clientWidth - 24, H = board.clientHeight - 24, n = st.choices;
@@ -125,6 +162,7 @@
         tip.textContent = mode === "always" ? T("g.shape.tip", { tip: st.tip }) : "";
         layout();
         ctx.say(T("g.shape.intro"));
+        nudge.arm();
       }
       function choose(k) {
         if (busy) return;
@@ -132,13 +170,37 @@
         const btns = cands.children;
         btns[prob.answer].classList.add("right");
         JN.markRight(btns[prob.answer]);   // 정답 = 연필 동그라미
-        if (k === prob.answer) { correct++; ctx.sound("ok"); ctx.say(pick(T("g.shape.say.ok"))); ctx.later(next, DATA.timing.okMs / JN.TIME_SCALE); }
-        else { mistakes++; btns[k].classList.add("dim"); ctx.say(T("g.shape.say.miss")); ctx.later(next, DATA.timing.showAnswerMs / JN.TIME_SCALE); }
+        if (k === prob.answer) { correct++; nudge.ok(); ctx.sound("ok"); ctx.say(pick(T("g.shape.say.ok"))); ctx.later(next, DATA.timing.okMs / JN.TIME_SCALE); }
+        else { mistakes++; nudge.wrong(); btns[k].classList.add("dim"); ctx.say(T("g.shape.say.miss")); ctx.later(next, DATA.timing.showAnswerMs / JN.TIME_SCALE); }
+      }
+      function addPatch() {   // 이불에 조각 하나 (12조각이 다 찼으면 그대로)
+        const n = patchesNow();
+        if (n >= PATCH_MAX) return false;
+        mem.patches = n + 1; ctx.saveMem(); patchGot++; if (n + 1 >= PATCH_MAX) completed = true;
+        paintQuilt(); qtIcon.innerHTML = patchSvg(n); qtIcon.classList.add("pop");
+        ctx.later(() => { qtIcon.classList.remove("pop"); }, 900);
+        return true;
       }
       function end() {
         const time = ctx.timer.stop();
-        ctx.finish({ cleared: correct >= DATA.passScore, time, mistakes, hints, metrics: { correct, total: DATA.questionsPerGame },
-          title: T("g.shape.title", { n: correct }), line: T("g.shape.line"), bestKey: st.id, bestValue: correct, higherBetter: true });
+        busy = true; nudge.stop();
+        const grew = addPatch(), n = patchesNow();
+        const fin = () => ctx.finish({ cleared: correct >= DATA.passScore, time, mistakes, hints, metrics: { correct, total: DATA.questionsPerGame },
+          title: T("g.shape.title", { n: correct }),
+          line: T("g.shape.line") + T(completed ? "g.shape.line.full" : grew ? "g.shape.line.patch" : "g.shape.line.again", { n, max: PATCH_MAX }),
+          bestKey: st.id, bestValue: correct, higherBetter: true });
+        if (completed) ctx.later(() => showDone(fin), Math.max(JN.ms(900), 40)); else fin();
+      }
+      /* 조각 이불 완성 카드: 12조각을 정해진 순서대로 이은 이불 그림 + 따뜻한 말. '고마워요' 단추 하나. 저절로 새로 시작하지 않아요 */
+      function showDone(next) {
+        if (!ctx.alive()) return;
+        const ok = h("button", { type: "button", class: "jn-btn jn-btn--big", id: "ssDoneOk" }, T("g.shape.done.ok"));
+        doneCard = h("div", { class: "dw-done ss-done", id: "ssDone", role: "group", "aria-label": T("g.shape.done.title") },
+          h("div", { class: "dw-donecard" }, h("h2", { text: T("g.shape.done.title") }), h("div", { class: "ss-donequilt", "aria-hidden": "true", svg: quiltSvg() }), h("p", { text: T("g.shape.done.body") }), ok));
+        board.appendChild(doneCard);
+        U.onTap(ok, () => { if (doneCard && doneCard.isConnected) { doneCard.remove(); doneCard = null; next(); } });
+        ctx.say(T("g.shape.done.say"));
+        try { ok.focus({ preventScroll: true }); } catch (e) { /* 포커스는 없어도 돼요 */ }
       }
       ctx.hint(mode === "button", () => {
         if (busy || hinted) return;
@@ -150,8 +212,9 @@
       return {
         start() { ctx.timer.start(); next(); },
         resize: layout,
-        destroy() { busy = true; },
-        test: { state: () => ({ qNo, correct, answer: prob ? prob.answer : -1, n: prob ? prob.cands.length : 0, busy }), makeProblem: (i) => { const p = makeProblem(DATA.stages[i]); return { t: signature(p.target), c: p.cands.map(signature), a: p.answer }; } },
+        destroy() { busy = true; nudge.stop(); },
+        test: { state: () => ({ qNo, correct, answer: prob ? prob.answer : -1, n: prob ? prob.cands.length : 0, busy, mistakes,
+          patches: patchesNow(), patchGot, completed, card: !!(doneCard && doneCard.isConnected), nudgeShown: nudge.shown(), nudgeVisible: nudge.visible() }), makeProblem: (i) => { const p = makeProblem(DATA.stages[i]); return { t: signature(p.target), c: p.cands.map(signature), a: p.answer }; } },
       };
     },
   });
