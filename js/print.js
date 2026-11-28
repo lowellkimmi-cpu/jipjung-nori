@@ -25,8 +25,19 @@
   /** Art 의 <svg …> 문자열을 다른 SVG 안 (x,y,w,h) 자리에 넣어요 */
   const place = (svgStr, x, y, w, hh) => svgStr.replace("<svg ", `<svg x="${x}" y="${y}" width="${w}" height="${hh}" `);
 
-  /* ================= ① 달롱 미로 (쉬움: 5×5, 갈림길 2개) ================= */
-  const MAZE_N = 5, MAZE_FORKS = 2;
+  /* ================= 난이도 (1 쉬움 · 2 보통 · 3 어려움) — 카테고리마다 =================
+     미로: 칸 수·갈림길 수 / 달라진 곳: 찾을 곳 수·물건 수 / 그림 순서: 카드 수 */
+  const LEVELS = {
+    maze: [{ n: 5, forks: 2 }, { n: 7, forks: 4 }, { n: 9, forks: 7 }],
+    changed: [{ diffs: 3, kinds: ["remove", "scale", "move"], items: [4, 6], bigOnly: true },
+      { diffs: 4, kinds: ["remove", "scale", "move"], items: [7, 9] },
+      { diffs: 5, kinds: ["remove", "scale", "move", "flip"], items: null }],
+    order: [{ n: 3 }, { n: 4 }, { n: 5 }],
+  };
+  const lvOf = (cat, lv) => LEVELS[cat][Math.min(3, Math.max(1, lv | 0 || 1)) - 1];
+
+  /* ================= ① 달롱 미로 (쉬움 5×5 갈림길 2개 → 어려움 9×9) ================= */
+  const MAZE_FORKS = 2;   // 쉬움 기준 (시험용)
   function genMaze(n) {
     const R = [], D = [], vis = [];
     for (let y = 0; y < n; y++) { R.push(Array(n).fill(true)); D.push(Array(n).fill(true)); vis.push(Array(n).fill(false)); }
@@ -62,10 +73,10 @@
     }
     return f;
   }
-  function makeMaze() {
+  function makeMaze(lv) {
     let best = null, bestGap = 99;
     for (let t = 0; t < 600; t++) {
-      const m = genMaze(MAZE_N), gap = Math.abs(forks(m) - MAZE_FORKS);
+      const m = genMaze(lv.n), gap = Math.abs(forks(m) - lv.forks);
       if (gap < bestGap) { best = m; bestGap = gap; }
       if (!gap) break;
     }
@@ -94,20 +105,24 @@
       `</svg>`;
   }
 
-  /* ================= ② 달라진 곳 찾기 (쉬움: 큰 물건 4~6개, 3곳) =================
-     흑백으로 찍어도 보이도록 '색 바꾸기'는 쓰지 않고 없어지기·크기·자리 옮기기만 써요. 어두운 우주 장면은 잉크가 많이 들어 빼요. */
-  const CH = { diffs: 3, kinds: ["remove", "scale", "move"], items: [4, 6] };
-  function makeChanged(seed) {
+  /* ================= ② 달라진 곳 찾기 (쉬움: 큰 물건 4~6개, 3곳 → 어려움: 모든 물건, 5곳) =================
+     흑백으로 찍어도 보이도록 '색 바꾸기'는 쓰지 않고 없어지기·크기·자리 옮기기(어려움은 좌우 뒤집기도)만 써요. 어두운 우주 장면은 잉크가 많이 들어 빼요. */
+  function makeChanged(seed, CH) {
     const A = JN.spotArt, scenes = A.SCENES.filter((s) => !s.dark), scene = scenes[(seed - 1) % scenes.length];
     let all = scene.items.map(([type, x, y, s, c], i) => ({ id: i, type, x, y, s, c, flip: false }));
-    const big = all.filter((o) => o.s >= 1);
-    if (big.length >= CH.diffs) all = shuffle(big.slice()).slice(0, Math.min(big.length, CH.items[0] + rnd(CH.items[1] - CH.items[0] + 1))).sort((p, q) => p.id - q.id);
+    if (CH.bigOnly) {
+      const big = all.filter((o) => o.s >= 1);
+      if (big.length >= CH.diffs) all = shuffle(big.slice()).slice(0, Math.min(big.length, CH.items[0] + rnd(CH.items[1] - CH.items[0] + 1))).sort((p, q) => p.id - q.id);
+    } else if (CH.items) {
+      const k = Math.min(all.length, CH.items[0] + rnd(CH.items[1] - CH.items[0] + 1));
+      all = shuffle(all.slice()).slice(0, Math.max(k, CH.diffs)).sort((p, q) => p.id - q.id);
+    }
     all.forEach((o, i) => (o.id = i));
     const mod = all.map((o) => Object.assign({}, o)), used = new Set(), list = [], kinds = shuffle(CH.kinds.slice());
     for (let i = 0; i < CH.diffs; i++) {
       let kind = kinds[i % kinds.length];
       const free = all.filter((o) => !used.has(o.id));
-      let pool = free.filter((o) => A.okKind(kind, o));
+      let pool = free.filter((o) => A.okKind(kind, o) && (kind !== "flip" || A.ASYM.has(o.type)));
       if (!pool.length) { kind = "remove"; pool = free; }
       if (!pool.length) break;
       const o = pool[rnd(pool.length)]; used.add(o.id); A.applyKind(kind, o, mod[o.id]);
@@ -137,13 +152,13 @@
     return s;
   }
 
-  /* ================= ③ 그림 순서 오려 붙이기 (3장: 처음·가운데 하나·끝) =================
+  /* ================= ③ 그림 순서 오려 붙이기 (쉬움 3장: 처음·가운데 하나·끝 → 어려움 5장) =================
      흑백에서도 차례가 잘 보이는 이야기만 써요('물 따르기'는 물 높이가 색으로만 보여서 뺌). */
   const ORDER_STORIES = ["flower", "snowman", "tower", "apple", "cake", "balloon", "drawing"];
-  function makeOrder(seed) {
+  function makeOrder(seed, lv) {
     const sid = ORDER_STORIES[(seed - 1) % ORDER_STORIES.length];
-    const frames = [0, 1 + rnd(3), 4];
-    let cards = [0, 1, 2];
+    const frames = lv.n >= 5 ? [0, 1, 2, 3, 4] : [0, ...shuffle([1, 2, 3]).slice(0, lv.n - 2).sort(), 4];
+    let cards = frames.map((f, i) => i);
     do { shuffle(cards); } while (cards[0] === 0 && cards[1] === 1);   // 처음부터 순서대로 놓이지 않게
     return { sid, frames, cards: cards.map((k) => frames[k]) };
   }
@@ -156,14 +171,14 @@
     kids.forEach((c) => c && el.appendChild(typeof c === "string" ? document.createTextNode(c) : c));
     return el;
   };
-  function sheet(id, body, extra) {
+  function sheet(id, body, extra, vars) {
     const notes = h("ol", { class: "ps-notes" },
-      h("li", { text: T("print." + id + ".note1") }), h("li", { text: T("print." + id + ".note2") }), h("li", { text: T("print.note.common") }));
+      h("li", { text: T("print." + id + ".note1", vars) }), h("li", { text: T("print." + id + ".note2") }), h("li", { text: T("print.note.common") }));
     return h("section", { class: "ps-sheet", id: "sheet-" + id, "data-sheet": id },
       h("header", { class: "ps-top" },
-        h("p", { class: "ps-brand", text: T("print.brand") }),
+        h("p", { class: "ps-brand", text: T("print.brand") + " · " + T("print.level." + level) }),
         h("h2", { class: "ps-title", text: T("print." + id + ".title") }),
-        h("p", { class: "ps-kid", text: T("print." + id + ".kid") })),
+        h("p", { class: "ps-kid", text: T("print." + id + ".kid", vars) })),
       h("div", { class: "ps-body ps-art" }, ...body),
       h("footer", { class: "ps-foot" }, h("div", { class: "ps-foot-txt" }, notes, h("p", { class: "ps-copy", text: T("print.copy") })), extra || null));
   }
@@ -172,7 +187,7 @@
     out.textContent = "";
     seeded(seed, () => {
       /* ① 미로 */
-      const mz = makeMaze(), box = h("div", { class: "ps-maze-box" });
+      const mz = makeMaze(lvOf("maze", level)), box = h("div", { class: "ps-maze-box" });
       box.innerHTML = mazeSvg(mz);
       box.append(h("span", { class: "ps-lab ps-lab-start", text: T("print.maze.start") }), h("span", { class: "ps-lab ps-lab-goal", text: T("print.maze.goal") }));
       const s1 = sheet("maze", [box]);
@@ -180,31 +195,33 @@
       out.appendChild(s1);
 
       /* ② 달라진 곳 */
-      const ch = makeChanged(seed);
+      const ch = makeChanged(seed, lvOf("changed", level));
       const top = h("figure", { class: "ps-pic" }, h("figcaption", { text: T("print.changed.top") })), bot = h("figure", { class: "ps-pic" }, h("figcaption", { text: T("print.changed.bottom") }));
       top.prepend(sceneEl(ch.scene, ch.base, "ps-scene", T("print.changed.top")));
       bot.prepend(sceneEl(ch.scene, ch.mod, "ps-scene", T("print.changed.bottom")));
       const ans = h("div", { class: "ps-answer ps-art" }, h("span", { text: T("print.changed.answer") }));
       ans.prepend(answerEl(ch));
-      const s2 = sheet("changed", [top, bot], ans);
+      const s2 = sheet("changed", [top, bot], ans, { n: ch.list.length });
       s2.dataset.diffs = String(ch.list.length); s2.dataset.scene = ch.scene.name;
       out.appendChild(s2);
 
       /* ③ 그림 순서 */
-      const od = makeOrder(seed);
-      const slots = h("div", { class: "ps-slots" }), cards = h("div", { class: "ps-cards" });
-      [1, 2, 3].forEach((n) => slots.appendChild(h("div", { class: "ps-slot" }, h("b", { text: String(n) }), h("span", { text: T("print.order.paste") }))));
+      const od = makeOrder(seed, lvOf("order", level));
+      const nums = od.frames.map((f, i) => i + 1);
+      const slots = h("div", { class: "ps-slots ps-n" + nums.length }), cards = h("div", { class: "ps-cards ps-n" + nums.length });
+      nums.forEach((n) => slots.appendChild(h("div", { class: "ps-slot" }, h("b", { text: String(n) }), h("span", { text: T("print.order.paste") }))));
       od.cards.forEach((f) => { const c = h("div", { class: "ps-card", "data-frame": String(f) }); c.innerHTML = orderSvg(od.sid, f); cards.appendChild(c); });
-      const s3 = sheet("order", [slots, h("p", { class: "ps-cutnote", text: T("print.order.cut") }), cards]);
+      const s3 = sheet("order", [slots, h("p", { class: "ps-cutnote", text: T("print.order.cut") }), cards], null, { nums: nums.join("·") });
       s3.dataset.story = od.sid;
       out.appendChild(s3);
     });
-    out.dataset.seed = String(seed);
+    out.dataset.seed = String(seed); out.dataset.level = String(level);
+    out.querySelectorAll(".ps-sheet").forEach((s) => (s.dataset.level = String(level)));
     applyPick();
   }
 
   /* ================= 고르기 · 색 · 인쇄 단추 ================= */
-  let seed = 1;
+  let seed = 1, level = 1;
   const $ = (id) => document.getElementById(id);
   function applyPick() {
     const v = (document.querySelector('input[name="pick"]:checked') || {}).value || "all";
@@ -225,13 +242,15 @@
   }
   document.querySelectorAll('input[name="pick"]').forEach((r) => r.addEventListener("change", applyPick));
   document.querySelectorAll('input[name="color"]').forEach((r) => r.addEventListener("change", applyColor));
+  document.querySelectorAll('input[name="level"]').forEach((r) => r.addEventListener("change", () => { level = +r.value || 1; render(seed); }));
   $("newBtn").addEventListener("click", () => { seed = seed % 9999 + 1; render(seed); });
   $("printBtn").addEventListener("click", () => {
     const go = () => window.print();
     (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(go, go);
   });
   window.addEventListener("resize", fit);
-  JN.Print = { render: (s) => { seed = s | 0 || 1; render(seed); }, forks, MAZE_FORKS };
+  /* render(그림 번호, 난이도 1~3): 시험·매일 활동지 만들기(tools/make_worksheets.py)가 써요 */
+  JN.Print = { render: (s, lv) => { seed = s | 0 || 1; if (lv) { level = Math.min(3, Math.max(1, lv | 0)); const r = document.querySelector('input[name="level"][value="' + level + '"]'); if (r) r.checked = true; } render(seed); }, forks, MAZE_FORKS, LEVELS };
   applyColor();
   render(seed);
   fit();

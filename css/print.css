@@ -54,6 +54,10 @@ body.ps { word-break: keep-all; overflow-wrap: anywhere; }
 /* ③ 그림 순서 */
 .ps-slots, .ps-cards { display: flex; gap: 6mm; justify-content: center; }
 .ps-slot, .ps-card { box-sizing: border-box; width: 56mm; height: 56mm; }
+.ps-n4 .ps-slot, .ps-n4 .ps-card { width: 42mm; height: 42mm; }
+.ps-n5 .ps-slot, .ps-n5 .ps-card { width: 33mm; height: 33mm; }
+.ps-n4, .ps-n5 { gap: 4.5mm; }
+.ps-n5 .ps-card { padding: 2mm; }
 .ps-slot { border: 2pt solid #4A3F37; border-radius: 4mm; position: relative; display: flex; align-items: center; justify-content: center; }
 .ps-slot b { position: absolute; left: 2.5mm; top: 1.5mm; font-size: 20pt; font-weight: 700; }
 .ps-slot span { font-size: 10pt; color: #ABA59B; }
