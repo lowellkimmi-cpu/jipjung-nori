@@ -579,7 +579,7 @@
 /* 달라진 그림 찾기: 그림 한 장 + 10초 막대. 그림이 바뀔 때는 천천히 스르르 (깜빡임 없음) */
 .cg-col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .cg-bar { height: 36px; display: flex; align-items: center; gap: 10px; box-sizing: border-box; }
-.cg-bar.off { visibility: hidden; }
+.cg-bar.off .cg-track, .cg-bar.off .cg-count { visibility: hidden; }
 .cg-track { flex: 1; height: 14px; border-radius: 8px; background: var(--c-mustard-tint); border: 2px solid var(--c-pencil); overflow: hidden; box-sizing: border-box; }
 .cg-track i { display: block; height: 100%; background: var(--c-mustard); transition: width .1s linear; }
 .cg-count { min-width: 40px; text-align: right; font-weight: var(--fw-bold); font-size: 18px; font-variant-numeric: tabular-nums; color: var(--c-ink); }
@@ -1040,3 +1040,15 @@
 .dw-doneflowers svg { width: 100%; height: 100%; display: block; }
 .dw-done .jn-btn--big { min-height: 56px; min-width: 120px; }
 @media (prefers-reduced-motion: reduce) { .dw-garden .fl { transition: none; } }
+
+/* 달라진 그림 찾기 — 탐정 수첩 (2026-11-29) */
+.cg-book { flex: none; padding: 2px 8px 2px 4px; border-radius: 999px; background: var(--c-surface); border: 1.6px solid var(--c-pencil); display: inline-flex; align-items: center; gap: 4px; font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
+.cg-book .bk-i { width: 28px; height: 28px; display: inline-block; transition: transform .5s ease-out; }
+.cg-book .bk-i.pop { transform: scale(1.18); }
+.cg-book .bk-i svg { width: 100%; height: 100%; display: block; }
+.cg-book .bk-c { fill: var(--c-mustard-tint); stroke: var(--c-pencil); stroke-width: 2.4; stroke-linejoin: round; }
+.cg-book .bk-l { fill: none; stroke: var(--c-pencil); stroke-width: 2.2; stroke-linecap: round; }
+.cg-donestamps { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; width: 100%; max-width: 420px; }
+.cg-donestamps span { display: block; aspect-ratio: 1; }
+.cg-donestamps svg { width: 100%; height: 100%; display: block; }
+@media (prefers-reduced-motion: reduce) { .cg-book .bk-i { transition: none; } }
