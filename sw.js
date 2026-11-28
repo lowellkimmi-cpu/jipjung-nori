@@ -2,7 +2,7 @@
    - 모든 경로는 상대 경로라서 https://아이디.github.io/집중놀이터/ 같은 하위 경로에서도 동작해요.
    - 앱 파일을 고치면 VERSION 숫자를 올려 주세요. 그래야 폰에 새 파일이 들어가요.
    - 외부 주소는 캐시하지도 요청하지도 않아요. */
-const VERSION = "jn-v61";
+const VERSION = "jn-v62";
 const ASSETS = [
   "./",
   "index.html",
@@ -24,6 +24,12 @@ const ASSETS = [
   "js/install.js",
   "js/install-page.js",
   "install.html",
+  "print.html",
+  "css/print.css",
+  "js/print.js",
+  "vendor/print-font/JNPrintSans-Regular.woff",
+  "vendor/print-font/JNPrintSans-Bold.woff",
+  "vendor/print-font/LICENSE-print-font.txt",
   "css/install.css",
   "js/store.js",
   "js/unlock.js",

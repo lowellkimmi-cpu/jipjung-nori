@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F5EDDC">
+<meta name="color-scheme" content="light dark">  <!-- 삼성 인터넷 야간 모드는 "only light" 를 무시해요. 다크 대응을 알리고 색은 tokens.css 맨 아래 규칙이 밝은 종이 그대로 지켜요 (2026-11-28) -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="" data-t-content="print.meta.desc">
+<title data-t="print.meta.title"></title>
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/tokens-extra.css">
+<link rel="stylesheet" href="css/install.css">
+<link rel="stylesheet" href="css/print.css">
+</head>
+<body class="jn-app inst ps ps-bw">
+<!-- 인쇄용 활동지 (보호자용). 아이 놀이 화면에는 링크가 없고, 보호자 설정 → '이 기기'와 install.html 에서만 들어와요.
+     화면 글자는 lang/ko.js 의 print.* , 그림 그리기는 js/print.js. 종이에 찍히는 글자는 vendor/print-font 의 공개 글꼴(OFL)로 나와요.
+     바깥 주소 요청·추적 코드·기록 저장 없음. -->
+<main class="inst-wrap ps-wrap">
+  <a class="jn-btn inst-back" href="index.html" id="backLink" data-t="print.back"></a>
+
+  <header class="inst-head ps-head">
+    <h1 data-t="print.title"></h1>
+    <p class="sub" data-t="print.sub"></p>
+  </header>
+
+  <section class="inst-card jn-card ps-tools" aria-label="" data-t-aria="print.pick">
+    <fieldset class="ps-field">
+      <legend data-t="print.pick"></legend>
+      <label class="ps-opt"><input type="radio" name="pick" value="all" checked> <span data-t="print.pick.all"></span></label>
+      <label class="ps-opt"><input type="radio" name="pick" value="maze"> <span data-t="print.pick.maze"></span></label>
+      <label class="ps-opt"><input type="radio" name="pick" value="changed"> <span data-t="print.pick.changed"></span></label>
+      <label class="ps-opt"><input type="radio" name="pick" value="order"> <span data-t="print.pick.order"></span></label>
+    </fieldset>
+    <fieldset class="ps-field">
+      <legend data-t="print.color"></legend>
+      <label class="ps-opt"><input type="radio" name="color" value="bw" checked> <span data-t="print.color.bw"></span></label>
+      <label class="ps-opt"><input type="radio" name="color" value="color"> <span data-t="print.color.color"></span></label>
+    </fieldset>
+    <div class="ps-btns">
+      <button class="jn-btn" type="button" id="newBtn" data-t="print.new"></button>
+      <button class="jn-btn jn-btn--primary" type="button" id="printBtn" data-t="print.go"></button>
+    </div>
+    <p class="inst-small" data-t="print.how"></p>
+  </section>
+
+  <div class="ps-stage" id="sheets" aria-live="polite"></div>
+</main>
+<script src="lang/ko.js"></script>
+<script>window.JN_LANG = "ko";</script>
+<script src="js/i18n.js"></script>
+<script src="vendor/perfect-freehand.js"></script>
+<script src="vendor/rough.js"></script>
+<script src="js/art.js"></script>
+<script src="js/config.js"></script>
+<script src="js/core.js"></script>
+<script src="js/games/spot.js"></script>
+<script src="js/games/order.js"></script>
+<script src="js/print.js"></script>
+</body>
+</html>

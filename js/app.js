@@ -948,12 +948,13 @@
     const sub = h("small", { id: "installSub" });
     const btn = h("button", { class: "jn-btn jn-btn--primary", type: "button", id: "installBtn", hidden: true, onclick: () => I.prompt().then(sync) }, T("install.btn"));
     const help = h("a", { class: "jn-btn", id: "installHelp", href: "install.html" }, T("install.help"));
+    const print = h("a", { class: "jn-btn", id: "printHelp", href: "print.html" }, T("install.print"));   // 인쇄용 활동지(보호자용): 보호자 설정 안에만 있어요
     function sync() {
       btn.hidden = !(I && I.canPrompt() && !I.isStandalone());
       sub.textContent = !I ? "" : I.isStandalone() ? T("install.already") : T("install.sub");
     }
     if (I) { I.onChange(sync); sync(); }
-    return h("div", { class: "jn-row col", id: "installRow" }, h("span", { class: "lbl" }, h("b", { text: T("install.btn") }), sub), btn, help);
+    return h("div", { class: "jn-row col", id: "installRow" }, h("span", { class: "lbl" }, h("b", { text: T("install.btn") }), sub), btn, help, print);
   }
   function isLite() { return !!S.getApp().lite; }
   function setLite(v) { const a = S.getApp(); a.lite = !!v; S.setApp(a); applyLite(); }

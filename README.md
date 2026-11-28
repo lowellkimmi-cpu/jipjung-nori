@@ -37,3 +37,4 @@
 ## 사용한 공개 소프트웨어
 - rough.js (MIT 라이선스) — `vendor/LICENSE-roughjs.txt`
 - perfect-freehand (MIT 라이선스) — `vendor/LICENSE-perfect-freehand.txt`
+- Noto Sans CJK KR 일부 글자(인쇄용 활동지 글꼴, SIL Open Font License 1.1) — `vendor/print-font/LICENSE-print-font.txt`

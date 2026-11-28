@@ -1,0 +1,80 @@
+/* 인쇄용 활동지 (print.html) — 화면 단추는 tokens.css / install.css 를 따르고, 종이(.ps-sheet)는 A4 세로 한 장씩.
+   종이에 찍히는 글자는 공개 글꼴(SIL OFL 1.1, vendor/print-font/LICENSE-print-font.txt)만 써요. 기기 글꼴로 바뀌지 않게. */
+@font-face { font-family: "JN Print Sans"; font-weight: 400; font-style: normal; font-display: block; src: url("../vendor/print-font/JNPrintSans-Regular.woff") format("woff"); }
+@font-face { font-family: "JN Print Sans"; font-weight: 700; font-style: normal; font-display: block; src: url("../vendor/print-font/JNPrintSans-Bold.woff") format("woff"); }
+
+@page { size: A4 portrait; margin: 0; }
+
+body.ps { word-break: keep-all; overflow-wrap: anywhere; }
+.ps-wrap { max-width: 900px; }
+.ps-field { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); }
+.ps-field legend { font-weight: var(--fw-bold); margin-bottom: var(--sp-2); padding: 0; width: 100%; }
+.ps-opt { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; }
+.ps-opt input { width: 22px; height: 22px; accent-color: var(--c-primary); }
+.ps-btns { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
+
+/* ---------- 화면 미리 보기: A4 종이를 폭에 맞춰 줄여요 (--k 는 js/print.js 가 정해요) ---------- */
+.ps-stage { --k: 1; display: flex; flex-direction: column; align-items: center; gap: var(--sp-5); }
+.ps-sheet { zoom: var(--k); box-shadow: 0 2px 10px rgba(59, 50, 43, .18); }
+.ps-sheet.off { display: none; }
+
+/* ---------- 종이 한 장 ---------- */
+.ps-sheet {
+  box-sizing: border-box; width: 210mm; height: 296mm; padding: 13mm 14mm 11mm; overflow: hidden;
+  background: #fff; color: #3B322B; display: flex; flex-direction: column; gap: 5mm;
+  font-family: "JN Print Sans", sans-serif; font-weight: 400;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.ps-top { text-align: center; }
+.ps-brand { margin: 0; font-size: 10pt; color: #6A5D52; letter-spacing: .05em; }
+.ps-title { margin: 1mm 0 0; font-size: 26pt; font-weight: 700; line-height: 1.2; }
+.ps-kid { margin: 2mm 0 0; font-size: 15pt; line-height: 1.4; }
+.ps-body { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4mm; }
+.ps-foot { display: flex; align-items: flex-end; gap: 5mm; border-top: 1.2pt solid #ABA59B; padding-top: 3mm; }
+.ps-foot-txt { flex: 1; min-width: 0; }
+.ps-notes { margin: 0; padding-left: 1.4em; font-size: 9.5pt; line-height: 1.5; list-style: none; counter-reset: n; }
+.ps-notes li { counter-increment: n; position: relative; }
+.ps-notes li::before { content: counter(n); position: absolute; left: -1.4em; top: .2em; width: 1.05em; height: 1.05em; border: 1px solid #6A5D52; border-radius: 50%; font-size: 7.5pt; line-height: 1.05em; text-align: center; }
+.ps-copy { margin: 2mm 0 0; font-size: 8pt; color: #6A5D52; }
+
+/* ① 미로 */
+.ps-maze-box { position: relative; width: 168mm; }
+.ps-maze { display: block; width: 100%; height: auto; }
+.ps-lab { position: absolute; font-size: 13pt; font-weight: 700; }
+.ps-lab-start { left: 0; top: -1mm; }
+.ps-lab-goal { right: 1mm; bottom: -1mm; }
+
+/* ② 달라진 곳 */
+.ps-pic { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 1mm; }
+.ps-pic figcaption { font-size: 11pt; font-weight: 700; }
+.ps-scene { display: block; width: 120mm; height: 90mm; }
+.ps-answer { width: 34mm; display: flex; flex-direction: column; align-items: center; transform: rotate(180deg); font-size: 8pt; color: #6A5D52; }
+.ps-answer-svg { display: block; width: 34mm; height: 25.5mm; }
+
+/* ③ 그림 순서 */
+.ps-slots, .ps-cards { display: flex; gap: 6mm; justify-content: center; }
+.ps-slot, .ps-card { box-sizing: border-box; width: 56mm; height: 56mm; }
+.ps-slot { border: 2pt solid #4A3F37; border-radius: 4mm; position: relative; display: flex; align-items: center; justify-content: center; }
+.ps-slot b { position: absolute; left: 2.5mm; top: 1.5mm; font-size: 20pt; font-weight: 700; }
+.ps-slot span { font-size: 10pt; color: #ABA59B; }
+.ps-cutnote { margin: 4mm 0 0; font-size: 11pt; font-weight: 700; }
+.ps-card { border: 1.6pt dashed #4A3F37; padding: 3mm; }
+.ps-card-svg { display: block; width: 100%; height: 100%; }
+
+/* ---------- 흑백 선화: 그림 속 색은 하얗게, 연필 선(#4A3F37)만 남겨요 → 잉크 절약 + 색칠 놀이 ---------- */
+.ps-bw .ps-art svg * { fill: #fff; }
+.ps-bw .ps-art svg [fill="none"] { fill: none; }
+.ps-bw .ps-art svg [fill="#4A3F37"], .ps-bw .ps-art svg [fill="#3B322B"], .ps-bw .ps-art svg [fill="#5C5047"] { fill: #4A3F37; }
+.ps-bw .ps-art svg [stroke]:not([stroke="none"]) { stroke: #4A3F37; }
+.ps-bw .ps-art .ps-rings * { stroke: #3B322B; fill: none; }
+
+/* ---------- 인쇄: 단추·안내는 숨기고 종이만 원래 크기로 ---------- */
+@media print {
+  html, body.ps { background: #fff !important; margin: 0; padding: 0; min-height: 0; }
+  .ps-wrap { display: block; max-width: none; padding: 0 !important; margin: 0; }
+  .ps-wrap > :not(.ps-stage) { display: none !important; }
+  .ps-stage { display: block; }
+  .ps-sheet { zoom: 1 !important; box-shadow: none; margin: 0; break-after: page; page-break-after: always; }
+  .ps-sheet:not(.off) ~ .ps-sheet.off { display: none; }
+  .ps-sheet.last { break-after: auto; page-break-after: auto; }
+}
