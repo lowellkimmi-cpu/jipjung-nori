@@ -27,3 +27,16 @@ body.inst { margin: 0; min-height: 100vh; min-height: 100dvh; }
 }
 .mine-tag[hidden] { display: none; }
 @media (min-width: 900px) { .inst-wrap { padding-top: var(--sp-6); } }
+/* 개인정보 처리방침 전문(privacy.html) — 표·빈칸 자리 표시 */
+.pv-ready { margin: 0; text-align: center; }
+.pv-blank {
+  background: var(--c-mustard-tint); color: var(--c-ink); font-weight: var(--fw-bold);
+  padding: 0 6px; border: 2px dashed var(--c-mustard-deep); border-radius: 6px; white-space: nowrap;
+}
+.pv-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.pv-table { width: 100%; border-collapse: collapse; font-size: var(--fs-caption); line-height: 1.5; }
+.pv-table th, .pv-table td { border: 1.5px solid var(--c-line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.pv-table th { background: var(--c-surface-2); }
+.inst-card.pv-link-card a, a.pv-link { color: var(--c-primary-down); font-weight: var(--fw-bold); }
+body.pv { word-break: keep-all; overflow-wrap: anywhere; }
+.pv-table th:nth-child(1) { width: 42%; } .pv-table th:nth-child(2) { width: 26%; }

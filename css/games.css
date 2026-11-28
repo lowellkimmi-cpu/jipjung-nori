@@ -978,3 +978,28 @@
   .sit-feel { min-height: 72px; } .sit-feelart { width: 40px; height: 40px; }
 }
 @media (prefers-reduced-motion: reduce) { .sit-rib.new { animation: none; } }
+
+/* 소리 듣고 찾기 (말 놀이 방, 2026-11-28): 다시 듣기 단추 + (조용한 모드) 말풍선 + 그림 카드 */
+.sd2-board { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 12px; }
+.sd2-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; min-height: 60px; max-width: 100%; }
+.sd2-again { min-height: 60px; min-width: 140px; display: inline-flex; align-items: center; gap: 8px; }
+.sd2-spk { display: inline-block; width: 30px; height: 30px; }
+.sd2-spk svg { width: 100%; height: 100%; display: block; }
+.sd2-again.ring .sd2-spk { animation: sd2-ring .6s var(--ease) both; }
+@keyframes sd2-ring { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+.sd2-bubble { display: none; position: relative; padding: 8px 18px; max-width: 100%; border-radius: 18px; background: var(--c-surface); box-shadow: inset 0 0 0 2.4px var(--c-dash);
+  font-size: 28px; font-weight: var(--fw-bold); color: var(--c-ink); overflow-wrap: anywhere; }
+.sd2-bubble.on { display: block; }
+.sd2-seq { display: flex; gap: 6px; }
+.sd2-dot { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; font-weight: var(--fw-bold); font-size: 16px; color: var(--c-ink-soft); box-shadow: inset 0 0 0 2.4px var(--c-dash); }
+.sd2-dot.now { color: var(--c-ink); box-shadow: inset 0 0 0 3px var(--c-olive-deep); }
+.sd2-dot.done { background: var(--c-mustard-tint); color: var(--c-ink); }
+.sd2-cards { display: grid; gap: 12px; justify-content: center; }
+.sd2-card { position: relative; isolation: isolate; flex: none; padding: 10px; border: 0; background: none; cursor: pointer; filter: var(--sh-paper-down); transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease); }
+.sd2-card::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--paper), var(--c-surface); clip-path: var(--cut-a); }
+.sd2-card:nth-child(2n)::before { clip-path: var(--cut-b); }
+.sd2-card svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.sd2-card.nope { opacity: .4; transform: translateY(4px); }
+.sd2-card.got::after { content: ""; position: absolute; inset: 3px; border: 3px solid var(--c-olive-deep); border-radius: 50%; pointer-events: none; opacity: .8; }
+.sd2-card[data-n]::after { content: attr(data-n); display: grid; place-items: center; inset: auto 4px 4px auto; width: 30px; height: 30px; border: 0; background: var(--c-olive-deep); color: #fff; font-weight: var(--fw-bold); font-size: 17px; opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .sd2-card { transition: none; } .sd2-again.ring .sd2-spk { animation: none; } }
