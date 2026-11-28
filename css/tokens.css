@@ -6,7 +6,7 @@
    - 외부 파일 없음. 종이결은 CSS 안의 SVG(data URI)로 만든다. 시스템 글꼴만.
    ========================================================= */
 
-:root {
+:root { color-scheme: only light;   /* 폰 야간(다크) 모드에서 색이 깨지지 않게 (2026-11-28) */
   /* ---------- 종이 (바탕) ---------- */
   --c-bg:        #F5EDDC;  /* 크림 종이: 모든 화면 바탕 */
   --c-surface:   #FCF7EC;  /* 흰 도화지: 카드·판 */
@@ -278,4 +278,11 @@
 .jn-sway { animation: jn-sway 5s ease-in-out infinite; transform-origin: 50% 100%; }
 @media (prefers-reduced-motion: reduce) {
   .jn-app *, .jn-app *::before, .jn-app *::after { animation-duration: .01s !important; animation-iteration-count: 1 !important; transition-duration: .01s !important; }
+}
+
+/* 폰 야간(다크) 모드: 삼성 인터넷·크롬은 사이트에 '어두운 화면용 규칙'이 없으면 색을 억지로 뒤집어서 그림이 깨져요.
+   이 앱은 밝은 종이 화면 하나만 쓰므로, 어두운 모드에서도 같은 밝은 색을 그대로 쓴다고 알려 줘요 (2026-11-28) */
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: only light; }
+  html, body { forced-color-adjust: none; }
 }
