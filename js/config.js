@@ -20,6 +20,11 @@ JN.CONFIG = {
   /* 당분간 닫아 둔 방 (방 카드는 남고, 누르면 "곧 열려요" 안내만 나와요. 다시 열려면 목록에서 빼요) */
   CLOSED_AREAS: ["body"],
 
+  /* 보호자 '해제 코드' (뼈대 · 기본 꺼짐). 켜지 않으면 화면에 아무것도 안 나오고 어떤 놀이도 잠그지 않아요.
+     PUBLIC_KEY_JWK: 판매자 공개키만 (비밀키는 절대 여기·저장소·배포 폴더에 넣지 않아요)
+     BUNDLES: { 묶음번호: ["놀이id", …] } — 판매를 시작할 때 정해요 */
+  UNLOCK: { ENABLED: false, PUBLIC_KEY_JWK: null, BUNDLES: {} },
+
   /* 아이(프로필) 최대 수 */
   MAX_CHILDREN: 4,
 

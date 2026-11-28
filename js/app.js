@@ -753,6 +753,7 @@
     if (!kid) {
       body.appendChild(h("p", { class: "care", text: T("parent.nokid") }));
       body.appendChild(deviceCard());
+    if (JN.Unlock && JN.Unlock.enabled()) body.appendChild(unlockCard());
       body.appendChild(privacyBox());
       body.appendChild(aboutBox());
       show("scr-parent");
@@ -790,6 +791,7 @@
     for (const gid of JN.GAME_ORDER) games.appendChild(gameBox(kid, data, gid, save));
     body.appendChild(games);
     body.appendChild(deviceCard());
+    if (JN.Unlock && JN.Unlock.enabled()) body.appendChild(unlockCard());
     body.appendChild(privacyBox());
     body.appendChild(aboutBox());
     show("scr-parent");
@@ -889,6 +891,33 @@
       installRow(),
       h("div", { class: "jn-row", id: "onbRow" }, h("span", { class: "lbl" }, h("b", { text: T("device.onb") }), h("small", { text: T("device.onb.sub") })),
         h("button", { class: "jn-btn", type: "button", id: "onbAgain", text: T("device.onb.btn"), onclick: () => A.openOnboarding() })));
+  }
+  /* 해제 코드 (뼈대 · CONFIG.UNLOCK.ENABLED 가 켜졌을 때만 보여요). 덧셈 잠금 뒤 보호자 화면에만 있고, 사는 단추·안내는 없어요 */
+  function unlockCard() {
+    const Un = JN.Unlock;
+    const input = h("textarea", { id: "unlockInput", class: "unlock-input", rows: "3", spellcheck: "false", autocomplete: "off", autocapitalize: "characters",
+      placeholder: T("unlock.ph"), "aria-label": T("unlock.title") });
+    const msg = h("p", { id: "unlockMsg", class: "care", role: "status", "aria-live": "polite" });
+    const list = h("div", { id: "unlockList", class: "care" });
+    function fill() {
+      list.textContent = "";
+      const codes = Un.saved();
+      if (!codes.length) return;
+      list.appendChild(h("b", { text: T("unlock.list", { n: codes.length }) }));
+      for (const c of codes) list.appendChild(h("div", { class: "unlock-item", text: T("unlock.item", { tail: String(c.serial).slice(-6), bundle: c.bundle }) }));
+    }
+    const btn = h("button", { class: "jn-btn jn-btn--primary", type: "button", id: "unlockBtn", text: T("unlock.btn"), onclick: async () => {
+      btn.disabled = true;
+      const r = await Un.add(input.value);
+      btn.disabled = false;
+      msg.dataset.result = r.ok ? (r.dup ? "dup" : "ok") : r.why;
+      msg.textContent = r.ok ? (r.dup ? T("unlock.dup") : T("unlock.ok", { bundle: r.bundle })) : r.why === "nocrypto" ? T("unlock.nocrypto") : T("unlock.bad");
+      if (r.ok) input.value = "";
+      fill();
+    } });
+    fill();
+    return h("section", { class: "setcard jn-card", id: "unlockCard" }, h("h2", null, h("i", { svg: Art.icon("설정") }), T("unlock.title")),
+      h("div", { class: "jn-row col" }, h("span", { class: "lbl" }, h("small", { text: T("unlock.sub") })), input, btn), msg, list);
   }
   /* 앱으로 설치: 브라우저가 설치할 수 있다고 알려 줄 때만 단추가 나와요. 설치 방법 안내 페이지 링크는 늘 있어요. */
   function installRow() {
