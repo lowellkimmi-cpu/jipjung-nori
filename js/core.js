@@ -266,19 +266,22 @@
     };
   })();
   /* ---------- 낱말 들려주기 (기기 안에 들어 있는 한국어 음성만) ----------
-     speechSynthesis 의 한국어 음성 중 기기 안 음성(localService)을 먼저 쓰고, 없으면 브라우저 한국어 음성을 써요.
+     speechSynthesis 의 한국어 음성 중 기기 안 음성(localService === true)만 써요.
+     (2026-11-29 기획서 v3 9장 확인 과제 1) 크롬 PC 의 'Google 한국의' 같은 온라인 음성은 읽을 글을 인터넷으로 보내므로 쓰지 않아요.
+     음성 목록을 받았는데 기기 안 한국어 음성이 없으면 JN.speakAvailable() 이 false → 놀이는 소리 단추를 숨기고 그림+글자로만 놀아요.
+     음성 목록이 아직 비어 있는 기기(삼성 인터넷·안드로이드 크롬 처음)는 기기 기본 음성(lang ko-KR)으로 읽어요 — 목록이 오면 다시 골라요.
      (읽는 글은 놀이 안내·낱말 같은 정해진 문장뿐이고, 아이 정보는 읽지 않아요)
-     쓸 음성이 없으면 JN.speakAvailable() 이 false → 놀이는 소리 단추를 숨기고 그림+글자로만 놀아요.
      아이가 단추를 눌렀을 때만 불러요(자동으로 읽지 않음). */
-  let koVoice = null;
+  let koVoice = null, voicesKnown = false;
   const voiceFns = [];
   function pickVoice() {
     try {
       const ss = window.speechSynthesis;
       if (!ss || typeof ss.getVoices !== "function" || typeof window.SpeechSynthesisUtterance !== "function") { koVoice = null; return null; }
-      const all = ss.getVoices().filter((v) => /^ko/i.test(v.lang || "")), local = all.filter((v) => v.localService === true);
-      const list = local.length ? local : all;   // 기기 안 음성이 먼저, 없으면 브라우저가 주는 한국어 음성
-      koVoice = list.find((v) => /^ko[-_]KR/i.test(v.lang)) || list[0] || null;
+      const voices = ss.getVoices() || [];
+      voicesKnown = voices.length > 0;
+      const local = Array.prototype.filter.call(voices, (v) => /^ko/i.test(v.lang || "") && v.localService === true);   // 기기 안 한국어 음성만
+      koVoice = local.find((v) => /^ko[-_]KR/i.test(v.lang)) || local[0] || null;
     } catch (e) { koVoice = null; }
     return koVoice;
   }
@@ -291,15 +294,17 @@
     }
   } catch (e) { koVoice = null; }
   const hasSynth = () => { try { return !!window.speechSynthesis && typeof window.SpeechSynthesisUtterance === "function"; } catch (e) { return false; } };
-  /* 음성 목록을 아직 못 받았어도(삼성 인터넷·안드로이드 크롬) lang 만 ko-KR 로 주면 기기 기본 한국어 음성으로 읽어요 */
-  JN.speakAvailable = () => !!(koVoice || pickVoice() || hasSynth());
+  /* 기기 안 한국어 음성이 있거나, 음성 목록을 아직 못 받았을 때(기기 기본 음성)만 읽어요. 목록에 온라인 음성뿐이면 읽지 않고 글자로 */
+  JN.speakAvailable = () => !!(koVoice || pickVoice() || (!voicesKnown && hasSynth()));
+  /* 시험·보호자 안내용: 지금 고른 음성이 기기 안 음성인지 ("local" / "default"(목록 없음, 기기 기본) / "none") */
+  JN.voiceKind = () => (koVoice || pickVoice() ? "local" : (!voicesKnown && hasSynth() ? "default" : "none"));
   /* 음성 목록이 늦게 오는 기기(크롬)를 위해: 바뀌면 fn 을 불러 줘요. 돌려받은 함수를 부르면 그만 들어요 */
   JN.onVoices = (fn) => { voiceFns.push(fn); return () => { const i = voiceFns.indexOf(fn); if (i >= 0) voiceFns.splice(i, 1); }; };
   JN.speak = function (text) {
     if (JN.muted || !JN.speakAvailable()) return false;
     try {
       const ss = window.speechSynthesis, u = new SpeechSynthesisUtterance(String(text));
-      if (koVoice) u.voice = koVoice;
+      if (koVoice) u.voice = koVoice;   // 기기 안 음성 (온라인 음성은 고르지 않아요)
       u.lang = (koVoice && koVoice.lang) || "ko-KR"; u.rate = 0.9; u.volume = 1;
       if (ss.speaking || ss.pending) { ss.cancel(); setTimeout(() => { try { ss.speak(u); } catch (e) { /* 무시 */ } }, 60); }
       else ss.speak(u);
