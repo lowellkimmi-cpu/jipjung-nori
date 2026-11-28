@@ -277,7 +277,7 @@
     { id: 'attention', name: '찾기 놀이', power: '끝까지 찾기 · 기다렸다 톡 누르기', color: '#DCA43C', tint: '#F6E6BF', deep: '#74540F', games: ['숫자찾기', '벌찾기', '달라진그림', '달롱건너기'] },
     { id: 'memory', name: '기억 놀이',power: '보고 기억하기 · 순서 기억', color: '#B08EA8', tint: '#EEE0EA', deep: '#654662', games: ['짝꿍카드', '불빛순서', '잎아래'] },
     { id: 'seeing', name: '비교 놀이', power: '그림 비교하기 · 모양 찾기', color: '#8AA6BD', tint: '#E0E9EF', deep: '#3C5D76', games: ['다른그림', '같은모양'] },
-    { id: 'thinking', name: '규칙 놀이',power: '규칙 찾기 · 순서 · 분류', color: '#93AE87', tint: '#E2EBDB', deep: '#466140', games: ['패턴', '퍼즐', '우체통'] },
+    { id: 'thinking', name: '규칙 놀이',power: '규칙 찾기 · 순서 · 분류', color: '#93AE87', tint: '#E2EBDB', deep: '#466140', games: ['패턴', '퍼즐', '우체통', '그림순서'] },
     { id: 'hands', name: '그리기 놀이', power: '그림 그리기 · 선 따라가기', color: '#CC7754', tint: '#F5DFD1', deep: '#8A4127', games: ['반쪽그림', '선긋기미로'] },
     { id: 'words', name: '말 놀이', power: '낱말 · 듣고 따라 하기', color: '#D9A08F', tint: '#F6E3DC', deep: '#874A41', games: ['낱말그림', '문장만들기', '감정표정', '심부름', '이럴땐'] },
     { id: 'body', name: '몸 놀이', power: '몸 움직이기 · 따라 하기 · 숨 고르기', color: '#A2AD58', tint: '#ECEDD0', deep: '#555D20', games: ['몸따라해요', '같이몸놀이'] },
@@ -339,6 +339,10 @@
     우체통: () => P(rr(44, 66, 12, 28, 3), '#F6E6BF', { s: 1.2, lw: 2 }) + P('M14 70 V44 C14 22 32 12 50 12 C68 12 86 22 86 44 V70 Z', C.terracotta, { s: 2.4, hi: [30, 28, 7, 5] }) +
       `<path d="M30 56 H70" ${PEN(3.4, .9)}/>` + P(circ(50, 36, 9), CREAM_W, { s: 1, lw: 2 }) + P('M86 48 V26 H97 V38 H92 V48Z', C.mustard, { s: .8, lw: 1.8 }) +
       P(rr(60, 70, 26, 22, 5), '#E0E9EF', { s: 1.6 }) + `<path d="M73 70 V92 M60 81 H86" ${PEN(2.2, .8)}/>`,
+    // (2026-11-28 새로) 그림 순서 맞추기: 번호 붙은 카드 세 장 (씨앗 → 싹 → 꽃)
+    그림순서: () => P(rr(4, 30, 28, 40, 5), CREAM_W, { tr: 'rotate(-6 18 50)', s: 1.6 }) + P(rr(36, 30, 28, 40, 5), CREAM_W, { s: 1.6 }) + P(rr(68, 30, 28, 40, 5), C.mustard, { tr: 'rotate(6 82 50)', s: 1.8 }) +
+      P(elp(18, 58, 4, 3), C.sand, { s: .6, lw: 1.6 }) + `<path d="M50 62 V50 M50 54 q-6 -2 -7 -6 M50 54 q6 -2 7 -6" ${PEN(2.2, .85)}/>` + P(circ(82, 46, 7), C.rose, { s: .8, lw: 1.6 }) + `<path d="M82 53 V64" ${PEN(2.2, .85)}/>` +
+      T(18, 24, 14, '1') + T(50, 24, 14, '2') + T(82, 24, 14, '3'),
     // (2026-11-27 새로) 달롱 집 심부름: 집 단면 + 상자 + 공
     심부름: () => P(rr(14, 40, 72, 48, 6), '#F6E6BF', { s: 2 }) + P('M8 44 L50 12 L92 44Z', C.terracotta, { s: 2.4, hi: [36, 32, 7, 4] }) +
       P(rr(22, 60, 26, 24, 3), '#E4C796', { s: 1.2, lw: 2 }) + `<path d="M28 68 H42" ${PEN(2.4, .8)}/>` + P(circ(68, 72, 11), C.sage, { s: 1.4, lw: 2, hi: [64, 68, 3, 2] }) +
@@ -367,6 +371,7 @@
     { id: '달롱건너기', name: '달롱 건너기', area: 'attention' },
     { id: '잎아래', name: '잎 아래 어디?', area: 'memory' },
     { id: '우체통', name: '보미 우체통', area: 'thinking' },
+    { id: '그림순서', name: '그림 순서 맞추기', area: 'thinking' },
     { id: '반쪽그림', name: '반쪽 그림', area: 'hands' }, { id: '선긋기미로', name: '선 긋기 미로', area: 'hands' },
     { id: '심부름', name: '달롱 집 심부름', area: 'words' },
     { id: '이럴땐', name: '이럴 땐 어떻게?', area: 'words' },
