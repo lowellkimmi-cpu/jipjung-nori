@@ -328,7 +328,7 @@ window.JN_LANGS.ko = {
   "rec.backup": "기록 백업",
   "rec.export": "기록 내보내기",
   "rec.import": "기록 가져오기",
-  "rec.sharewarn": "실명을 쓰지 말고, 내보낸 파일은 다른 사람과 공유하지 마세요. 파일은 이 기기에 저장돼요.",
+  "rec.sharewarn": "내보내기는 보호자가 직접 해요. 실명을 쓰지 말고, 내보낸 파일은 다른 사람과 공유하지 마세요. 파일은 이 기기에 저장돼요.",
   "rec.clear": "이 아이 기록 지우기",
   "rec.clear.confirm": "{name}의 놀이 기록을 모두 지울까요? 설정은 그대로 둬요.",
   "rec.cleared": "기록을 지웠어요.",

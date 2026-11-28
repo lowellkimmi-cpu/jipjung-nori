@@ -64,8 +64,9 @@
     else fp.appendChild(h("p", { class: "care", text: TXT("rec.firsts.none") }));
     body.appendChild(fp);
 
-    // 그래프
-    const cp = h("div", { class: "panel" }, h("h3", { text: TXT("rec.chart.title", { label: def.chart.label }) }));
+    // 그래프 — chart 정보 없이 등록된 놀이는 기본 이름표(시간, 초)로 그려요 (기획서 v3 9장 확인 과제 4)
+    const cmeta = (def.chart && def.chart.label) ? def.chart : { key: "time", label: TXT("common.time"), unit: TXT("common.unit.sec") };
+    const cp = h("div", { class: "panel" }, h("h3", { text: TXT("rec.chart.title", { label: cmeta.label }) }));
     const stagesWith = def.stages.map((s, i) => ({ s, i })).filter((x) => rounds.some((e) => e.stage === x.s.id));
     const modesWith = Object.keys(CFG.HINT_MODES).filter((m) => rounds.some((e) => e.mode === m));
     if (!stagesWith.length) cp.appendChild(h("p", { class: "care", text: TXT("rec.chart.none") }));
@@ -80,7 +81,7 @@
       ms.value = R.mode; ms.onchange = () => { R.mode = ms.value; render(); };
       cp.appendChild(h("div", { class: "filters" }, ss, ms));
       const pts = rounds.filter((e) => e.stage === R.stage && e.mode === R.mode).slice(-30);
-      cp.appendChild(h("div", { class: "chart", id: "chartBox" }, chart(pts, def.chart)));
+      cp.appendChild(h("div", { class: "chart", id: "chartBox" }, chart(pts, cmeta)));
       cp.appendChild(h("p", { class: "care", text: TXT("rec.chart.note") }));
     }
     body.appendChild(cp);
