@@ -105,7 +105,7 @@
       /* ---- 놀이 상태 ---- */
       let rule = "color", phase = "idle", done = false, tm = 0;
       let streak = 0, sent = 0, switchesDone = 0, retries = 0, hints = 0, wrongRun = 0, stampGot = 0, completed = false, hintShows = 0;
-      let items = [], curItem = null, last = [], hideTm = 0, justSwitched = false, prevRule = "color";
+      let items = [], curItem = null, last = [], hideTm = 0, justSwitched = false, prevRule = "color", sizesSeen = [0, 0];
       const nudge = U.nudge(ctx, () => (phase === "pick" && curItem && !curItem.sent ? boxes[correctSide(curItem)] : null));   // 첫 판: 두 번 틀리거나 가만있으면 손이 알맞은 우체통을 가리켜요
       const curKind = () => (curItem ? curItem.k : [0, 0, 0]);
       const pickAfter = () => lv.after[0] + U.rnd(lv.after[1] - lv.after[0] + 1);
@@ -139,7 +139,12 @@
         let pool = all.filter((k) => !picked.some((q) => key(q) === key(k)) && !(last.length >= 2 && last[0] === last[1] && last[1] === key(k)));   // 같은 소포가 셋 넘게 이어지지 않게
         if (justSwitched && lv.conflict) { const sw = pool.filter((k) => k[RIDX[prevRule]] !== k[RIDX[rule]]); if (sw.length) pool = sw; }   // 규칙이 바뀐 첫 소포는 전 규칙의 답이 틀려요
         if (!pool.length) pool = all;
+        if (sizeRule && sent + picked.length >= Math.floor(lv.parcels / 2) - 1) {   // 한 판 안에 작은 소포·큰 소포가 둘 다 나오게 (반쯤 왔는데 한쪽만 나왔으면 다른 크기로)
+          const miss = sizesSeen[0] ? (sizesSeen[1] ? -1 : 1) : 0;
+          if (miss >= 0) { const sz = pool.filter((q) => q[2] === miss); if (sz.length) pool = sz; }
+        }
         const k = U.pick(pool);
+        if (sizeRule) sizesSeen[k[2]] = 1;
         last = [last[1], key(k)];
         return k;
       }
