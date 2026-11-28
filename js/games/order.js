@@ -4,7 +4,10 @@
    - 그림은 모두 코드로 그린 SVG(새 동물·사람 캐릭터 없음). 소리는 직접 만든 짧은 음(꺼져 있어도 놀 수 있어요).
    - 벌 없음: 다른 카드를 누르면 카드가 살짝 들썩였다가 제자리, "다음 그림은 뭘까?"만. 빨강·흔들림·점수 없음.
    - 이야기를 다 놓으면 놓은 그림이 차례로 넘어가며 '움직이는 그림책'처럼 보여요(재미 장치).
-   - 기록은 이 기기 안에만(끝낸 이야기 수 · 한 번에 놓은 이야기 수). */
+   - 기록은 이 기기 안에만(끝낸 이야기 수 · 한 번에 놓은 이야기 수).
+   - 첫 판 손짓(2026-11-28): 처음 하는 아이가 두 번 막히거나 가만있으면 손 그림이 다음에 놓을 카드를 가리켜요(글자 없음).
+   - 쌓이는 것 '그림책 책장'(보충 기획 3-2): 이야기를 하나 끝낼 때마다 책이 한 권씩 꽂혀요. 정해진 순서 8권, 다 차면 끝.
+     아이별로 이 기기에만 저장(mem.books). 보호자 설정에서 '책장 비우기'로 책 수만 0 으로(놀이 기록은 그대로). */
 "use strict";
 (function () {
   const U = JN.util, h = U.h, shuffle = U.shuffle, T = JN.t;
@@ -95,6 +98,13 @@
     },
   };
   const STORY_IDS = Object.keys(DRAW);
+  const BOOK_MAX = STORY_IDS.length;   // 그림책 책장: 8권 (정해진 순서 = STORY_IDS 순서, 표지는 그 이야기의 마지막 장면)
+  const SHELF_SVG = '<svg viewBox="0 0 60 60" aria-hidden="true"><path class="sh-b" d="M8 50 H52"/><rect class="sh-k" x="12" y="18" width="9" height="32" rx="2"/><rect class="sh-k" x="23" y="12" width="9" height="38" rx="2"/><rect class="sh-k2" x="34" y="20" width="9" height="30" rx="2" transform="rotate(8 38 50)"/></svg>';
+  /** 책 한 권: 테두리 + 표지 그림(이야기 마지막 장면) + 번호. 색만으로 구별하지 않게 번호를 적어요 */
+  const bookSvg = (i) => `<svg viewBox="0 0 100 124" aria-hidden="true"><rect x="4" y="4" width="92" height="116" rx="6" fill="${[K.sage, K.dustyblue, K.terracotta, K.mustard][i % 4]}" ${LN}/>` +
+    `<rect x="12" y="10" width="80" height="80" rx="4" fill="${PAPER}" ${LN}/><g transform="translate(14 12) scale(.76)">${DRAW[STORY_IDS[i % BOOK_MAX]](4)}</g>` +
+    `<text x="52" y="111" text-anchor="middle" font-size="18" font-weight="700" fill="${INK}">${i + 1}</text></svg>`;
+  JN.orderBook = { max: BOOK_MAX, svg: (i) => bookSvg(i) };
   JN.orderArt = { ids: STORY_IDS, svg: (sid, i) => svgOf(sid, i) };   // 그림 모아 보기(시험·캡처)용
   function svgOf(sid, i) { return svgOf_(sid, i); }
   const svgOf_ = (sid, i) => `<svg viewBox="0 0 100 100" aria-hidden="true">${DRAW[sid](i)}</svg>`;
@@ -109,20 +119,32 @@
     id: "그림순서", stages: STAGES, stageLabel: (st) => st.name, desc: T("g.order.desc"),
     hintHelp: { always: T("g.order.hh.always"), button: T("g.order.hh.button"), none: T("g.order.hh.none") },
     parentNote: T("g.order.parentNote"),
+    /* 보호자 설정의 '책장 비우기': 지우는 것은 이 아이의 책 수(mem.books)뿐이에요. 놀이 기록은 그대로 */
+    memReset: { key: "books", max: BOOK_MAX, label: T("g.order.reset.label"), sub: T("g.order.reset.sub"), button: T("g.order.reset.btn"), confirm: T("g.order.reset.confirm"), done: T("g.order.reset.done"), nowKey: "g.order.reset.now" },
     chart: { key: "stories", label: T("g.order.chart"), unit: T("g.order.unit") },
     describe: (e) => T("g.order.describe", { n: e.stories || 0, c: e.clean || 0 }) + (e.hints ? T("g.number.describe.hint", { n: e.hints }) : ""),
     intro: (st) => T(st.intro),
     mount(ctx) {
-      const st = ctx.stage, mode = ctx.settings.hintMode, board = ctx.board;
+      const st = ctx.stage, mode = ctx.settings.hintMode, board = ctx.board, mem = ctx.mem;
       board.classList.add("so-board");
       const title = h("div", { class: "so-title" });
       const slots = h("div", { class: "so-slots", role: "list", "aria-label": T("g.order.slots.aria") });
       const tray = h("div", { class: "so-tray", "aria-label": T("g.order.tray.aria") });
-      board.append(title, slots, tray);
-      const prog = h("span", { class: "qprog" }); ctx.status(prog);
+      const pop = h("span", { class: "so-pop", "aria-hidden": "true" });   // 새 책이 꽂힐 때 잠깐 보이는 책 그림
+      board.append(title, slots, tray, pop);
+      const prog = h("span", { class: "qprog" });
+      /* 그림책 책장 (아래 줄 상태 칸): 책 그림 + n/8 */
+      const booksNow = () => Math.min(BOOK_MAX, mem.books | 0);
+      const shelfTxt = h("span", { class: "so-shelfn" });
+      const shelfIcon = h("i", { class: "sh-i", "aria-hidden": "true", svg: SHELF_SVG });
+      const shelf = h("span", { class: "so-shelf" }, shelfIcon, shelfTxt);
+      const paintShelf = () => { shelfTxt.textContent = booksNow() + "/" + BOOK_MAX; shelf.setAttribute("aria-label", T("g.order.shelf", { n: booksNow(), max: BOOK_MAX })); };
+      paintShelf();
+      ctx.status(h("span", { class: "so-status" }, prog, shelf));
       const order = shuffle(STORY_IDS.slice());
       let sNo = 0, story = null, seq = [], cards = [], placed = 0, busy = true, phase = "idle";
-      let stories = 0, clean = 0, mistakes = 0, hints = 0, storyMiss = 0, hinted = false;
+      let stories = 0, clean = 0, mistakes = 0, hints = 0, storyMiss = 0, hinted = false, bookGot = 0, completed = false;
+      const nudge = U.nudge(ctx, () => (phase === "pick" && !busy ? tray.children[nextIdx()] || null : null));   // 첫 판: 두 번 막히거나 가만있으면 손이 다음 카드를 가리켜요
 
       function layout() {
         const W = board.clientWidth - 24, H = board.clientHeight - 24;
@@ -161,6 +183,7 @@
         for (let g = 0; g < st.given; g++) place(nextIdx(), true);
         busy = false;
         markNext(); layout();
+        nudge.arm();
         ctx.say(T("g.order.say.ask"));
         if (ctx.settings.voice !== false) JN.speak(title.textContent);
       }
@@ -179,22 +202,33 @@
           mistakes++; storyMiss++;
           b.classList.add("odd"); b.disabled = true;
           ctx.say(T("g.order.say.odd"));
+          nudge.wrong();
           return;
         }
         if (cd.f !== seq[placed]) {
           mistakes++; storyMiss++;
           b.classList.add("nope"); busy = true;
           ctx.say(T("g.order.say.miss"));
+          nudge.wrong();
           ctx.later(() => { b.classList.remove("nope"); busy = false; }, TIMING.nopeMs / JN.TIME_SCALE);
           return;
         }
         place(k);
+        nudge.ok();
         markNext();
         if (placed >= seq.length) done();
       }
       function done() {
         busy = true; phase = "flip"; stories++; if (!storyMiss) clean++;
+        nudge.hide();
         ctx.sound("ok"); ctx.say(U.pick(T("g.order.say.ok")));
+        const nb = booksNow();
+        if (nb < BOOK_MAX) {   // 책장에 새 책 한 권 (정해진 순서)
+          mem.books = nb + 1; ctx.saveMem(); bookGot++; if (nb + 1 >= BOOK_MAX) completed = true;
+          paintShelf();
+          pop.innerHTML = bookSvg(nb); pop.classList.add("on"); shelfIcon.classList.add("pop");
+          ctx.later(() => { pop.classList.remove("on"); shelfIcon.classList.remove("pop"); }, Math.max(JN.ms(1100), 40));
+        }
         tray.textContent = "";
         const flip = h("div", { class: "so-flip", "aria-label": T("g.order.flip.aria") });
         tray.appendChild(flip); layout();
@@ -210,16 +244,19 @@
         step();
       }
       function end() {
-        const time = ctx.timer.stop();
+        nudge.stop();
+        const time = ctx.timer.stop(), nb = booksNow();
         ctx.finish({ cleared: clean >= PASS_CLEAN, time, mistakes, hints, metrics: { stories, clean },
-          title: T("g.order.title", { n: stories }), line: T("g.order.line"), bestKey: st.id, bestValue: clean, higherBetter: true });
+          title: T("g.order.title", { n: stories }),
+          line: T("g.order.line") + " " + T(completed ? "g.order.shelf.full" : nb >= BOOK_MAX ? "g.order.shelf.again" : "g.order.shelf.line", { n: nb, max: BOOK_MAX }), bestKey: st.id, bestValue: clean, higherBetter: true });
       }
       ctx.hint(mode === "button", () => { if (busy || hinted || phase !== "pick") return; hinted = true; hints++; markNext(); });
       return {
         start() { ctx.timer.start(); nextStory(); },
         resize: layout,
-        destroy() { busy = true; },
-        test: { state: () => ({ phase, busy, story, sNo, placed, n: seq.length, next: phase === "pick" ? nextIdx() : -1, odd: cards.findIndex((cd) => cd.odd && !cd.used), stories, clean, mistakes, hints, cards: cards.length, seq: seq.join(",") }) },
+        destroy() { busy = true; nudge.stop(); },
+        test: { state: () => ({ phase, busy, story, sNo, placed, n: seq.length, next: phase === "pick" ? nextIdx() : -1, odd: cards.findIndex((cd) => cd.odd && !cd.used), stories, clean, mistakes, hints, cards: cards.length, seq: seq.join(","),
+          books: booksNow(), bookGot, completed, nudgeShown: nudge.shown(), nudgeVisible: nudge.visible() }) },
       };
     },
   });

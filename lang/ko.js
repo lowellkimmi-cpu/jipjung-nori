@@ -963,6 +963,16 @@ window.JN_LANGS.ko = {
   "g.order.describe": "이야기 {n}개 · 한 번에 놓은 이야기 {c}개",
   "g.order.title": "이야기 {n}개를 놓았어요!",
   "g.order.line": "그림을 차례대로 살펴봤어요.",
+  "g.order.shelf": "그림책 책장 {n} / {max}",
+  "g.order.shelf.line": "그림책 책장에 책이 {n}권 꽂혀 있어요.",
+  "g.order.shelf.full": "책 {n}권이 모두 꽂혔어요! 그림책 책장이 가득 찼어요.",
+  "g.order.shelf.again": "그림책 책장은 이미 가득해요. 이야기를 또 놓았어요.",
+  "g.order.reset.label": "그림책 책장 비우기",
+  "g.order.reset.sub": "책장 속 책만 처음으로 돌려요. 놀이 기록은 그대로 남아요.",
+  "g.order.reset.btn": "책장 비우기",
+  "g.order.reset.confirm": "그림책 책장을 비울까요? 꽂힌 책이 모두 사라져요. 놀이 기록은 지워지지 않아요.",
+  "g.order.reset.done": "책장을 비웠어요. 지금 책 0권이에요.",
+  "g.order.reset.now": "지금 책장: {n} / {max}",
 
   /* ===== 사라진 물건 찾기 (기억 놀이 방, 2026-11-28) ===== */
   "game.사라진물건.name": "사라진 물건 찾기",
@@ -1002,6 +1012,16 @@ window.JN_LANGS.ko = {
   "g.gone.describe": "찾은 물건 {n}개 · 한 번에 찾은 판 {c}번",
   "g.gone.title": "물건 {n}개를 찾았어요!",
   "g.gone.line": "돗자리 위 물건을 잘 기억했어요.",
+  "g.gone.bag": "조약돌 주머니 {n} / {max}",
+  "g.gone.bag.line": "조약돌 주머니에 조약돌이 {n}개 들어 있어요.",
+  "g.gone.bag.full": "조약돌 {n}개가 모두 모였어요! 주머니가 가득 찼어요.",
+  "g.gone.bag.again": "조약돌 주머니는 이미 가득해요. 물건을 또 찾았어요.",
+  "g.gone.reset.label": "조약돌 주머니 비우기",
+  "g.gone.reset.sub": "주머니 속 조약돌만 처음으로 돌려요. 놀이 기록은 그대로 남아요.",
+  "g.gone.reset.btn": "주머니 비우기",
+  "g.gone.reset.confirm": "조약돌 주머니를 비울까요? 모은 조약돌이 모두 사라져요. 놀이 기록은 지워지지 않아요.",
+  "g.gone.reset.done": "주머니를 비웠어요. 지금 조약돌 0개예요.",
+  "g.gone.reset.now": "지금 주머니: {n} / {max}",
 
   /* ===== 보미 우체통 (생각·추리 방) ===== */
   "game.우체통.name": "보미 우체통",

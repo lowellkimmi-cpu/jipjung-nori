@@ -4,7 +4,10 @@
    - 단계마다 새 규칙 하나: 물건 3개 → 4개 → 자리가 바뀌어요 → 비슷한 물건이 섞여요 → 두 개가 사라져요 → 모두 함께.
    - 벌 없음: 다른 카드를 누르면 그 카드만 살짝 흐려지고 "다시 생각해 볼까?". 두 번 막히면 처음 모습을 잠깐 다시 보여 줘요.
    - 찾으면 그 물건이 제자리로 폴짝 돌아와요(재미 장치). 움직임 줄이기 설정이면 그냥 나타나요.
-   - 기록은 이 기기 안에만(찾은 물건 수 · 한 번에 찾은 판 수). */
+   - 기록은 이 기기 안에만(찾은 물건 수 · 한 번에 찾은 판 수).
+   - 첫 판 손짓: 처음 하는 아이가 두 번 막히거나 가만있으면 손 그림이 사라진 물건 카드를 가리켜요(글자 없음).
+   - 쌓이는 것 '조약돌 주머니'(보충 기획 3-2, 2026-11-28): 사라진 물건을 다 찾을 때마다 반짝 조약돌이 하나씩 주머니에 들어가요.
+     정해진 순서 12개(번호·무늬가 정해져 있음), 다 차면 끝. 아이별로 이 기기에만 저장(mem.pebbles). 보호자 설정에서 '주머니 비우기'. */
 "use strict";
 (function () {
   const U = JN.util, h = U.h, shuffle = U.shuffle, T = JN.t;
@@ -21,6 +24,22 @@
   const TIMING = { lookBase: 2600, lookPer: 600, coverMs: 650, holdMs: 450, nopeMs: 480, peekMs: 1400, backMs: 520, afterMs: 900 };
   const POOL = [].concat(Art.FRUITS.map((k) => ({ t: "fruit", k })), Art.ANIMALS.map((k) => ({ t: "animal", k })), Art.VEHICLES.map((k) => ({ t: "vehicle", k })));
   const ALT_COLOR = [K.honey, K.lilac, K.mint, K.apricot, K.sky, K.pink];
+  const PEB_MAX = 12;
+  /* 조약돌 12개 (정해진 순서): 모양 4가지 × 무늬 3가지 + 번호. 색만으로 구별하지 않게 번호를 적어요 */
+  const PEB_SHAPES = ["M30 8 C46 8 54 20 52 34 C50 48 40 54 28 52 C14 50 6 40 8 26 C10 14 18 8 30 8Z",
+    "M14 14 C24 4 44 6 52 18 C58 30 52 48 36 52 C20 56 6 46 6 32 C6 24 8 18 14 14Z",
+    "M30 6 C40 6 50 14 52 26 C54 40 46 52 30 54 C16 54 8 44 8 30 C8 16 18 6 30 6Z",
+    "M10 24 C12 12 26 6 38 8 C50 10 56 22 52 36 C48 50 34 54 22 50 C10 46 8 34 10 24Z"];
+  const pebbleSvg = (i) => {
+    const d = PEB_SHAPES[i % 4], f = [K.sage, K.dustyblue, K.terracotta][Math.floor(i / 4) % 3];
+    const deco = i % 3 === 0 ? `<path d="M18 22 C24 18 34 18 40 22" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/>`
+      : i % 3 === 1 ? `<circle cx="20" cy="20" r="3.5" fill="#fff" opacity=".75"/><circle cx="27" cy="16" r="2" fill="#fff" opacity=".75"/>`
+      : `<path d="M16 24 L20 18 L24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>`;
+    return `<svg viewBox="0 0 60 60" aria-hidden="true"><path d="${d}" fill="${f}" stroke="${INK}" stroke-width="2.4" stroke-linejoin="round"/>${deco}` +
+      `<text x="31" y="42" text-anchor="middle" font-size="17" font-weight="700" fill="${INK}">${i + 1}</text></svg>`;
+  };
+  JN.gonePebble = { max: PEB_MAX, svg: (i) => pebbleSvg(i) };
+  const BAG_SVG = '<svg viewBox="0 0 60 60" aria-hidden="true"><path class="bg-b" d="M16 22 C10 32 10 50 30 52 C50 50 50 32 44 22 Z"/><path class="bg-t" d="M18 22 C24 16 36 16 42 22 M22 14 C26 18 34 18 38 14"/></svg>';
   const draw = (it) => Art[it.t](it.k, it.o || {});
   const keyOf = (it) => it.t + ":" + it.k + (it.o ? JSON.stringify(it.o) : "");
   const nameOf = (it) => it.k;
@@ -39,11 +58,13 @@
     id: "사라진물건", stages: STAGES, stageLabel: (st) => st.name, desc: T("g.gone.desc"),
     hintHelp: { always: T("g.gone.hh.always"), button: T("g.gone.hh.button"), none: T("g.gone.hh.none") },
     parentNote: T("g.gone.parentNote"),
+    /* 보호자 설정의 '주머니 비우기': 지우는 것은 이 아이의 조약돌 수(mem.pebbles)뿐이에요. 놀이 기록은 그대로 */
+    memReset: { key: "pebbles", max: PEB_MAX, label: T("g.gone.reset.label"), sub: T("g.gone.reset.sub"), button: T("g.gone.reset.btn"), confirm: T("g.gone.reset.confirm"), done: T("g.gone.reset.done"), nowKey: "g.gone.reset.now" },
     chart: { key: "found", label: T("g.gone.chart"), unit: T("g.gone.unit") },
     describe: (e) => T("g.gone.describe", { n: e.found || 0, c: e.clean || 0 }) + (e.hints ? T("g.number.describe.hint", { n: e.hints }) : ""),
     intro: (st) => T(st.intro),
     mount(ctx) {
-      const st = ctx.stage, mode = ctx.settings.hintMode, board = ctx.board;
+      const st = ctx.stage, mode = ctx.settings.hintMode, board = ctx.board, mem = ctx.mem;
       board.classList.add("gn-board");
       const mat = h("div", { class: "gn-mat", role: "list", "aria-label": T("g.gone.mat.aria") });
       const cover = h("div", { class: "gn-cover", "aria-hidden": "true", svg: COVER_SVG });
@@ -53,11 +74,20 @@
       ready.hidden = true; picks.hidden = true;   // '준비~' 안내가 끝나고 판이 시작되면 보여요
       mat.appendChild(cover);
       side.append(ready, picks);
-      board.append(mat, side);
-      const prog = h("span", { class: "qprog" }); ctx.status(prog);
+      const pop = h("span", { class: "gn-pop", "aria-hidden": "true" });   // 새 조약돌이 들어갈 때 잠깐 보이는 그림
+      board.append(mat, side, pop);
+      const prog = h("span", { class: "qprog" });
+      /* 조약돌 주머니 (아래 줄 상태 칸): 주머니 그림 + n/12 */
+      const pebNow = () => Math.min(PEB_MAX, mem.pebbles | 0);
+      const bagTxt = h("span", { class: "gn-bagn" });
+      const bagIcon = h("i", { class: "bg-i", "aria-hidden": "true", svg: BAG_SVG });
+      const bag = h("span", { class: "gn-bag" }, bagIcon, bagTxt);
+      const paintBag = () => { bagTxt.textContent = pebNow() + "/" + PEB_MAX; bag.setAttribute("aria-label", T("g.gone.bag", { n: pebNow(), max: PEB_MAX })); };
+      paintBag();
+      ctx.status(h("span", { class: "gn-status" }, prog, bag));
       const reduced = () => { try { return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); } catch (e) { return false; } };
       let round = 0, phase = "idle", busy = true, items = [], spots = [], gone = [], choices = [], foundNow = 0, roundMiss = 0, peeked = false, hinted = false;
-      let found = 0, clean = 0, mistakes = 0, hints = 0, peeks = 0, backs = 0;
+      let found = 0, clean = 0, mistakes = 0, hints = 0, peeks = 0, backs = 0, pebGot = 0, completed = false;
       const nudge = U.nudge(ctx, () => (phase === "pick" ? picks.children[answerIdx()] || null : null));
 
       function layout() {
@@ -206,15 +236,23 @@
         phase = "after"; busy = true; nudge.stop();
         if (!roundMiss) clean++;
         ctx.sound("ok");
+        const np = pebNow();
+        if (np < PEB_MAX) {   // 주머니에 조약돌 하나 (정해진 순서)
+          mem.pebbles = np + 1; ctx.saveMem(); pebGot++; if (np + 1 >= PEB_MAX) completed = true;
+          paintBag();
+          pop.innerHTML = pebbleSvg(np); pop.classList.add("on"); bagIcon.classList.add("pop");
+          ctx.later(() => { pop.classList.remove("on"); bagIcon.classList.remove("pop"); }, Math.max(JN.ms(Math.min(1000, TIMING.afterMs)), 40));
+        }
         const last = choices.filter((c) => c.ok).map((c) => nameOf(c.it));
         ctx.say(last.length > 1 ? U.pick(T("g.gone.say.ok")) : U.josa(last[0], "이/가") + " " + T("g.gone.say.back"));
         ctx.later(nextRound, TIMING.afterMs / JN.TIME_SCALE);
       }
       function end() {
         phase = "done"; nudge.stop();
-        const time = ctx.timer.stop();
+        const time = ctx.timer.stop(), np = pebNow();
         ctx.finish({ cleared: clean >= PASS_CLEAN, time, mistakes, hints, metrics: { found, clean },
-          title: T("g.gone.title", { n: found }), line: T("g.gone.line"), bestKey: st.id, bestValue: clean, higherBetter: true });
+          title: T("g.gone.title", { n: found }),
+          line: T("g.gone.line") + " " + T(completed ? "g.gone.bag.full" : np >= PEB_MAX ? "g.gone.bag.again" : "g.gone.bag.line", { n: np, max: PEB_MAX }), bestKey: st.id, bestValue: clean, higherBetter: true });
       }
       ready.addEventListener("click", () => { if (phase === "look") { ready.disabled = true; hide(); } });
       ctx.hint(mode === "button", () => { if (busy || hinted || phase !== "pick") return; peek(true); });
@@ -224,7 +262,8 @@
         destroy() { busy = true; phase = "done"; nudge.stop(); },
         test: { state: () => ({ phase, busy, round, n: items.length, gone: gone.slice(), goneNames: gone.map((i) => nameOf(items[i])), answer: phase === "pick" ? answerIdx() : -1,
           choices: choices.map((c) => ({ k: nameOf(c.it), ok: !!c.ok, kind: c.kind || "gone", got: !!c.got, no: !!c.no })), items: items.map(keyOf),
-          found, clean, mistakes, hints, peeks, backs, foundNow, nudgeShown: nudge.shown(), mode }) },
+          found, clean, mistakes, hints, peeks, backs, foundNow, nudgeShown: nudge.shown(), nudgeVisible: nudge.visible(), mode,
+          pebbles: pebNow(), pebGot, completed }) },
       };
     },
   });

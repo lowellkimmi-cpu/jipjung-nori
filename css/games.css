@@ -169,7 +169,23 @@
 .so-card.nope { transform: translateY(-8px); }
 .so-card.next::after { content: ""; position: absolute; inset: 3px; border: 3px dashed var(--c-olive-deep); border-radius: 10px; pointer-events: none; }
 .so-flip { flex: none; padding: 10px; --paper-bg: var(--c-mustard-tint); filter: var(--sh-paper-down); }
-@media (prefers-reduced-motion: reduce) { .so-card, .so-slot { transition: none; } .so-card.nope { transform: none; opacity: .6; } }
+/* 그림책 책장 · 조약돌 주머니 (아래 줄 상태 칸 + 새로 생길 때 잠깐 보이는 그림) */
+.so-status, .gn-status { display: inline-flex; align-items: center; gap: 10px; }
+.so-shelf, .gn-bag { display: inline-flex; align-items: center; gap: 4px; font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
+.so-shelf .sh-i, .gn-bag .bg-i { width: 28px; height: 28px; display: inline-block; transition: transform .5s ease-out; }
+.so-shelf .sh-i.pop, .gn-bag .bg-i.pop { transform: scale(1.18); }
+.so-shelf .sh-i svg, .gn-bag .bg-i svg { width: 100%; height: 100%; display: block; }
+.so-shelf .sh-b, .gn-bag .bg-t { fill: none; stroke: var(--c-pencil); stroke-width: 2.4; stroke-linecap: round; }
+.so-shelf .sh-k { fill: var(--c-sage-tint); stroke: var(--c-pencil); stroke-width: 2.2; }
+.so-shelf .sh-k2 { fill: var(--c-terracotta-tint); stroke: var(--c-pencil); stroke-width: 2.2; }
+.gn-bag .bg-b { fill: var(--c-mustard-tint); stroke: var(--c-pencil); stroke-width: 2.4; stroke-linejoin: round; }
+.so-pop, .gn-pop { position: absolute; right: 3%; top: 3%; width: clamp(56px, 16vmin, 96px); pointer-events: none; opacity: 0; transform: scale(.6); transition: opacity .3s ease-out, transform .3s ease-out; z-index: 4; }
+.so-pop { aspect-ratio: 100 / 124; }
+.gn-pop { aspect-ratio: 1; }
+.so-pop.on, .gn-pop.on { opacity: 1; transform: scale(1); }
+.so-pop svg, .gn-pop svg { width: 100%; height: 100%; display: block; }
+@media (prefers-reduced-motion: reduce) { .so-card, .so-slot { transition: none; } .so-card.nope { transform: none; opacity: .6; }
+  .so-pop, .gn-pop, .so-shelf .sh-i, .gn-bag .bg-i { transition: none; } }
 
 /* 사라진 물건 찾기 (기억 놀이 방, 2026-11-28): 돗자리 위 물건 → 잎이 덮었다 걷힘 → 사라진 것 고르기 */
 .gn-board { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 12px; }
