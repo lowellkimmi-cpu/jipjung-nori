@@ -464,20 +464,21 @@
     const an = $("autoNext"), sg = $("suggest"), ad = $("allDone"), ag = $("againBox");
     an.hidden = true; sg.hidden = true; ad.hidden = true; ag.hidden = true; $("nextRow").hidden = true;
     an.classList.remove("run");
+    A.praiseAt = performance.now();   // 칭찬 화면이 열린 때: 마지막 손가락 탭이 늦게 보내는 click 을 막는 데 써요
     $("praise").hidden = false;
     if (o.allDone) {
       $("praiseTitle").textContent = T("praise.all.title");
       ad.hidden = false;
-      $("allAgain").onclick = () => { gameState(A.data, A.gameId).stage = 0; saveData(); afterPraise(); };
-      $("allSame").onclick = () => afterPraise();
-      $("allRoom").onclick = () => { stopRound(); openRoom(A.room); };
+      $("allAgain").onclick = () => { if (!praiseReady()) return; gameState(A.data, A.gameId).stage = 0; saveData(); afterPraise(); };
+      $("allSame").onclick = () => { if (praiseReady()) afterPraise(); };
+      $("allRoom").onclick = () => { if (!praiseReady()) return; stopRound(); openRoom(A.room); };
       return;
     }
     if (o.suggestIdx >= 0) {
       $("suggestText").textContent = T("praise.suggest.text", { name: subj(OWL), n: o.suggestIdx + 1 });
       $("suggestYes").textContent = T("praise.suggest.yes", { n: o.suggestIdx + 1 });
-      $("suggestYes").onclick = () => { gameState(A.data, A.gameId).stage = o.suggestIdx; saveData(); afterPraise(); };
-      $("suggestNo").onclick = () => afterPraise();
+      $("suggestYes").onclick = () => { if (!praiseReady()) return; gameState(A.data, A.gameId).stage = o.suggestIdx; saveData(); afterPraise(); };
+      $("suggestNo").onclick = () => { if (praiseReady()) afterPraise(); };
       sg.hidden = false;
       return;
     }
@@ -493,11 +494,15 @@
   }
   /* 몸놀이 "한 번 더 할까요?" 단추: U.tap 으로 달아서, 손가락으로 '했어요'를 누른 뒤 브라우저가 늦게 보내는 click 이
      같은 자리에 나타난 이 단추(특히 '그만할래요')를 누르지 않게 해요 (0.6초 안의 click 은 무시) */
-  const againOpen = () => !$("praise").hidden && !$("againBox").hidden;
+  /* 칭찬 화면 단추는 열리고 CFG.PRAISE_TAP_GUARD_MS(진짜 시간) 동안 눌리지 않아요.
+     놀이 마지막 탭(pointerdown 으로 판이 끝남) 뒤에 브라우저가 같은 자리로 보내는 click 이
+     그 자리에 막 나타난 '다른 놀이'·'쉬기' 단추를 눌러 버리지 않게 해요 (아이가 모르는 사이 홈·쉬는 화면으로 가던 문제) */
+  const praiseReady = () => performance.now() - (A.praiseAt || 0) >= CFG.PRAISE_TAP_GUARD_MS;
+  const againOpen = () => !$("praise").hidden && !$("againBox").hidden && praiseReady();
   U.tap($("againYes"), () => { if (againOpen()) afterPraise(); });
   U.tap($("againNo"), () => { if (!againOpen()) return; $("praise").hidden = true; stopRound(); openRoom(A.room); });
   /* 칭찬 화면의 '한 번 더 / 다른 놀이 / 쉬기' (저절로 넘어가기를 기다리지 않고 바로) */
-  const nextOpen = () => !$("praise").hidden && !$("nextRow").hidden;
+  const nextOpen = () => !$("praise").hidden && !$("nextRow").hidden && praiseReady();
   U.tap($("nextAgain"), () => { if (nextOpen()) afterPraise(); });
   U.tap($("nextOther"), () => { if (!nextOpen()) return; $("praise").hidden = true; stopRound(); renderHome(); });
   U.tap($("nextRest"), () => { if (!nextOpen()) return; $("praise").hidden = true; stopRound(); showRest(); });
