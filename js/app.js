@@ -28,6 +28,7 @@
   function show(id) {
     for (const s of SCREENS) $(s).classList.toggle("on", s === id);
     A.screen = id;
+    if (id !== "scr-who") armBackGuard();   // 앞 화면으로 들어갈 때 '뒤로가기 가드'를 쌓아요(아래 설명)
     if (id !== "scr-play") JN.bgm.stop();
     window.scrollTo(0, 0);
     paintUpdateBtn();
@@ -972,13 +973,32 @@
       default: return false;
     }
   }
+  /* 안드로이드 크롬은 '사람이 누르지 않은 채로' 기록을 쌓은 화면을 뒤로가기 때 건너뛰어요(기록 조작 방지 규칙).
+     예전에는 앱을 열자마자, 그리고 뒤로가기를 받을 때마다 손길 없이 가드를 쌓아서, 놀이에서 뒤로가기를 누르면
+     가드를 건너뛰고 앱이 그냥 닫혔어요(2026-11-28 사용자 제보).
+     이제는 화면을 누르는 그 순간에만 '건너뛰지 않는' 가드를 쌓아요. 뒤로가기를 받은 직후에도 일단 하나 쌓고(혹시 모를 때를 위해),
+     다음에 화면을 누를 때 하나 더 쌓아 그 자리를 단단하게 해요. */
+  var guardOn = false, needFresh = false;   // var: 맨 처음 화면을 그릴 때(이 줄보다 먼저) 불려도 괜찮게
+  function pressedNow() {
+    const ua = navigator.userActivation;
+    return !ua || ua.isActive;   // 이 기능이 없는 브라우저(옛 사파리 등)는 예전처럼 바로 쌓아요
+  }
+  function pushGuard() { try { history.pushState({ jn: "guard" }, ""); } catch (e) { /* 기록을 못 쓰는 브라우저면 원래대로 */ } }
+  function armBackGuard() {
+    if (!pressedNow()) return;
+    if (!guardOn) { pushGuard(); guardOn = true; needFresh = false; }
+    else if (needFresh) { pushGuard(); needFresh = false; }
+  }
+  A.armBackGuard = armBackGuard;
   try {
     history.replaceState({ jn: "base" }, "");
-    history.pushState({ jn: "guard" }, "");
     window.addEventListener("popstate", () => {
-      if (backOneStep()) history.pushState({ jn: "guard" }, "");
-      else history.back();
+      guardOn = false;
+      if (backOneStep() || A.screen !== "scr-who") { pushGuard(); guardOn = true; needFresh = true; }   // 첫 화면이 아니면 앱을 닫지 않아요
+      else history.back();   // 첫 화면(누가 놀까요)에서는 원래대로 나가요
     });
+    ["pointerup", "touchend", "click", "keydown"].forEach((t) =>
+      window.addEventListener(t, (e) => { if (e.isTrusted && A.screen !== "scr-who") armBackGuard(); }, true));
   } catch (e) { /* 기록을 못 쓰는 브라우저면 원래대로 */ }
   document.addEventListener("contextmenu", (e) => { if (!e.target.closest("input,textarea")) e.preventDefault(); });
   let rz = 0;
